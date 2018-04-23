@@ -71,8 +71,12 @@ class OpenAPI3():
             if schema_dict.get('type') == 'array':
                 return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + get_type(schema_dict['items'], depth + 1)
             # TODO OBJECTS
-            # TODO FORMAT
-            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
+            # KeyError if schema doesn't have 'type' attribute
+            _format = schema_dict.get('format')
+            if _format is not None:
+                s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][_format]
+            else:
+                s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
             for _ in range(depth):
                 s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
             return s
@@ -373,18 +377,13 @@ def get_dep_by_attr(attribute_dikt):
 class Property:
     def __init__(self, name, property_obj, required_list):
         self.name = name
-        self.type = get_type(property_obj, 0)
+        self.type = get_type(property_obj)
         self.is_required = is_required(name, required_list)
         # returns None if no enums associated with property, otherwise return a list
         self.enums = property_obj.get('enum')
 
 
-class Enum:
-    def __init__(self, attributes):
-        self.attributes = attributes
-
-
-def get_type(schema_obj, depth):
+def get_type(schema_obj, depth=0):
     if '$ref' in schema_obj:
         s = schema_obj['$ref'].split('/')[3]
         for x in range(depth):

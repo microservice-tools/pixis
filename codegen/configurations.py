@@ -17,7 +17,9 @@ TEMPLATE_CONTEXT = {}
 
 JAVASCRIPT_TYPE_MAPPING = {
     'integer': 'number',
+    'int32': 'number',
     'long': 'number',
+    'int64': 'number',
     'float': 'number',
     'double': 'number',
     'string': 'string',
@@ -27,7 +29,7 @@ JAVASCRIPT_TYPE_MAPPING = {
     'date': 'string',
     'date-time': 'Date',
     'password': 'string',
-    'object': 'any',
+    'object': 'any',  # TODO
     'array': 'Array',
     '<': '<',
     '>': '>',
@@ -35,17 +37,21 @@ JAVASCRIPT_TYPE_MAPPING = {
 
 PYTHON_TYPE_MAPPING = {
     'integer': 'int',
+    'int32': 'int',
     'long': 'int',
+    'int64': 'int',
     'float': 'float',
     'double': 'float',
     'string': 'str',
-    'byte': 'ByteArray',
-    'binary': 'Binary',
+    # 'byte': 'ByteArray',
+    'byte': 'str',
+    'binary': 'str',
+    # 'binary': 'Binary',
     'boolean': 'bool',
     'date': 'date',
     'date-time': 'datetime',
     'password': 'str',
-    'object': 'object',
+    'object': 'object',  # TODO
     'array': 'List',
     '<': '[',
     '>': ']',
