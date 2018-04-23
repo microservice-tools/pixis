@@ -4,9 +4,6 @@ import codegen.configurations as cfg
 
 
 class OpenAPI3():
-    def __init__(self):
-        pass
-
     def get_reference(self, dikt):
         if '$ref' not in dikt:
             return dikt
@@ -69,6 +66,23 @@ class OpenAPI3():
             if ref is not None:
                 s = ref.split('/')[3]
                 for _ in range(depth):
+                    s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+                return s
+            if schema_dict.get('type') == 'array':
+                return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + get_type(schema_dict['items'], depth + 1)
+            # TODO OBJECTS
+            # TODO FORMAT
+            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
+            for _ in range(depth):
+                s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+            return s
+
+        """
+        def get_type(schema_dict, depth=0):
+            ref = schema_dict.get('$ref')
+            if ref is not None:
+                s = ref.split('/')[3]
+                for _ in range(depth):
                     s += '>'
                 return s
             if schema_dict.get('type') == 'array':
@@ -79,6 +93,7 @@ class OpenAPI3():
             for _ in range(depth):
                 s += '>'
             return s
+        """
 
         return get_type(schema_dict)
 

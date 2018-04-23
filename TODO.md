@@ -1,5 +1,10 @@
 # TODO
 
+## Code cleanup
+- pep8 conventions
+- can trim classes a little bit
+- finish language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
+
 ## Security
 - https
 - authentification schemes (OAUTH2)

@@ -27,7 +27,10 @@ JAVASCRIPT_TYPE_MAPPING = {
     'date': 'string',
     'date-time': 'Date',
     'password': 'string',
-    'object': 'any'
+    'object': 'any',
+    'array': 'Array',
+    '<': '<',
+    '>': '>',
 }
 
 PYTHON_TYPE_MAPPING = {
@@ -42,7 +45,10 @@ PYTHON_TYPE_MAPPING = {
     'date': 'date',
     'date-time': 'datetime',
     'password': 'str',
-    'object': 'object'
+    'object': 'object',
+    'array': 'List',
+    '<': '[',
+    '>': ']',
 }
 
 TYPE_MAPPINGS = {
