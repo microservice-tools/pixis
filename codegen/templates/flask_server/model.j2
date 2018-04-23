@@ -3,78 +3,57 @@ from datetime import date, datetime
 from typing import List, Dict
 
 {# dependencies #}
-{% for file_name, class_name in dependencies.items() %}
-from {{cfg.FLASK_SERVER_NAME}}.models.{{file_name}} import {{class_name}}
+{% for file_name in schemas[_current_schema].dependencies %}
+from {{cfg.FLASK_SERVER_NAME}}.models.{{file_name}} import {{file_name | capitalize}}
 {% endfor %}
 from {{cfg.FLASK_SERVER_NAME}}.models.base_model import Model
 from {{cfg.FLASK_SERVER_NAME}} import util
 
 
 {# classes template #}
-class {{name}}(Model):
-    def __init__(self,{% for property_name, property in properties.items() %} {{property_name}}: {{property['type']}}=None{%if not loop.last %},{% endif %}{% endfor %}):
+class {{_current_schema}}(Model):
+    def __init__(self,{% for property in schemas[_current_schema].properties %} {{property.name}}: {{property.type}}=None{%if not loop.last %},{% endif %}{% endfor %}):
         self.swagger_types = {
-        {% for property_name, property in properties.items() %}
-            '{{property_name}}': {{property['type']}}{%if not loop.last %},{% endif %}
+        {% for property in schemas[_current_schema].properties %}
+            '{{property.name}}': {{property.type}}{%if not loop.last %},{% endif %}
 
         {% endfor %}
         }
 
             self.attribute_map = {
-            {% for property_name, property in properties.items() %}
-                '{{property_name}}': {{property_name}}{%if not loop.last %},{% endif %}
+            {% for property in schemas[_current_schema].properties %}
+                '{{property.name}}': {{property.name}}{%if not loop.last %},{% endif %}
 
             {% endfor %}
         }
 
-        {% for property_name, property in properties.items() %}
-        self._{{property_name}} = {{property_name}}
+        {% for property in schemas[_current_schema].properties %}
+        self._{{property.name}} = {{property.name}}
         {% endfor %}
 
     @classmethod
-    def from_dict(cls, dikt) -> '{{name}}':
+    def from_dict(cls, dikt) -> '{{_current_schema}}':
         return util.deserialize_model(dikt, cls)
 
-    {% for property_name, property in properties.items() %}
+    {% for property in schemas[_current_schema].properties %}
     @property
-    def {{property_name}}(self) -> '{{property['type']}}':
-        return self._{{property_name}}
+    def {{property.name}}(self) -> '{{property.type}}':
+        return self._{{property.name}}
 
-    @{{property_name}}.setter
-    def {{property_name}}(self, {{property_name}}: {{property['type']}}):
+    @{{property.name}}.setter
+    def {{property.name}}(self, {{property.name}}: {{property.type}}):
 
-       {% if property_name in enums %}
-       allowed_values = [{% for enumValue in enums[property_name] %}"{{enumValue}}"{% if not loop.last %}, {% endif %}{% endfor %}]
-        if {{property_name}} not in allowed_values:
+       {% if property.enums %}
+       allowed_values = [{% for enum in property.enums %}"{{enum}}"{% if not loop.last %}, {% endif %}{% endfor %}]
+        if {{property.name}} not in allowed_values:
             raise ValueError(
-                "Invalid value for `{{property_name}}` ({0}), must be one of {1}"
-                .format({{property_name}}, allowed_values)
+                "Invalid value for `{{property.name}}` ({0}), must be one of {1}"
+                .format({{property.name}}, allowed_values)
             )
        {% endif %}
 
-        self._{{property_name}} = {{property_name}}
+        self._{{property.name}} = {{property.name}}
     {% if not loop.last %}
 
     {% endif %}
     {% endfor %}
-
-
-
-
-    @status6.setter
-    def status6(self, status6: datetime):
-        """Sets the status6 of this Pet.
-
-        pet status in the store  # noqa: E501
-
-        :param status6: The status6 of this Pet.
-        :type status6: datetime
-        """
-        allowed_values = ["available", "pending", "sold"]  # noqa: E501
-        if status6 not in allowed_values:
-            raise ValueError(
-                "Invalid value for `status6` ({0}), must be one of {1}"
-                .format(status6, allowed_values)
-            )
-
-        self._status6 = status6

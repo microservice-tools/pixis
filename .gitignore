@@ -1,6 +1,7 @@
 .vscode
 __pycache__
 codegen-env
+venv
 .idea
 models
 spec_tree.json

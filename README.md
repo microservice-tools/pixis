@@ -113,7 +113,7 @@ A build file is necessary to tell Codegen to generate TypeScript client code ins
 ---
 
 # Specification File
-Specification file follows the OpenAPI 3.0 Specification guidelines in compliance with RESTful API:
+Specification file according to OpenAPI 3.0 Specification guidelines
 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
 
 # Configuration File

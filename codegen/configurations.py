@@ -1,6 +1,9 @@
 import sys
 import os
+import re
 import importlib.util
+
+EXT_REGEX = re.compile('x-.*')
 
 # DEFAULT VALUES
 BUILD = None
@@ -10,10 +13,9 @@ SPEC = 'swagger.yaml'
 SPEC_FILE_PATH = os.getcwd() + os.path.sep + SPEC
 
 SPEC_DICT = None
-SPECIFICATION = None
+SPEC_OBJ = None
 
-TEMPLATE_VARIABLES = {}
-
+TEMPLATE_CONTEXT = {}
 
 
 # user defined templates (on their file system)
@@ -28,6 +30,7 @@ FLASK_SERVER_OUTPUT = FLASK_PROJECT_OUTPUT + os.path.sep + FLASK_SERVER_NAME
 
 TYPESCRIPT_PROJECT_NAME = 'services'
 TYPESCRIPT_PROJECT_OUTPUT = os.getcwd() + os.path.sep + TYPESCRIPT_PROJECT_NAME
+
 
 def load_build_file(filename):
     # update defaults to reflect user's build file

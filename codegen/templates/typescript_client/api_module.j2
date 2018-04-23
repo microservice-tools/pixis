@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Configuration } from './configuration';
 
-{% for tag in tags %}
+{% for tag, _ in paths.items() %}
 import {{ "{" }} {{ tag | capitalize}}Service {{ "}" }} from './api/{{tag}}.service';
 {% endfor %}
 
@@ -13,7 +13,7 @@ import {{ "{" }} {{ tag | capitalize}}Service {{ "}" }} from './api/{{tag}}.serv
   declarations: [],
   exports:      [],
   providers: [
-  {% for tag in tags %}
+  {% for tag, _ in paths.items() %}
     {{ tag | capitalize}}Service{%if not loop.last %},
   {% endif %}
   {% endfor %} ]
@@ -33,4 +33,4 @@ export class ApiModule {
     }
 }
 
-export const APIS = [{% for tag in tags %}{{ tag | capitalize}}Service{%if not loop.last %}, {% endif %}{% endfor %}]
+export const APIS = [{% for tag, _ in paths.items() %}{{ tag | capitalize}}Service{%if not loop.last %}, {% endif %}{% endfor %}]

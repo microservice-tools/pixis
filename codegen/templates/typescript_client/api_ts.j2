@@ -1,4 +1,4 @@
-{% for tag in tags %}
+{% for tag, _ in paths.items() %}
 export * from './{{tag}}.service';
 import {{ "{" }} {{ tag | capitalize}}Service {{ "}" }} from './{{tag}}.service';
 {% endfor %}

@@ -1,26 +1,29 @@
 {# dependencies #}
-{% for file_name, class_name in dependencies.items() %}
-import {{ "{" }} {{ class_name | capitalize}} {{ "}" }} from './{{file_name}}';
+{% for file_name in schemas[_current_schema].dependencies %}
+import { {{ file_name | capitalize}} } from './{{file_name}}';
 {% endfor %}
 
-export interface {{name}} {{ "{" }}
-    {% for property_name, property in properties.items() %}
-    {{property_name}}{% if required is none %}?{% else %}{% if property_name not in required %}?{% endif %}{% endif %}: {{property['type']}}
+export interface {{_current_schema}} {
+    {% for property in schemas[_current_schema].properties %}
+    {{property.name}}{% if not property.isRequired %}?{% endif %}: {{property.type}}
     {% endfor %}
 
-{{ "}" }}
+}
 
-{% if enums %}
-export namespace {{name}} {{ "{" }}
+{% if schemas[_current_schema].hasEnums %}
+export namespace {{_current_schema}} {
 
-    {% for enum_name, enumList in enums.items() %}
-    export type {{enum_name | capitalize}}Enum = {% for enumValue in enumList %}'{{enumValue}}'{% if not loop.last %} {{ "|" }} {% endif %}{% endfor %};
-    export const {{enum_name | capitalize}}Enum = {{ "{" }}
-        {% for enumValue in enumList %}
-        {{enumValue | capitalize}}: '{{enumValue}}' as {{enum_name | capitalize}}Enum{%if not loop.last %},
+    {% for property in schemas[_current_schema].properties %}
+    {% if property.enums %}
+    export type {{property.name | capitalize}}Enum = {% for enum in property.enums %}'{{enum}}'{% if not loop.last %} {{ "|" }} {% endif %}{% endfor %};
+    export const {{property.name | capitalize}}Enum = { 
+        {% for enum in property.enums %}
+        {{enum | capitalize}}: '{{enum}}' as {{property.name | capitalize}}Enum{%if not loop.last %},
         {% endif %}{% endfor %}
-
-    {{ "}" }}
+    
+    }
+    {% endif %}
     {% endfor %}
-{{ "}" }}
+    
+}
 {% endif %}

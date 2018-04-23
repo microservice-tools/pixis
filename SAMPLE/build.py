@@ -2,7 +2,7 @@
 Minimal structure and strictness
 user will have to import our default_codegen module to use codegen_stage()
 """
-import codegen.default_codegen as default  # import will look like this because codegen will be a package
+import codegen.utils as utils  # import will look like this because codegen will be a package
 
 SPEC = 'swagger.yaml'
 LANGUAGE = 'flask'
@@ -31,8 +31,8 @@ def main():
         function2,
     ]
 
-    default.codegen_stage(my_iterator, my_iterator_functions)
-    # default.codegen_stage(default.paths_iterator, [my_controllers_function])
+    utils.codegen_stage(my_iterator, my_iterator_functions)
+    # utils.codegen_stage(utils.paths_iterator, [my_controllers_function])
 
 
 main()
