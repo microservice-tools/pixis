@@ -5,7 +5,7 @@ setup(
     pbr=True,
     version='0.1dev',
     packages=['codegen', ],
-    license='asdf',
+    license='MIT',
     entry_points={
         'console_scripts': [
             'codegen=codegen.main:main',

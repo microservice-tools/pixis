@@ -77,7 +77,7 @@ To use the Angular2/TypeScript client, some prerequisites need to be installed. 
     - installed with node.js
     - get latest version with: `[sudo] npm install npm -g`
 - **angular/cli** >= 1.4.6 
-    - `[sudo] npm install -g angular-cli`
+    - `[sudo] npm install -g @angular/cli@latest`
 
 ---
 
@@ -113,7 +113,7 @@ A build file is necessary to tell Codegen to generate TypeScript client code ins
 ---
 
 # Specification File
-Specification file follows the OpenAPI 3.0 Specification guidelines in compliance with RESTful API:
+Specification file according to OpenAPI 3.0 Specification guidelines
 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
 
 # Configuration File

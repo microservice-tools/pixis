@@ -1,6 +1,6 @@
 openapi: <string> REQUIRED
 info: <Info Object> REQUIRED
-    title: <string> REQUIRED
+    title: <string> REQUIRED,
     description: <string>
     termsOfService: <string>
     contact: <Contact Object>

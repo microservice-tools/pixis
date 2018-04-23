@@ -1,7 +1,9 @@
-import sys
-import os
 import importlib.util
+import os
+import re
+import sys
 
+EXT_REGEX = re.compile('x-.*')
 
 BUILD = None
 BUILD_FILE_PATH = None
@@ -10,12 +12,59 @@ SPEC = 'swagger.yaml'
 SPEC_FILE_PATH = os.getcwd() + os.path.sep + SPEC
 
 SPEC_DICT = None
-SPECIFICATION = None
 
-# PROJECT_NAME = 'generated'
-# PROJECT_OUTPUT = os.getcwd() + os.path.sep + PROJECT_NAME
-# SERVER_NAME = PROJECT_NAME
-# SERVER_OUTPUT = PROJECT_OUTPUT + os.path.sep + PROJECT_NAME
+TEMPLATE_CONTEXT = {}
+
+JAVASCRIPT_TYPE_MAPPING = {
+    'integer': 'number',
+    'int32': 'number',
+    'long': 'number',
+    'int64': 'number',
+    'float': 'number',
+    'double': 'number',
+    'string': 'string',
+    'byte': 'string',
+    'binary': 'string',
+    'boolean': 'boolean',
+    'date': 'string',
+    'date-time': 'Date',
+    'password': 'string',
+    'object': 'any',  # TODO
+    'array': 'Array',
+    '<': '<',
+    '>': '>',
+}
+
+PYTHON_TYPE_MAPPING = {
+    'integer': 'int',
+    'int32': 'int',
+    'long': 'int',
+    'int64': 'int',
+    'float': 'float',
+    'double': 'float',
+    'string': 'str',
+    # 'byte': 'ByteArray',
+    'byte': 'str',
+    'binary': 'str',
+    # 'binary': 'Binary',
+    'boolean': 'bool',
+    'date': 'date',
+    'date-time': 'datetime',
+    'password': 'str',
+    'object': 'object',  # TODO
+    'array': 'List',
+    '<': '[',
+    '>': ']',
+}
+
+TYPE_MAPPINGS = {
+    'python': PYTHON_TYPE_MAPPING,
+    'flask': PYTHON_TYPE_MAPPING,
+    'javascript': JAVASCRIPT_TYPE_MAPPING,
+    'typescript': JAVASCRIPT_TYPE_MAPPING,
+}
+
+TEMPLATES_DIR = 'templates'
 
 LANGUAGE = 'flask'
 
@@ -28,21 +77,14 @@ TYPESCRIPT_PROJECT_NAME = 'services'
 TYPESCRIPT_PROJECT_OUTPUT = os.getcwd() + os.path.sep + TYPESCRIPT_PROJECT_NAME
 
 
-# not implemented yet
-# USER_TEMPLATES_NAME = None
-# USER_TEMPLATES_PATH = None
-
-# DEFAULT_TEMPLATES_DIR = 'templates'
-
-
 def load_build_file(filename):
-    # update defaults to reflect user's build file
     global BUILD
     global BUILD_FILE_PATH
     global SPEC
     global SPEC_FILE_PATH
     global SPEC_DICT
     global SPECIFICATION
+    global TEMPLATES_DIR
     global LANGUAGE
     global FLASK_PROJECT_NAME
     global FLASK_PROJECT_OUTPUT
@@ -63,5 +105,9 @@ def load_build_file(filename):
     if hasattr(build_script, 'SPEC'):
         SPEC = build_script.SPEC
         SPEC_FILE_PATH = os.getcwd() + os.path.sep + SPEC
+
     if hasattr(build_script, 'LANGUAGE'):
         LANGUAGE = build_script.LANGUAGE
+
+    if hasattr(build_script, 'TEMPLATES_DIR'):
+        TEMPLATES_DIR = build_script.TEMPLATES_DIR
