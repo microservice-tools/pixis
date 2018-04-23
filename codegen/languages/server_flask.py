@@ -35,13 +35,6 @@ def flask_generate_controller():
     utils.emit_template('flask_server/controller.j2', cfg.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', cfg.TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
 
 
-# typeMapping = {
-#     'integer': 'int', 'long': 'int', 'float': 'float', 'double': 'float',
-#     'string': 'str', 'byte': 'ByteArray', 'binary': 'Binary', 'boolean': 'bool',
-#     'date': 'date', 'date-time': 'datetime', 'password': 'str', 'object': 'object'
-# }
-
-
 def makeFirstLetterLower(s):
     return s[:1].lower() + s[1:] if s else ''
 

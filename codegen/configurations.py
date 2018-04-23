@@ -5,7 +5,6 @@ import importlib.util
 
 EXT_REGEX = re.compile('x-.*')
 
-# DEFAULT VALUES
 BUILD = None
 BUILD_FILE_PATH = None
 
@@ -16,8 +15,43 @@ SPEC_DICT = None
 
 TEMPLATE_CONTEXT = {}
 
+JAVASCRIPT_TYPE_MAPPING = {
+    'integer': 'number',
+    'long': 'number',
+    'float': 'number',
+    'double': 'number',
+    'string': 'string',
+    'byte': 'string',
+    'binary': 'string',
+    'boolean': 'boolean',
+    'date': 'string',
+    'date-time': 'Date',
+    'password': 'string',
+    'object': 'any'
+}
 
-# user defined templates (on their file system)
+PYTHON_TYPE_MAPPING = {
+    'integer': 'int',
+    'long': 'int',
+    'float': 'float',
+    'double': 'float',
+    'string': 'str',
+    'byte': 'ByteArray',
+    'binary': 'Binary',
+    'boolean': 'bool',
+    'date': 'date',
+    'date-time': 'datetime',
+    'password': 'str',
+    'object': 'object'
+}
+
+TYPE_MAPPINGS = {
+    'python': PYTHON_TYPE_MAPPING,
+    'flask': PYTHON_TYPE_MAPPING,
+    'javascript': JAVASCRIPT_TYPE_MAPPING,
+    'typescript': JAVASCRIPT_TYPE_MAPPING,
+}
+
 TEMPLATES_DIR = 'templates'
 
 LANGUAGE = 'flask'
@@ -32,7 +66,6 @@ TYPESCRIPT_PROJECT_OUTPUT = os.getcwd() + os.path.sep + TYPESCRIPT_PROJECT_NAME
 
 
 def load_build_file(filename):
-    # update defaults to reflect user's build file
     global BUILD
     global BUILD_FILE_PATH
     global SPEC

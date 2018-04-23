@@ -7,24 +7,6 @@ import codegen.configurations as cfg
 """
 wrappers for emitting templates
 """
-# maps the type in OpenApi3 to the type in python
-# types: [array, boolean, integer, null,  number, object, string]
-# formats that matter for strings: ByteArray, Binary, date, datetime
-
-typeMapping = {
-    'integer': 'number',
-    'long': 'number',
-    'float': 'number',
-    'double': 'number',
-    'string': 'string',
-    'byte': 'string',
-    'binary': 'string',
-    'boolean': 'boolean',
-    'date': 'string',
-    'date-time': 'Date',
-    'password': 'string',
-    'object': 'any'
-}
 
 
 def typescript_project_setup():
