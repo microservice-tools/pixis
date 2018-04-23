@@ -61,45 +61,27 @@ class OpenAPI3():
         if schema_dict is None:
             return None
 
-        def get_type(schema_dict, depth=0):
-            ref = schema_dict.get('$ref')
-            if ref is not None:
-                s = ref.split('/')[3]
-                for _ in range(depth):
-                    s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
-                return s
-            if schema_dict.get('type') == 'array':
-                return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + get_type(schema_dict['items'], depth + 1)
-            # TODO OBJECTS
-            # KeyError if schema doesn't have 'type' attribute
-            _format = schema_dict.get('format')
-            if _format is not None:
-                s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][_format]
-            else:
-                s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
+        return self.get_type(schema_dict)
+
+    def get_type(self, schema_dict, depth=0):
+        ref = schema_dict.get('$ref')
+        if ref is not None:
+            s = ref.split('/')[3]
             for _ in range(depth):
                 s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
             return s
-
-        """
-        def get_type(schema_dict, depth=0):
-            ref = schema_dict.get('$ref')
-            if ref is not None:
-                s = ref.split('/')[3]
-                for _ in range(depth):
-                    s += '>'
-                return s
-            if schema_dict.get('type') == 'array':
-                return 'array<' + get_type(schema_dict['items'], depth + 1)
-            # TODO OBJECTS
-            # TODO FORMAT
-            s = schema_dict['type']
-            for _ in range(depth):
-                s += '>'
-            return s
-        """
-
-        return get_type(schema_dict)
+        if schema_dict.get('type') == 'array':
+            return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + self.get_type(schema_dict['items'], depth + 1)
+        # TODO OBJECTS
+        # KeyError if schema doesn't have 'type' attribute
+        _format = schema_dict.get('format')
+        if _format is not None:
+            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][_format]
+        else:
+            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
+        for _ in range(depth):
+            s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+        return s
 
     def to_boolean(self, s):
         if s is None:
@@ -338,21 +320,21 @@ class Parameter(OpenAPI3):
 
 
 class Model(OpenAPI3):
-    def __init__(self, name, schema_obj):
+    def __init__(self, name, schema_dict):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
-        self.dependencies = self.get_deps(schema_obj)
-        self.properties = self.get_properties(schema_obj)  # dictionary with key is property name, value is property type
-        self.has_enums = self.enums_exist(schema_obj)
+        self.dependencies = self.get_deps(schema_dict)
+        self.properties = self.get_properties(schema_dict)  # dictionary with key is property name, value is property type
+        self.has_enums = self.enums_exist(schema_dict)
 
-    def enums_exist(self, schema_obj):
-        for attribute_name, attribute_dict in schema_obj['properties'].items():
+    def enums_exist(self, schema_dict):
+        for attribute_name, attribute_dict in schema_dict['properties'].items():
             if attribute_dict.get('enum') is not None:
                 return True
 
         return False
 
-    def get_deps(self, schema_obj):
+    def get_deps(self, schema_dict):
 
         def get_dep_by_attr(attribute_dict):
             deps_by_attr = []
@@ -369,76 +351,31 @@ class Model(OpenAPI3):
 
         deps = []
 
-        for attribute_name, attribute_dict in schema_obj['properties'].items():
+        for attribute_name, attribute_dict in schema_dict['properties'].items():
             attr_deps = get_dep_by_attr(attribute_dict)
             deps = deps + attr_deps
 
         return deps
 
-    def get_properties(self, schema_obj):
+    def get_properties(self, schema_dict):
+        if schema_dict.get('properties') is None:
+            return []
+
         properties = []
-        for attribute_name, attribute_dict in schema_obj['properties'].items():
-            _property = Property(attribute_name, attribute_dict, schema_obj.get('required'))
-            properties.append(_property)
+        for property_name, property_dict in schema_dict['properties'].items():
+            properties.append(Property(property_name, property_dict, schema_dict.get('required')))
 
         return properties
 
 
 class Property(OpenAPI3):
-    def __init__(self, name, property_obj, required_list):
+    def __init__(self, name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
         self.name = name
-        self.type = self.get_type(property_obj)
+        self.type = self.get_type(schema_dict)
         self.is_required = self.attr_required(name, required_list)
-        # returns None if no enums associated with property, otherwise return a list
-        self.enums = property_obj.get('enum')
+        self.enums = schema_dict.get('enum')
 
     def attr_required(self, attribute_name, required_list):
         if required_list is None:
             return False
-        elif attribute_name in required_list:
-            return True
-        else:
-            return False
-
-    def get_type(self, schema_obj, depth=0):
-        if '$ref' in schema_obj:
-            s = schema_obj['$ref'].split('/')[3]
-            for x in range(depth):
-                s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
-            return s
-
-        if schema_obj['type'] == 'array':
-            return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + self.get_type(schema_obj['items'], depth + 1)
-
-        # s = typeMapping[schema_obj.type]
-        type_format = getattr(schema_obj, 'format', None)
-        if type_format is not None:
-            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][type_format]
-        else:
-            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_obj['type']]
-
-        for x in range(depth):
-            s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
-        return s
-
-    """
-    if '$ref' in schema_obj:
-        s = schema_obj['$ref'].split('/')[3]
-        for x in range(depth):
-            s += '>'
-        return s
-
-    if schema_obj['type'] == 'array':
-        return 'array<' + get_type(schema_obj['items'], depth + 1)
-
-    # s = typeMapping[schema_obj.type]
-    type_format = getattr(schema_obj, 'format', None)
-    if type_format is not None:
-        s = type_format
-    else:
-        s = schema_obj['type']
-
-    for x in range(depth):
-        s += '>'
-    return s
-    """
+        return attribute_name in required_list
