@@ -323,7 +323,7 @@ class Model(OpenAPI3):
     def __init__(self, name, schema_dict):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
-        self.dependencies = self.get_deps(schema_dict)
+        self.dependencies = self.get_dependencies(schema_dict)
         self.properties = self.get_properties(schema_dict)  # dictionary with key is property name, value is property type
         self.has_enums = self.enums_exist(schema_dict)
 
@@ -334,28 +334,27 @@ class Model(OpenAPI3):
 
         return False
 
-    def get_deps(self, schema_dict):
+    def get_dependencies(self, schema_dict):
 
         def get_dep_by_attr(attribute_dict):
             deps_by_attr = []
 
             ref = attribute_dict.get('$ref')
             if ref is not None:
-                ref = ref[ref.rfind('/') + 1:]
-                deps_by_attr.append(ref)
+                deps_by_attr.append(ref.split('/')[3])
 
             elif attribute_dict['type'] == 'array':
                 deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dict['items'])
 
             return deps_by_attr
 
-        deps = []
+        dependencies = []
 
         for attribute_name, attribute_dict in schema_dict['properties'].items():
             attr_deps = get_dep_by_attr(attribute_dict)
-            deps = deps + attr_deps
+            dependencies = dependencies + attr_deps
 
-        return deps
+        return dependencies
 
     def get_properties(self, schema_dict):
         if schema_dict.get('properties') is None:
