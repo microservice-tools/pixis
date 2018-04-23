@@ -32,7 +32,7 @@ def flask_generate_main():
 def flask_generate_controller():
     # controller files
     print('flask_controllers_setup')
-    utils.emit_template('flask_server/controller.j2', cfg.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', cfg.TEMPLATE_CONTEXT['_current_tags'] + '_controller' + '.py')
+    utils.emit_template('flask_server/controller.j2', cfg.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', cfg.TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
 
 
 # typeMapping = {
@@ -47,7 +47,7 @@ def makeFirstLetterLower(s):
 
 
 def flask_generate_model():
-    utils.emit_template('flask_server/model.j2', cfg.FLASK_SERVER_OUTPUT + os.path.sep + 'models', makeFirstLetterLower(cfg.TEMPLATE_VARIABLES['_current_schema']) + '.py')
+    utils.emit_template('flask_server/model.j2', cfg.FLASK_SERVER_OUTPUT + os.path.sep + 'models', makeFirstLetterLower(cfg.TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
 
 flask_invocation_iterator_functions = [
