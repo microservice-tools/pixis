@@ -1,10 +1,9 @@
+import collections  # for OrderedDict
 import os
 
 import jinja2
-import collections  # for OrderedDict
 
 import codegen.configurations as cfg
-
 """
 entrypoints into our code generation, for us and users
 """

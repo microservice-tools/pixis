@@ -1,7 +1,7 @@
-import sys
+import importlib.util
 import os
 import re
-import importlib.util
+import sys
 
 EXT_REGEX = re.compile('x-.*')
 
