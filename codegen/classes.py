@@ -1,7 +1,6 @@
 import re
 
 import codegen.configurations as cfg
-from pprint import pprint
 
 
 class OpenAPI3():
@@ -171,7 +170,7 @@ class Path(OpenAPI3):
     def get_response_formats(self):
         # self.responses will never be None
         response_formats = set()
-        
+
         for code, response in self.responses.items():
             for _format in response.formats:
                 response_formats.add(_format)

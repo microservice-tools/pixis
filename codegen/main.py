@@ -5,6 +5,7 @@ import yaml
 # import ast
 import json
 import argparse
+from pprint import pprint
 
 from openapi_spec_validator import openapi_v3_spec_validator
 
@@ -37,7 +38,7 @@ def main():
     init_template_context()
 
     # TRANSLATE TEMPLATE CONTEXT
-
+    pprint(cfg.TEMPLATE_CONTEXT)
     utils.run_iterators()
 
 
