@@ -331,78 +331,60 @@ class Model:
     def __init__(self, name, schema_obj):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
-        self.dependencies = getDeps(schema_obj)
-        self.properties = getProperties(schema_obj)  # dictionary with key is property name, value is property type
-        self.hasEnums = hasEnums(schema_obj)
-
-    def __repr__(self):
-        return self.to_str()
-
-    def to_str(self):
-        return str(self.__dict__)
+        self.dependencies = get_deps(schema_obj)
+        self.properties = get_properties(schema_obj)  # dictionary with key is property name, value is property type
+        self.has_enums = has_enums(schema_obj)
 
 
-def hasEnums(schema_obj):
+def has_enums(schema_obj):
     for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        hasEnums = attribute_dikt.get('enum')
-        if hasEnums is not None:
+        has_enums = attribute_dikt.get('enum')
+        if has_enums is not None:
             return True
 
     return False
 
 
-def getDeps(schema_obj):
+def get_deps(schema_obj):
 
     deps = []
 
     for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        attr_deps = getDepByAttr(attribute_dikt)
+        attr_deps = get_dep_by_attr(attribute_dikt)
         deps = deps + attr_deps
 
     return deps
 
 
-def getDepByAttr(attribute_dikt):
-    depsByAttr = []
+def get_dep_by_attr(attribute_dikt):
+    deps_by_attr = []
 
     ref = attribute_dikt.get('$ref')
     if ref is not None:
         ref = ref[ref.rfind('/') + 1:]
-        depsByAttr.append(ref)
+        deps_by_attr.append(ref)
 
     elif attribute_dikt['type'] == 'array':
-        depsByAttr = depsByAttr + getDepByAttr(attribute_dikt['items'])
+        deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dikt['items'])
 
-    return depsByAttr
+    return deps_by_attr
 
 
 class Property:
-    def __init__(self, name, property_obj, requiredList):
+    def __init__(self, name, property_obj, required_list):
         self.name = name
-        self.type = getType(property_obj, 0)
-        self.isRequired = isRequired(name, requiredList)
+        self.type = get_type(property_obj, 0)
+        self.is_required = is_required(name, required_list)
         # returns None if no enums associated with property, otherwise return a list
-        self.enums = getEnums(property_obj)
-
-    def __repr__(self):
-        return self.to_str()
-
-    def to_str(self):
-        return str(self.__dict__)
+        self.enums = property_obj.get('enum')
 
 
 class Enum:
     def __init__(self, attributes):
         self.attributes = attributes
 
-    def __repr__(self):
-        return self.to_str()
 
-    def to_str(self):
-        return str(self.__dict__)
-
-
-def getType(schema_obj, depth):
+def get_type(schema_obj, depth):
 
     if '$ref' in schema_obj:
         s = schema_obj['$ref'].split('/')[3]
@@ -411,7 +393,7 @@ def getType(schema_obj, depth):
         return s
 
     if schema_obj['type'] == 'array':
-        return 'array<' + getType(schema_obj['items'], depth + 1)
+        return 'array<' + get_type(schema_obj['items'], depth + 1)
 
     # s = typeMapping[schema_obj.type]
     type_format = getattr(schema_obj, 'format', None)
@@ -425,26 +407,19 @@ def getType(schema_obj, depth):
     return s
 
 
-def getEnums(attributes):
-
-    enumList = attributes.get('enum')
-
-    return enumList
-
-
-def isRequired(attribute_name, requiredList):
-    if requiredList is None:
+def is_required(attribute_name, required_list):
+    if required_list is None:
         return False
-    elif attribute_name in requiredList:
+    elif attribute_name in required_list:
         return True
     else:
         return False
 
 
-def getProperties(schema_obj):
+def get_properties(schema_obj):
     properties = []
     for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        property = Property(attribute_name, attribute_dikt, schema_obj.get('required'))
-        properties.append(property)
+        _property = Property(attribute_name, attribute_dikt, schema_obj.get('required'))
+        properties.append(_property)
 
     return properties
