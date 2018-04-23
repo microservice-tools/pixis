@@ -49,15 +49,9 @@ def get_paths_by_tag():
 
 
 def get_schemas_by_name():
-
-    # initialize array to hold model and scheamas for use below
     models = {}
-    schemas = cfg.SPEC_DICT['components']['schemas']
-
-    # iterate through each schema
-    for schema_name, schema in schemas.items():
+    for schema_name, schema in cfg.SPEC_DICT['components']['schemas'].items():
         model = Model(schema_name, schema)
-        # print(model)
         models[model.name] = model
 
     return models

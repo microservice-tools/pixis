@@ -1,9 +1,9 @@
 # **TODO**
 
-## Code cleanup
+## Misc
 - pep8 conventions
-- can trim classes a little bit
-- finish language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
+- sorting things alphabetically
+- language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
 ---
 ## Security
 - https
@@ -37,7 +37,7 @@
 - basic options to choose specification/language
 ---
 
-## Style conventions
+## Style & coding conventions
 - make custom Jinja2 filters ( {{ my_variable | toCamelCase }} )
 ---
 

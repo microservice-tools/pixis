@@ -103,12 +103,18 @@ class OpenAPI3():
 
     def to_boolean(self, s):
         if s is None:
-            return False  # or should we return None?
+            return False
         if type(s) is bool:
             return s
         if s.lower() == 'true':
             return True
         return False
+
+    def __repr__(self):
+        return self.to_str()
+
+    def to_str(self):
+        return str(self.__dict__)
 
 
 class Path(OpenAPI3):
@@ -331,78 +337,89 @@ class Parameter(OpenAPI3):
         self.extensions = self.get_extensions(parameter_dict)
 
 
-class Model:
+class Model(OpenAPI3):
     def __init__(self, name, schema_obj):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
-        self.dependencies = get_deps(schema_obj)
-        self.properties = get_properties(schema_obj)  # dictionary with key is property name, value is property type
-        self.has_enums = has_enums(schema_obj)
+        self.dependencies = self.get_deps(schema_obj)
+        self.properties = self.get_properties(schema_obj)  # dictionary with key is property name, value is property type
+        self.has_enums = self.enums_exist(schema_obj)
+
+    def enums_exist(self, schema_obj):
+        for attribute_name, attribute_dict in schema_obj['properties'].items():
+            if attribute_dict.get('enum') is not None:
+                return True
+
+        return False
+
+    def get_deps(self, schema_obj):
+
+        def get_dep_by_attr(attribute_dict):
+            deps_by_attr = []
+
+            ref = attribute_dict.get('$ref')
+            if ref is not None:
+                ref = ref[ref.rfind('/') + 1:]
+                deps_by_attr.append(ref)
+
+            elif attribute_dict['type'] == 'array':
+                deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dict['items'])
+
+            return deps_by_attr
+
+        deps = []
+
+        for attribute_name, attribute_dict in schema_obj['properties'].items():
+            attr_deps = get_dep_by_attr(attribute_dict)
+            deps = deps + attr_deps
+
+        return deps
+
+    def get_properties(self, schema_obj):
+        properties = []
+        for attribute_name, attribute_dict in schema_obj['properties'].items():
+            _property = Property(attribute_name, attribute_dict, schema_obj.get('required'))
+            properties.append(_property)
+
+        return properties
 
 
-def has_enums(schema_obj):
-    for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        has_enums = attribute_dikt.get('enum')
-        if has_enums is not None:
-            return True
-
-    return False
-
-
-def get_deps(schema_obj):
-
-    deps = []
-
-    for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        attr_deps = get_dep_by_attr(attribute_dikt)
-        deps = deps + attr_deps
-
-    return deps
-
-
-def get_dep_by_attr(attribute_dikt):
-    deps_by_attr = []
-
-    ref = attribute_dikt.get('$ref')
-    if ref is not None:
-        ref = ref[ref.rfind('/') + 1:]
-        deps_by_attr.append(ref)
-
-    elif attribute_dikt['type'] == 'array':
-        deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dikt['items'])
-
-    return deps_by_attr
-
-
-class Property:
+class Property(OpenAPI3):
     def __init__(self, name, property_obj, required_list):
         self.name = name
-        self.type = get_type(property_obj)
-        self.is_required = is_required(name, required_list)
+        self.type = self.get_type(property_obj)
+        self.is_required = self.attr_required(name, required_list)
         # returns None if no enums associated with property, otherwise return a list
         self.enums = property_obj.get('enum')
 
+    def attr_required(self, attribute_name, required_list):
+        if required_list is None:
+            return False
+        elif attribute_name in required_list:
+            return True
+        else:
+            return False
 
-def get_type(schema_obj, depth=0):
-    if '$ref' in schema_obj:
-        s = schema_obj['$ref'].split('/')[3]
+    def get_type(self, schema_obj, depth=0):
+        if '$ref' in schema_obj:
+            s = schema_obj['$ref'].split('/')[3]
+            for x in range(depth):
+                s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+            return s
+
+        if schema_obj['type'] == 'array':
+            return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + self.get_type(schema_obj['items'], depth + 1)
+
+        # s = typeMapping[schema_obj.type]
+        type_format = getattr(schema_obj, 'format', None)
+        if type_format is not None:
+            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][type_format]
+        else:
+            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_obj['type']]
+
         for x in range(depth):
             s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
         return s
-
-    if schema_obj['type'] == 'array':
-        return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + get_type(schema_obj['items'], depth + 1)
-
-    # s = typeMapping[schema_obj.type]
-    type_format = getattr(schema_obj, 'format', None)
-    if type_format is not None:
-        s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][type_format]
-    else:
-        s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_obj['type']]
-
-    for x in range(depth):
-        s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
-    return s
 
     """
     if '$ref' in schema_obj:
@@ -425,21 +442,3 @@ def get_type(schema_obj, depth=0):
         s += '>'
     return s
     """
-
-
-def is_required(attribute_name, required_list):
-    if required_list is None:
-        return False
-    elif attribute_name in required_list:
-        return True
-    else:
-        return False
-
-
-def get_properties(schema_obj):
-    properties = []
-    for attribute_name, attribute_dikt in schema_obj['properties'].items():
-        _property = Property(attribute_name, attribute_dikt, schema_obj.get('required'))
-        properties.append(_property)
-
-    return properties
