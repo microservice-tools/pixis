@@ -20,11 +20,11 @@ class {{_current_schema}}(Model):
         {% endfor %}
         }
 
-            self.attribute_map = {
-            {% for property in schemas[_current_schema].properties %}
-                '{{property.name}}': {{property.name}}{%if not loop.last %},{% endif %}
+        self.attribute_map = {
+        {% for property in schemas[_current_schema].properties %}
+            '{{property.name}}': {{property.name}}{%if not loop.last %},{% endif %}
 
-            {% endfor %}
+        {% endfor %}
         }
 
         {% for property in schemas[_current_schema].properties %}
@@ -42,16 +42,14 @@ class {{_current_schema}}(Model):
 
     @{{property.name}}.setter
     def {{property.name}}(self, {{property.name}}: {{property.type}}):
-
-       {% if property.enums %}
-       allowed_values = [{% for enum in property.enums %}"{{enum}}"{% if not loop.last %}, {% endif %}{% endfor %}]
+        {% if property.enums %}
+        allowed_values = [{% for enum in property.enums %}"{{enum}}"{% if not loop.last %}, {% endif %}{% endfor %}]
         if {{property.name}} not in allowed_values:
             raise ValueError(
                 "Invalid value for `{{property.name}}` ({0}), must be one of {1}"
                 .format({{property.name}}, allowed_values)
             )
-       {% endif %}
-
+        {% endif %}
         self._{{property.name}} = {{property.name}}
     {% if not loop.last %}
 
