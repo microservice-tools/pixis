@@ -109,6 +109,8 @@ class Path(OpenAPI3):
     def __init__(self, parent_dict, operation_dict):
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
+        if cfg.LANGUAGE == 'flask':
+            self.url = self.url.replace('}', '>').replace('{', '<')
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']
         self.function_name = path_dict.get('operationId')
