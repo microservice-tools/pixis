@@ -396,7 +396,7 @@ def getType(schema_obj, depth):
         return s
 
     if schema_obj['type'] == 'array':
-        return 'Array<' + getType(schema_obj['items'], depth + 1)
+        return 'array<' + getType(schema_obj['items'], depth + 1)
 
     # s = typeMapping[schema_obj.type]
     type_format = getattr(schema_obj, 'format', None)

@@ -17,11 +17,11 @@
 - look into documentation options
 
 ## Additional languages
-- Java
+- java
 - node.js
 - react.js
 
-## Generated functionality
+## Code functionality
 - response/request handlers
 
 ## Command line options
