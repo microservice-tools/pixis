@@ -385,7 +385,27 @@ class Enum:
 
 
 def get_type(schema_obj, depth):
+    if '$ref' in schema_obj:
+        s = schema_obj['$ref'].split('/')[3]
+        for x in range(depth):
+            s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+        return s
 
+    if schema_obj['type'] == 'array':
+        return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + get_type(schema_obj['items'], depth + 1)
+
+    # s = typeMapping[schema_obj.type]
+    type_format = getattr(schema_obj, 'format', None)
+    if type_format is not None:
+        s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][type_format]
+    else:
+        s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_obj['type']]
+
+    for x in range(depth):
+        s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+    return s
+
+    """
     if '$ref' in schema_obj:
         s = schema_obj['$ref'].split('/')[3]
         for x in range(depth):
@@ -405,6 +425,7 @@ def get_type(schema_obj, depth):
     for x in range(depth):
         s += '>'
     return s
+    """
 
 
 def is_required(attribute_name, required_list):
