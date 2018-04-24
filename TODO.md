@@ -5,6 +5,8 @@
 - sorting things alphabetically
 - language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
 ---
+## Python packages
+- check out package data and Manifest.in, package data now includes the templates but the Manifest.in is not correct
 ## Security
 - https
 - authentification schemes (OAUTH2)
