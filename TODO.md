@@ -4,12 +4,14 @@
 - pep8 conventions
 - sorting things alphabetically
 - language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
+- update README
 ---
 ## Python packages
 - check out package data and Manifest.in, package data now includes the templates but the Manifest.in is not correct
 ## Security
 - https
 - authentification schemes (OAUTH2)
+- fix security vulnerability of one of the js packages included in the angular2 client
 ---
 ## Alternate servers
 - i.e. one path specifies a specific server
