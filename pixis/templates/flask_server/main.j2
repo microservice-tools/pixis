@@ -1,0 +1,20 @@
+from flask import Flask
+{% for tag, _ in paths.items() %}
+from {{cfg.FLASK_SERVER_NAME}}.controllers.{{tag}}_controller import {{tag}}_api
+{% endfor %}
+from {{cfg.FLASK_SERVER_NAME}} import encoder
+
+
+def main():
+    app = Flask(__name__)
+    app.json_encoder = encoder.JSONEncoder
+    # app.json_decoder
+    {% for tag, _ in paths.items() %}
+    app.register_blueprint({{tag}}_api)
+    {% endfor %}
+    app.run(port=8080, debug=False)
+
+
+if __name__ == '__main__':
+    main()
+{# main end #}

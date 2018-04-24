@@ -1,0 +1,142 @@
+import { Inject, Injectable, Optional } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+
+import { Observable } from 'rxjs/Observable';
+import '../rxjs-operators';
+
+import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
+import { Configuration } from '../configuration';
+import { CustomHttpUrlEncodingCodec } from '../encoder';
+
+{% for dependency in paths[_current_tag].dependencies %}
+import { {{dependency}} } from '../model/{{dependency}}';
+{% endfor %}
+
+@Injectable()
+export class {{ _current_tag|capitalize }}Service {
+
+    protected basePath = '{{base_path}}';
+    public defaultHeaders = new HttpHeaders();
+    public configuration = new Configuration();
+
+    constructor(
+        protected httpClient: HttpClient, 
+        @Optional() @Inject(BASE_PATH) basePath: string,
+        @Optional() configuration: Configuration
+    ) {
+        if (basePath) {
+            this.basePath = basePath;
+        }
+        if (configuration) {
+            this.configuration = configuration;
+            this.basePath = basePath || configuration.basePath || this.basePath;
+        }
+    }
+
+
+    private canConsumeForm(consumes: string[]): boolean {
+        const form = 'multipart/form-data';
+        for (const consume of consumes) {
+            if (form === consume) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    {% for path in paths[_current_tag] %}
+    public {{path.function_name}}({% set required_params = [] %}{% for param in path.parameters %}{% if param.required %}{% set _ = required_params.append(0) %}{{param.name}}: {{param.type}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}{% if path.method == 'post' or path.method == 'put' %}{% if path.parameters|length > 0 %}, {% endif %}body: {{path['request_body_type']}}{% endif %}{% for param in path.parameters %}{% if not param.required %}{% if required_params %}, {% endif %}{{param.name}}?: {{param.type}}{% endif %}{% endfor %}): Observable<{% if 200 in path.responses %} {% if path.responses[200].types|length == 0 %}{}{% else %}{{ paths.responses[200].types[0] }}{% endif %}{% else %}{}{% endif %}> {
+
+        {% for param in path.parameters %}
+        {% if param.required %}
+        if ({{param.name}} === null || {{param.name}} === undefined) {
+            throw new Error('Required parameter {{param.name}} was null or undefined when calling {{path.function_name}}.');
+        }
+        {% endif %}
+        {% endfor %}
+        {% if path.method == 'post' or path.method == 'put' %}
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling {{path.function_name}}.');
+        }
+        {% endif %}
+
+        {% if 'query' in path.parameters_in %}
+        let queryParameters = new HttpParams({ encoder: new CustomHttpUrlEncodingCodec() });
+        {% for param in path.parameters %}
+        {% if param._in == 'query'%}
+        {% if 'array' in param.type %}
+        if ({{param.name}}) {
+            {{param.name}}.forEach((element) => {
+                queryParameters = queryParameters.append('status', <any>element);
+            });
+        }
+        {% endif %}
+        {% if 'array' not in param.type %}
+        if ({{param.name}} !== undefined) {
+            queryParameters = queryParameters.set('{{param.name}}', <any>{{param.name}});
+        }
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        let headers = this.defaultHeaders;
+        {% for param in path.parameters %}
+        {% if param._in == 'header' %}
+        if ({{param.name}} !== undefined && {{param.name}} !== null) {
+            headers = headers.set('{{param.name}}', String({{param.name}}));
+        }
+        {% endif %}
+        {% endfor %}
+
+        // to determine the Accept header
+        const httpHeaderAccepts: string[] = [
+            {% if path.response_formats|length == 0 %}
+            'application/json',
+            'application/xml'
+            {% else %}
+            {% for _format in path.response_formats %}
+            '{{ _format }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+            {% endif %}
+        ];
+        const httpHeaderAcceptSelected: string = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            {% for _format in path.request_body.formats %}
+            '{{ _format }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        {% if path.method == 'post' or path.method == 'put' %}
+        const httpContentTypeSelected: string = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+        {% endif %}
+
+        return this.httpClient.{{path.method}}<any>(`${this.basePath}{{path.url}}{% if 'path' in path.parameters_in %}{% for param in path.parameters %}{% if param._in == 'path' %}${encodeURIComponent(String({{ param.name }}))}{% endif %}{% endfor %}{% endif %}`,
+            {% if path.method == 'post' or path.method == 'put' %}
+            body,
+            {% endif %}
+            {
+                {% if 'query' in path.parameters_in %}
+                params: queryParameters,
+                {% endif %}
+                headers: headers,
+                withCredentials: this.configuration.withCredentials,
+            }
+        );
+    }
+    {% if not loop.last %}
+
+
+    {% endif %}
+    {% endfor %}
+}
+
+{# end of file newline #}

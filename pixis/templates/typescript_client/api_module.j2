@@ -1,0 +1,36 @@
+import { NgModule, ModuleWithProviders, SkipSelf, Optional } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { Configuration } from './configuration';
+
+{% for tag, _ in paths.items() %}
+import {{ "{" }} {{ tag | capitalize}}Service {{ "}" }} from './api/{{tag}}.service';
+{% endfor %}
+
+
+@NgModule({
+  imports:      [ CommonModule, HttpClientModule ],
+  declarations: [],
+  exports:      [],
+  providers: [
+  {% for tag, _ in paths.items() %}
+    {{ tag | capitalize}}Service{%if not loop.last %},
+  {% endif %}
+  {% endfor %} ]
+})
+export class ApiModule {
+    public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders {
+        return {
+            ngModule: ApiModule,
+            providers: [ { provide: Configuration, useFactory: configurationFactory } ]
+        }
+    }
+
+    constructor( @Optional() @SkipSelf() parentModule: ApiModule) {
+        if (parentModule) {
+            throw new Error('ApiModule is already loaded. Import your base AppModule only.');
+        }
+    }
+}
+
+export const APIS = [{% for tag, _ in paths.items() %}{{ tag | capitalize}}Service{%if not loop.last %}, {% endif %}{% endfor %}]

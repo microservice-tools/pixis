@@ -1,0 +1,8 @@
+{% for tag, _ in paths.items() %}
+export * from './{{tag}}.service';
+import {{ "{" }} {{ tag | capitalize}}Service {{ "}" }} from './{{tag}}.service';
+{% endfor %}
+
+{#
+export const APIS = [{% for tag in tags %}{{ tag | capitalize}}Service{%if not loop.last %}, {% endif %}{% endfor %}]
+#}
