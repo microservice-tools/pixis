@@ -63,7 +63,7 @@ flask_schemas_iterator_functions = [
 
 
 def stage_default_iterators():
-    utils.codegen_stage(utils.invocation_iterator, flask_invocation_iterator_functions)
-    utils.codegen_stage(utils.specification_iterator, flask_specification_iterator_functions)
-    utils.codegen_stage(utils.schemas_iterator, flask_schemas_iterator_functions)
-    utils.codegen_stage(utils.paths_iterator, flask_paths_iterator_functions)
+    utils.stage_iterator(utils.invocation_iterator, flask_invocation_iterator_functions)
+    utils.stage_iterator(utils.specification_iterator, flask_specification_iterator_functions)
+    utils.stage_iterator(utils.schemas_iterator, flask_schemas_iterator_functions)
+    utils.stage_iterator(utils.paths_iterator, flask_paths_iterator_functions)

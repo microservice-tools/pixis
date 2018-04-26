@@ -61,7 +61,7 @@ typescript_schemas_iterator_functions = [
 
 
 def stage_default_iterators():
-    utils.codegen_stage(utils.invocation_iterator, typescript_invocation_iterator_functions)
-    utils.codegen_stage(utils.specification_iterator, typescript_specification_iterator_functions)
-    utils.codegen_stage(utils.schemas_iterator, typescript_schemas_iterator_functions)
-    utils.codegen_stage(utils.paths_iterator, typescript_paths_iterator_functions)
+    utils.stage_iterator(utils.invocation_iterator, typescript_invocation_iterator_functions)
+    utils.stage_iterator(utils.specification_iterator, typescript_specification_iterator_functions)
+    utils.stage_iterator(utils.schemas_iterator, typescript_schemas_iterator_functions)
+    utils.stage_iterator(utils.paths_iterator, typescript_paths_iterator_functions)

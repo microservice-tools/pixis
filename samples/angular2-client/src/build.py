@@ -1,9 +1,9 @@
 """
 Minimal structure and strictness
-user will have to import our default_codegen module to use codegen_stage()
+user will have to import our default_codegen module to use stage_iterator()
 Generated files will be output to the current working directory
 """
-import codegen.default_codegen as default  # import will look like this because codegen will be a package
+import pixis.utils as utils  # import will look like this because codegen will be a package
 
 SPEC = 'swagger.yaml'
 LANGUAGE = 'typescript'  # 'typescript is also supported
@@ -32,8 +32,8 @@ def main():
         function2,
     ]
 
-    default.codegen_stage(my_iterator, my_iterator_functions)
-    # default.codegen_stage(default_codegen.invocation_iterator, []) TO MODIFY OUR DEFAULT ITERATORS
+    default.stage_iterator(my_iterator, my_iterator_functions)
+    # default.stage_iterator(default_codegen.invocation_iterator, []) TO MODIFY OUR DEFAULT ITERATORS
 
 
 main()

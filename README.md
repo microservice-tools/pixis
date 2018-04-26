@@ -1,4 +1,4 @@
-# **Pixis**    [![Build Status](https://travis-ci.org/jchen463/Rest-Codegen.svg?branch=dev)](https://travis-ci.org/jchen463/Rest-Codegen)
+# **Pixis**
 
 # What is Pixis?
 description
@@ -22,30 +22,30 @@ description
 - Deactivate virtual environment:
 `deactivate`
 # Installation
-1. Clone this project (Rest-Codegen)
+1. Clone this project
 2. Activate virtualenv
 3. Two options to install: 
     - Using setup.py:
-        - `cd Rest-Codegen`
+        - `cd pixis`
         - `python3 setup.py develop`
     - Using pip3:
-        - `pip3 install Rest-Codegen/`
+        - `pip3 install pixis/`
 - Uninstall:
-    - `pip3 uninstall rest-codegen`
+    - `pip3 uninstall pixis`
 
 # Usage
 
 Command line options will be included soon!
 
-**Default settings for Codegen:**
+**Default settings for Pixis:**
 - Looks for a user-defined build file named **build.py** in the current working directory. If it exists, run it
 - If specification file is not specified in the build file, looks for a specification file named **swagger.yaml** in the current working directory
-- If a folder named **templates/** exists in current working directory, then Codegen will use templates inside that folder instead of default templates, as long as those templates are the same name as the defaults
-- Codegen will generate a Flask server directory named **flask-server-generated** in the current working directory
+- If a folder named **templates/** exists in current working directory, then Pixis will use templates inside that folder instead of default templates, as long as those templates are the same name as the defaults
+- Pixis will generate a Flask server directory named **flask-server-generated** in the current working directory
 
-**Run Codegen using default settings with:** `$ codegen`
+**Run Pixis using default settings with:** `$ pixis`
 
-**Run Codegen using a build file:** `$ codegen build.py`
+**Run Pixis using a build file:** `$ pixis build.py`
 
 Sample build file with available options can be found in our repository's **SAMPLE/** directory (documentation soon!)
 
@@ -59,7 +59,7 @@ We recommend using a virtual environment when generating and testing generated c
 
 Server generation steps can be done in either our project's **SAMPLE/** directory, or in a new directory containing a specification file named **swagger.yaml**. A python build file is optional. Sample build file and specification file can be found in the **SAMPLE/** directory.
 
-1. `$ codegen [build.py]`
+1. `$ pixis [build.py]`
     - A directory named **flask-server-generated/** should have been generated
 1. `$ cd flask-server-generated`
 1. `$ pip3 install -r requirements.txt`
@@ -93,9 +93,9 @@ Client generation steps can be done in either the Angular2 **myproject/src/** di
 
 This guide will generate inside the Angular2 project, and assume that the specification file and build file are present.
 
-If you are not executing Codegen in **myproject/src/**, you must move the generated directory into **myproject/src/**.
+If you are not executing Pixis in **myproject/src/**, you must move the generated directory into **myproject/src/**.
 
-A build file is necessary to tell Codegen to generate TypeScript client code instead of Flask server code. This process will be changed in the future.
+A build file is necessary to tell Pixis to generate TypeScript client code instead of Flask server code. This process will be changed in the future.
 - In **build.py** (sample can be found in **SAMPLE/**), change:
     - `LANGUAGE='flask'` to 
     - `LANGUAGE='typescript'`
@@ -103,7 +103,7 @@ A build file is necessary to tell Codegen to generate TypeScript client code ins
 ---
 
 1. `$ cd myproject/src`
-1. `$ codegen build.py`
+1. `$ pixis build.py`
     - A directory named **services** should have been generated
 1. Modify **app.component.ts** and **app.module.ts** inside **myproject/src/app** url as the server you are trying to connect to
 1. `$ cd ..`
@@ -119,8 +119,8 @@ A build file is necessary to tell Codegen to generate TypeScript client code ins
 Specification file according to OpenAPI 3.0 Specification guidelines
 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
 
-# Configuration File
-The configuration file can be used in order to specify the language that the user wants to generate, the specification file to be used, and the output directory name for the generated code. 
+# Configuration File (build.py)
+The configuration file can be used in order to specify the language that the user wants to generate, the specification file to be used, and the output directory name for the generated code.
 
 Please refer to **SAMPLE/build.py** for details.
 
