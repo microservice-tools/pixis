@@ -29,6 +29,10 @@
 - look into documentation options
 ---
 
+## Expand on schemas part of template context
+- i.e. : allOf, xml, etc...
+---
+
 ## Additional languages
 - java
 - node.js

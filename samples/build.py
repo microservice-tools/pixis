@@ -1,8 +1,8 @@
 """
 Minimal structure and strictness
-user will have to import our default_codegen module to use codegen_stage()
+user will have to import our default_codegen module to use stage_iterator()
 """
-import codegen.utils as utils  # import will look like this because codegen will be a package
+import pixis.utils as utils
 
 SPEC = 'swagger.yaml'
 LANGUAGE = 'flask'
@@ -31,8 +31,8 @@ def main():
         function2,
     ]
 
-    utils.codegen_stage(my_iterator, my_iterator_functions)
-    # utils.codegen_stage(utils.paths_iterator, [my_controllers_function])
+    utils.stage_iterator(my_iterator, my_iterator_functions)
+    # utils.stage_iterator(utils.paths_iterator, [my_controllers_function])
 
 
 main()
