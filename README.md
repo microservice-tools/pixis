@@ -1,4 +1,7 @@
-# **Codegen** (name tbd)    [![Build Status](https://travis-ci.org/jchen463/Rest-Codegen.svg?branch=dev)](https://travis-ci.org/jchen463/Rest-Codegen)
+# **Pixis**    [![Build Status](https://travis-ci.org/jchen463/Rest-Codegen.svg?branch=dev)](https://travis-ci.org/jchen463/Rest-Codegen)
+
+# What is Pixis?
+description
 
 # Table of Contents
 * [Virtual Environment Setup](#virtual-environment-setup)
