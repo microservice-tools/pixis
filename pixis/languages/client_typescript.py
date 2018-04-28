@@ -16,26 +16,26 @@ def typescript_project_setup():
 
 def typescript_specification_setup():
     print('typescript_specfication_setup')
-    utils.emit_template('typescript_client/index.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'index.ts')
-    utils.emit_template('typescript_client/variables.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'variables.ts')
-    utils.emit_template('typescript_client/configuration.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'configuration.ts')
-    utils.emit_template('typescript_client/api_ts.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'api', 'api.ts')
-    utils.emit_template('typescript_client/models.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'model', 'models.ts')
-    utils.emit_template('typescript_client/encoder.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'encoder.ts')
-    utils.emit_template('typescript_client/api_module.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'api.module.ts')
-    utils.emit_template('typescript_client/rxjs.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT, 'rxjs-operators.ts')
+    utils.emit_template('typescript_client/index.j2', cfg.PROJECT_OUTPUT, 'index.ts')
+    utils.emit_template('typescript_client/variables.j2', cfg.PROJECT_OUTPUT, 'variables.ts')
+    utils.emit_template('typescript_client/configuration.j2', cfg.PROJECT_OUTPUT, 'configuration.ts')
+    utils.emit_template('typescript_client/api_ts.j2', cfg.PROJECT_OUTPUT + os.path.sep + 'api', 'api.ts')
+    utils.emit_template('typescript_client/models.j2', cfg.PROJECT_OUTPUT + os.path.sep + 'model', 'models.ts')
+    utils.emit_template('typescript_client/encoder.j2', cfg.PROJECT_OUTPUT, 'encoder.ts')
+    utils.emit_template('typescript_client/api_module.j2', cfg.PROJECT_OUTPUT, 'api.module.ts')
+    utils.emit_template('typescript_client/rxjs.j2', cfg.PROJECT_OUTPUT, 'rxjs-operators.ts')
 
 
 def typescript_generate_service():
     # CHECK notes/servicetemplatesnodes.ts for TODO
     # almost done
-    utils.emit_template('typescript_client/service.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'api', cfg.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
+    utils.emit_template('typescript_client/service.j2', cfg.PROJECT_OUTPUT + os.path.sep + 'api', cfg.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
 
 
 def typescript_models_setup():
     # model files
     print('typescript_models_setup')
-    utils.emit_template('typescript_client/model.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'model', cfg.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
+    utils.emit_template('typescript_client/model.j2', cfg.PROJECT_OUTPUT + os.path.sep + 'model', cfg.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
 
 typescript_invocation_iterator_functions = [

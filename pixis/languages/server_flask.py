@@ -13,9 +13,9 @@ wrappers for emitting templates
 def flask_project_setup():
     # outer codegen folder: setup.py, requirements.txt. Dockerfile
     print('flask_project_setup')
-    utils.emit_template('flask_server/requirements.j2', cfg.FLASK_PROJECT_OUTPUT, 'requirements.txt')
-    utils.emit_template('flask_server/Dockerfile.j2', cfg.FLASK_PROJECT_OUTPUT, 'Dockerfile')
-    # utils.emit_template('flask_server/setup.j2', cfg.FLASK_PROJECT_OUTPUT, 'setup.py')
+    utils.emit_template('flask_server/requirements.j2', cfg.PROJECT_OUTPUT, 'requirements.txt')
+    utils.emit_template('flask_server/Dockerfile.j2', cfg.PROJECT_OUTPUT, 'Dockerfile')
+    # utils.emit_template('flask_server/setup.j2', cfg.PROJECT_OUTPUT, 'setup.py')
 
 
 def flask_generate_base_model():

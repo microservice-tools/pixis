@@ -68,11 +68,14 @@ TEMPLATES_DIR = 'templates'
 
 LANGUAGE = 'flask'
 
+PROJECT_NAME = 'build'
+PROJECT_OUTPUT = os.getcwd() + os.path.sep + PROJECT_NAME
+FLASK_SERVER_NAME = 'flask_server'
+FLASK_SERVER_OUTPUT = PROJECT_OUTPUT + os.path.sep + FLASK_SERVER_NAME
+
+# TODO not using these for now. May be better to just have a singular output directory name
 FLASK_PROJECT_NAME = 'flask-server-generated'
 FLASK_PROJECT_OUTPUT = os.getcwd() + os.path.sep + FLASK_PROJECT_NAME
-FLASK_SERVER_NAME = 'flask_server'
-FLASK_SERVER_OUTPUT = FLASK_PROJECT_OUTPUT + os.path.sep + FLASK_SERVER_NAME
-
 TYPESCRIPT_PROJECT_NAME = 'services'
 TYPESCRIPT_PROJECT_OUTPUT = os.getcwd() + os.path.sep + TYPESCRIPT_PROJECT_NAME
 
