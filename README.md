@@ -1,7 +1,15 @@
 # **Pixis**
 
-# What is Pixis?
-description
+Pixis is a flexible and lightweight Python 3 module that can generate server and client files for your REST API. You provide an [OpenAPI3 Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md), we generate the skeleton code to get your API up and running.
+
+Our system allows for simple and flexible customization as well. The default [Jinja2](http://jinja.pocoo.org/docs/2.10/) templates can be easily modifed and/or replaced, so you can generate exactly the code you want. Our build file lets you specify exactly how you want your project to look like, and with a little Python, you can add custom functionality to Pixis, and even generate code in a new language!
+
+### Currently supported server languages: 
+- [Python-Flask](http://flask.pocoo.org/)
+
+### Currently supported client languages: 
+- [TypeScript-Angular2](https://angular.io/)
+---
 
 # Table of Contents
 * [Virtual Environment Setup](#virtual-environment-setup)
@@ -25,29 +33,28 @@ description
 1. Clone this project
 2. Activate virtualenv
 3. Two options to install: 
+    - Using pip3:
+        - `pip3 install pixis/`
     - Using setup.py:
         - `cd pixis`
         - `python3 setup.py develop`
-    - Using pip3:
-        - `pip3 install pixis/`
 - Uninstall:
     - `pip3 uninstall pixis`
 
 # Usage
-
-Command line options will be included soon!
+TODO: build file section
 
 **Default settings for Pixis:**
 - Looks for a user-defined build file named **build.py** in the current working directory. If it exists, run it
 - If specification file is not specified in the build file, looks for a specification file named **swagger.yaml** in the current working directory
 - If a folder named **templates/** exists in current working directory, then Pixis will use templates inside that folder instead of default templates, as long as those templates are the same name as the defaults
-- Pixis will generate a Flask server directory named **flask-server-generated** in the current working directory
+- Pixis will generate a Flask server directory named **build** in the current working directory
 
 **Run Pixis using default settings with:** `$ pixis`
 
 **Run Pixis using a build file:** `$ pixis build.py`
 
-Sample build file with available options can be found in our repository's **SAMPLE/** directory (documentation soon!)
+Sample build file with available options can be found in our repository's **sample/** directory (documentation soon!)
 
 ---
 
@@ -57,11 +64,11 @@ We recommend using a virtual environment when generating and testing generated c
 
 ## Generating a server
 
-Server generation steps can be done in either our project's **SAMPLE/** directory, or in a new directory containing a specification file named **swagger.yaml**. A python build file is optional. Sample build file and specification file can be found in the **SAMPLE/** directory.
+This example will use our **sample/python-flask-server/** directory, containing **build.py** and **swagger.yaml**
 
 1. `$ pixis [build.py]`
-    - A directory named **flask-server-generated/** should have been generated
-1. `$ cd flask-server-generated`
+    - A directory named **build/** should have been generated
+1. `$ cd build`
 1. `$ pip3 install -r requirements.txt`
     - The Flask server dependencies will be installed
 1. `$ python3 -m flask_server`
@@ -69,7 +76,19 @@ Server generation steps can be done in either our project's **SAMPLE/** director
     - To test a route, append to the basepath: `/pet/0`
     - You should see the route printed onto the screen
     - Future versions will have more exciting examples!
-
+```
+$ cd sample/python-flask-server/
+$ pixis build.py
+```
+To run the server:
+```
+$ cd build
+$ python3 -m flask_server
+```
+- Go to the url that the server is hosted on (ex. https://localhost:8080)
+- Append to the basepath: `/pet/0`
+- You should see the route printed to the screen, and the console will register the GET request
+- Future versions will have more exciting examples!
 ---
 
 ## Generating a client
@@ -84,35 +103,21 @@ To use the Angular2/TypeScript client, some prerequisites need to be installed. 
 
 ---
 
-For a quick proof-of-concept, a ready to go Angular2 project **myproject** can be found in **SAMPLE/**. Without generating the Angular2 project, follow the steps in the section below, but skip step 3.
+This example will use our ready to go Angular2 project **sample-project** in **sample/typescript-angular-client**. Our project contains edits (imports and API usage) that a newly generated Angular2 project will not have. Instruction for generating a new Angular2 project can be found [here](https://cli.angular.io/).
 
-- `$ ng new myproject`
-    - Creates a new Angular2 project named **myproject/** in the current working directory
+**sample/typescript-angular-client** includes **build.py** and **swagger.yaml**
 
-Client generation steps can be done in either the Angular2 **myproject/src/** directory, or in a new directory. A specification file (default **swagger.yaml**) and a python build file (default **build.py**) must be in the directory. 
-
-This guide will generate inside the Angular2 project, and assume that the specification file and build file are present.
-
-If you are not executing Pixis in **myproject/src/**, you must move the generated directory into **myproject/src/**.
-
-A build file is necessary to tell Pixis to generate TypeScript client code instead of Flask server code. This process will be changed in the future.
-- In **build.py** (sample can be found in **SAMPLE/**), change:
-    - `LANGUAGE='flask'` to 
-    - `LANGUAGE='typescript'`
-
----
-
-1. `$ cd myproject/src`
-1. `$ pixis build.py`
-    - A directory named **services** should have been generated
-1. Modify **app.component.ts** and **app.module.ts** inside **myproject/src/app** url as the server you are trying to connect to
-1. `$ cd ..`
-1. `$ npm install`
-1. `$ ng serve`
-    -  Go to the url that the client is being served to (ex. http://localhost:4200)
-    - If you are also running a server on localhost, you will run into a CORS issue which can be resolved using a google chrome extension (https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?utm_source=chrome-app-launcher-info-dialog)
-    - If using our modified angular2 component files, open console (f12) and you should see **getPetById(0)**, meaning that the client is using the generated files. The server will also receive the requests.   
-
+```
+$ cd sample/typescript-angular-client
+$ pixis build.py
+$ mv build/ sample-project/src/services/
+$ cd sample-project
+$ npm install
+```
+To run the client: `npm start` or `ng serve`
+- Go to the url that the client is being served to (ex. http://localhost:4200)
+- If you are also running a server on localhost, you will run into a CORS issue which can be resolved using a google chrome extension (https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?utm_source=chrome-app-launcher-info-dialog)
+- If using our modified angular2 component files, open console (f12) and you should see **getPetById(0)**, meaning that the client is using the generated files. The server will also receive the requests.
 ---
 
 # Specification File
@@ -122,10 +127,9 @@ https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
 # Configuration File (build.py)
 The configuration file can be used in order to specify the language that the user wants to generate, the specification file to be used, and the output directory name for the generated code.
 
-Please refer to **SAMPLE/build.py** for details.
+Please refer to **sample/build.py** for details.
 
 1. `SPEC`: refers to the name of the specification file
 2. `LANGUAGE`: refers to the language the user wants to generate
     - only python generation is available for server as of now
     - only typescript generation is available for client as of now
-3. `PROJECT_NAME`: refers to the name of output directory where the code generation will live
