@@ -4,10 +4,6 @@ codegen-env
 venv
 .idea
 models
-spec_tree.json
-generated
-AUTHORS
-ChangeLog
 rest_codegen.egg-info
 build
 .eggs

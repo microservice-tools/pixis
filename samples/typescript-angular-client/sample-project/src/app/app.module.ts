@@ -13,7 +13,7 @@ import { BASE_PATH } from '../services/variables';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [{provide: BASE_PATH, useValue: 'http://localhost:8080'}, ],
+  providers: [{ provide: BASE_PATH, useValue: 'http://localhost:9000' }, ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

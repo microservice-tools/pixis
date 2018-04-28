@@ -1,29 +1,29 @@
 {# dependencies #}
 {% for file_name in schemas[_current_schema].dependencies %}
 import { {{ file_name | capitalize}} } from './{{file_name}}';
-{% endfor %}
+{% if loop.last %}
 
+{% endif %}
+{% endfor %}
 export interface {{_current_schema}} {
     {% for property in schemas[_current_schema].properties %}
-    {{property.name}}{% if not property.is_required %}?{% endif %}: {{property.type}}
+    {{property.name}}{% if not property.is_required %}?{% endif %}: {{property.type}};
     {% endfor %}
-
 }
 
 {% if schemas[_current_schema].has_enums %}
 export namespace {{_current_schema}} {
-
     {% for property in schemas[_current_schema].properties %}
     {% if property.enums %}
     export type {{property.name | capitalize}}Enum = {% for enum in property.enums %}'{{enum}}'{% if not loop.last %} {{ "|" }} {% endif %}{% endfor %};
-    export const {{property.name | capitalize}}Enum = { 
+    export const {{property.name | capitalize}}Enum = {
         {% for enum in property.enums %}
         {{enum | capitalize}}: '{{enum}}' as {{property.name | capitalize}}Enum{%if not loop.last %},
-        {% endif %}{% endfor %}
-    
-    }
+        {% endif %}
+        {% endfor %}
+
+    };
     {% endif %}
     {% endfor %}
-    
 }
 {% endif %}

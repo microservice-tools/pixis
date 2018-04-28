@@ -12,7 +12,6 @@ wrappers for emitting templates
 
 def typescript_project_setup():
     print('typescript_project_setup')
-    # utils.emit_template('requirements.j2', dikt, cfg.TYPESCRIPT_PROJECT_OUTPUT, 'requirements.txt')
 
 
 def typescript_specification_setup():
@@ -36,11 +35,7 @@ def typescript_generate_service():
 def typescript_models_setup():
     # model files
     print('typescript_models_setup')
-    utils.emit_template('typescript_client/model.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'model', makeFirstLetterLower(cfg.TEMPLATE_CONTEXT['_current_schema']) + '.ts')
-
-
-def makeFirstLetterLower(s):
-    return s[:1].lower() + s[1:] if s else ''
+    utils.emit_template('typescript_client/model.j2', cfg.TYPESCRIPT_PROJECT_OUTPUT + os.path.sep + 'model', cfg.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
 
 typescript_invocation_iterator_functions = [

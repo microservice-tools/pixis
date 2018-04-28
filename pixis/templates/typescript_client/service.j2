@@ -20,7 +20,7 @@ export class {{ _current_tag|capitalize }}Service {
     public configuration = new Configuration();
 
     constructor(
-        protected httpClient: HttpClient, 
+        protected httpClient: HttpClient,
         @Optional() @Inject(BASE_PATH) basePath: string,
         @Optional() configuration: Configuration
     ) {
@@ -46,7 +46,7 @@ export class {{ _current_tag|capitalize }}Service {
 
 
     {% for path in paths[_current_tag] %}
-    public {{path.function_name}}({% set required_params = [] %}{% for param in path.parameters %}{% if param.required %}{% set _ = required_params.append(0) %}{{param.name}}: {{param.type}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}{% if path.method == 'post' or path.method == 'put' %}{% if path.parameters|length > 0 %}, {% endif %}body: {{path['request_body_type']}}{% endif %}{% for param in path.parameters %}{% if not param.required %}{% if required_params %}, {% endif %}{{param.name}}?: {{param.type}}{% endif %}{% endfor %}): Observable<{% if 200 in path.responses %} {% if path.responses[200].types|length == 0 %}{}{% else %}{{ paths.responses[200].types[0] }}{% endif %}{% else %}{}{% endif %}> {
+    public {{path.function_name}}({% set required_params = [] %}{% for param in path.parameters %}{% if param.required %}{% set _ = required_params.append(0) %}{{param.name}}: {{param.type}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}{% if path.method == 'post' or path.method == 'put' %}{% if path.parameters|length > 0 %}, {% endif %}body: {%if path.request_body is not none and path.request_body.type is not none%}{{path.request_body.type}}{%else%}any{% endif %}any{% endif %}{% for param in path.parameters %}{% if not param.required %}{% if required_params %}, {% endif %}{{param.name}}?: {{param.type}}{% endif %}{% endfor %}): Observable<{% if 200 in path.responses %} {% if path.responses[200].types|length == 0 %}{}{% else %}{{ paths.responses[200].types[0] }}{% endif %}{% else %}{}{% endif %}> {
 
         {% for param in path.parameters %}
         {% if param.required %}
@@ -98,6 +98,7 @@ export class {{ _current_tag|capitalize }}Service {
             {% else %}
             {% for _format in path.response_formats %}
             '{{ _format }}'{% if not loop.last %},{% endif %}
+
             {% endfor %}
             {% endif %}
         ];
@@ -110,6 +111,7 @@ export class {{ _current_tag|capitalize }}Service {
         const consumes: string[] = [
             {% for _format in path.request_body.formats %}
             '{{ _format }}'{% if not loop.last %},{% endif %}
+
             {% endfor %}
         ];
         {% if path.method == 'post' or path.method == 'put' %}

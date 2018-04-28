@@ -5,6 +5,7 @@
 - sorting things alphabetically
 - language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
 - update README
+- update module imports!!!
 ---
 ## Python packaging
 - check out package data and Manifest.in, package data now includes the templates but the Manifest.in is not correct
@@ -36,15 +37,10 @@
 ## Additional languages
 - java
 - node.js
-- react.js
 ---
 
 ## Code functionality
 - response/request handlers
----
-
-## Command line options
-- basic options to choose specification/language
 ---
 
 ## Style & coding conventions
