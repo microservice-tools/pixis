@@ -1,0 +1,36 @@
+'use strict';
+
+{% for path in schemas[_current_schema] %}
+{% if path.method == 'post' or path.method == 'put' %}exports.{{path.function_name}} = function(body) {
+{% else %}exports.deletePet = function({% for param in path.params %}{{param}}{% endfor %}) {
+{% endif %}
+  return new Promise(function(resolve, reject) {
+
+    {% if  %}
+    var examples = {};
+    examples['application/json'] = [ { 
+
+    }];
+      if (Object.keys(examples).length > 0) {
+        resolve(examples[Object.keys(examples)[0]]);
+      } else {
+        resolve();
+      }
+    {% else %}
+    resolve();
+    {% endif %}
+  });
+}
+{% endfor %}
+
+exports.findPetsByStatus = function(status) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = [{}];
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
