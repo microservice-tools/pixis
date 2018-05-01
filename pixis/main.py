@@ -17,7 +17,7 @@ def main():
 
     if cfg.LANGUAGE == 'typescript':
         from pixis.languages.client_typescript import stage_default_iterators
-    else if cfg.LANGUAGE == 'node':
+    elif cfg.LANGUAGE == 'node':
         from pixis.languages.server_node import stage_default_iterator
     else:
         from pixis.languages.server_flask import stage_default_iterators
