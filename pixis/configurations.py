@@ -62,7 +62,6 @@ TYPE_MAPPINGS = {
     'flask': PYTHON_TYPE_MAPPING,
     'javascript': JAVASCRIPT_TYPE_MAPPING,
     'typescript': JAVASCRIPT_TYPE_MAPPING,
-    'node': JAVASCRIPT_TYPE_MAPPING
 }
 
 TEMPLATES_DIR = 'templates'
@@ -79,8 +78,6 @@ FLASK_PROJECT_NAME = 'flask-server-generated'
 FLASK_PROJECT_OUTPUT = os.getcwd() + os.path.sep + FLASK_PROJECT_NAME
 TYPESCRIPT_PROJECT_NAME = 'services'
 TYPESCRIPT_PROJECT_OUTPUT = os.getcwd() + os.path.sep + TYPESCRIPT_PROJECT_NAME
-NODE_PROJECT_NAME = 'node-server-generated'
-NODE_PROJECT_OUTPUT = os.getcwd() + os.path.sep + NODE_PROJECT_NAME
 
 
 def load_build_file(filename):
@@ -98,8 +95,6 @@ def load_build_file(filename):
     global FLASK_SERVER_OUTPUT
     global TYPESCRIPT_PROJECT_NAME
     global TYPESCRIPT_PROJECT_OUTPUT
-    global NODE_PROJECT_NAME
-    global NODE_PROJECT_OUTPUT
 
     print('loading build file:', filename)
     filepath = os.getcwd() + '/' + filename

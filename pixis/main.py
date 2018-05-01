@@ -11,14 +11,13 @@ import pixis.configurations as cfg
 import pixis.utils as utils
 from pixis.template_context import init_template_context
 
+
 def main():
     if len(sys.argv) > 1:
         cfg.load_build_file(sys.argv[1])
 
     if cfg.LANGUAGE == 'typescript':
         from pixis.languages.client_typescript import stage_default_iterators
-    elif cfg.LANGUAGE == 'node':
-        from pixis.languages.server_node import stage_default_iterator
     else:
         from pixis.languages.server_flask import stage_default_iterators
 
