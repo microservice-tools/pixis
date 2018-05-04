@@ -1,6 +1,6 @@
 import re
 
-from pixis.classes import Model, Path
+from pixis.openapi import Model, Path
 from pixis.config import Config
 
 EXT_REGEX = re.compile('x-.*')
