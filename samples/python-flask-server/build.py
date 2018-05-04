@@ -1,3 +1,3 @@
-APPLICATION = 'flask'
 SPEC = 'swagger.yaml'
-OUT = 'b'
+APPLICATION = 'flask'
+OUT = 'build'
