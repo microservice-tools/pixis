@@ -1,43 +1,36 @@
-import sys
-import os
-import importlib.util
-import yaml
-import json
 import argparse
+import importlib.util
+import json
+import os
+import sys
 
+import yaml
 from openapi_spec_validator import openapi_v3_spec_validator
 
-from pixis.configuration import Configuration
 import pixis.utils as utils
+from pixis.config import Config
 from pixis.template_context import init_template_context
 
+
 """
-    1. Loads default configurations
+    1. Loads default configs
     2. Configure according to build file
 """
 
 
 def main():
-    cfg = Configuration()
     if len(sys.argv) > 1:
-        cfg.load_build_file(sys.argv[1])
+        Config.load_build_file(sys.argv[1])
+    Config.load_spec_file()
 
-    if cfg.LANGUAGE == 'typescript':
+    if Config.APPLICATION == 'typescript':
         from pixis.languages.client_typescript import stage_default_iterators
     else:
         from pixis.languages.server_flask import stage_default_iterators
 
     stage_default_iterators()
 
-    if len(sys.argv) > 1:
-        cfg.load_build_file(sys.argv[1])
-
-    print(sys.argv)
-    print(cfg.SPEC)
-    print(cfg.SPEC_FILE_PATH)
-
-    cfg.SPEC_DICT = load_spec_file(cfg.SPEC_FILE_PATH)
-    validate_specification(cfg.SPEC_DICT)
+    validate_specification(Config.SPEC_DICT)
 
     init_template_context()
 
