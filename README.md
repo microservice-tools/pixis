@@ -1,4 +1,4 @@
-# **Pixis**
+# **Pixis**  &nbsp; ![Build Status](https://travis-ci.org/microservice-tools/pixis.svg?branch=dev)
 
 Pixis is a flexible and lightweight Python 3 module that can generate server and client files for your REST API. You provide an [OpenAPI3 Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md), we generate the skeleton code to get your API up and running.
 
