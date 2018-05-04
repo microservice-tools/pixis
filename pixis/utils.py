@@ -3,7 +3,7 @@ import os
 
 import jinja2
 
-import pixis.configurations as cfg
+import pixis.configuration as cfg
 """
 entrypoints into our code generation, for us and users
 """

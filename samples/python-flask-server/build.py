@@ -1,2 +1,3 @@
+APPLICATION = 'flask'
 SPEC = 'swagger.yaml'
-LANGUAGE = 'flask'
+OUT = 'b'

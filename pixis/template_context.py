@@ -1,6 +1,6 @@
 import re
 
-import pixis.configurations as cfg
+import pixis.configuration as cfg
 from pixis.classes import Path, Model
 
 

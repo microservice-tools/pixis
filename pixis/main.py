@@ -7,12 +7,18 @@ import argparse
 
 from openapi_spec_validator import openapi_v3_spec_validator
 
-import pixis.configurations as cfg
+from pixis.configuration import Configuration
 import pixis.utils as utils
 from pixis.template_context import init_template_context
 
+"""
+    1. Loads default configurations
+    2. Configure according to build file
+"""
+
 
 def main():
+    cfg = Configuration()
     if len(sys.argv) > 1:
         cfg.load_build_file(sys.argv[1])
 
@@ -36,24 +42,6 @@ def main():
     init_template_context()
 
     utils.run_iterators()
-
-
-def load_spec_file(file_path):
-    extension = os.path.splitext(file_path)[1][1:]
-    if extension == 'yaml' or 'yml':
-        with open(file_path) as f:
-            try:
-                return yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                print(e)
-                sys.exit()
-    if extension == 'json':
-        with open(file_path) as f:
-            try:
-                return json.load(f)
-            except ValueError as e:
-                print(e)
-                sys.exit()
 
 
 def validate_specification(spec):

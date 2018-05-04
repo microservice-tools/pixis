@@ -1,7 +1,7 @@
 import importlib.util
 import os
 
-import pixis.configurations as cfg
+import pixis.configuration as cfg
 import pixis.utils as utils
 
 
