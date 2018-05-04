@@ -1,4 +1,8 @@
 class Language():
-    get_type()
+    @staticmethod
+    def to_lang_type(x):
+        raise NotImplementedError()
 
-    get_translated_type() => camelCase
+    @staticmethod
+    def to_lang_style(x):
+        raise NotImplementedError()
