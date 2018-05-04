@@ -1,6 +1,8 @@
 import re
 
-import pixis.configurations as cfg
+from pixis.config import Config
+
+EXT_REGEX = re.compile('x-.*')
 
 
 class OpenAPI3():
@@ -11,14 +13,14 @@ class OpenAPI3():
         ref_string = dikt['$ref']
         ref_path = ref_string.split('/')
 
-        ref = cfg.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
+        ref = Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
         return ref
 
     def get_extensions(self, dikt):
         extensions = {}
 
         for key, value in dikt.items():
-            if cfg.EXT_REGEX.match(key):
+            if re.match(EXT_REGEX, key):
                 extensions[key] = value
 
         return extensions
@@ -68,19 +70,19 @@ class OpenAPI3():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+                s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
             return s
         if schema_dict.get('type') == 'array':
-            return cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['array'] + cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['<'] + self.get_type(schema_dict['items'], depth + 1)
+            return Config.TYPE_MAPPINGS[Config.APPLICATION]['array'] + Config.TYPE_MAPPINGS[Config.APPLICATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][_format]
+            s = Config.TYPE_MAPPINGS[Config.APPLICATION][_format]
         else:
-            s = cfg.TYPE_MAPPINGS[cfg.LANGUAGE][schema_dict['type']]
+            s = Config.TYPE_MAPPINGS[Config.APPLICATION][schema_dict['type']]
         for _ in range(depth):
-            s += cfg.TYPE_MAPPINGS[cfg.LANGUAGE]['>']
+            s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
         return s
 
     def to_boolean(self, s):
@@ -109,7 +111,7 @@ class Path(OpenAPI3):
     def __init__(self, parent_dict, operation_dict):
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
-        if cfg.LANGUAGE == 'flask':
+        if Config.APPLICATION == 'flask':
             self.url = self.url.replace('}', '>').replace('{', '<')
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']
@@ -227,7 +229,7 @@ class Path(OpenAPI3):
         dikt = {}
 
         for key, value in fallback_dict.items():
-            if re.match(cfg.EXT_REGEX, key):
+            if re.match(EXT_REGEX, key):
                 dikt[key] = value
 
         for key, value in priority_dict.items():

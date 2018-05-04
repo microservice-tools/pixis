@@ -3,7 +3,9 @@ import os
 
 import jinja2
 
-import pixis.configurations as cfg
+from pixis.config import Config
+from pixis.template_context import TEMPLATE_CONTEXT
+
 """
 entrypoints into our code generation, for us and users
 """
@@ -22,7 +24,7 @@ def emit_template(template_path, output_dir, output_name):
     try:
         # check for their custom templates
         template_name = template_path.split('/')[-1]
-        template_loader = jinja2.FileSystemLoader(os.getcwd() + os.path.sep + cfg.TEMPLATES_DIR)
+        template_loader = jinja2.FileSystemLoader(os.getcwd() + os.path.sep + Config.TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: flask_server/model.j2, so we have to do a name comparison here
         print("outputed file \" " + output_name + " \" from user defined template")
@@ -35,7 +37,7 @@ def emit_template(template_path, output_dir, output_name):
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('template does not exist')
 
-    env.globals['cfg'] = cfg
+    env.globals['cfg'] = Config
     output_file = output_dir + os.path.sep + output_name
 
     directory = os.path.dirname(output_file)
@@ -43,7 +45,7 @@ def emit_template(template_path, output_dir, output_name):
         os.makedirs(directory)
 
     with open(output_file, 'w') as outfile:
-        outfile.write(template.render(cfg.TEMPLATE_CONTEXT))
+        outfile.write(template.render(TEMPLATE_CONTEXT))
 
 
 def run_iterators():
@@ -63,14 +65,14 @@ def specification_iterator(specification_iterator_functions):
 
 
 def schemas_iterator(schemas_iterator_functions):
-    for schema_name, schema in cfg.TEMPLATE_CONTEXT['schemas'].items():
-        cfg.TEMPLATE_CONTEXT['_current_schema'] = schema_name
+    for schema_name, schema in TEMPLATE_CONTEXT['schemas'].items():
+        TEMPLATE_CONTEXT['_current_schema'] = schema_name
         for f in schemas_iterator_functions:
             f()
 
 
 def paths_iterator(paths_iterator_functions):
-    for tag, paths in cfg.TEMPLATE_CONTEXT['paths'].items():
-        cfg.TEMPLATE_CONTEXT['_current_tag'] = tag
+    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
+        TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in paths_iterator_functions:
             f()

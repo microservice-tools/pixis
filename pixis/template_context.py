@@ -1,17 +1,20 @@
 import re
 
-import pixis.configurations as cfg
-from pixis.classes import Path, Model
+from pixis.openapi import Model, Path
+from pixis.config import Config
+
+EXT_REGEX = re.compile('x-.*')
+TEMPLATE_CONTEXT = {}
 
 
 def init_template_context():
-    cfg.TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
-    cfg.TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
-    cfg.TEMPLATE_CONTEXT['base_path'] = get_base_path()
+    TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
+    TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
+    TEMPLATE_CONTEXT['base_path'] = get_base_path()
 
 
 def get_base_path():
-    return cfg.SPEC_DICT['servers'][0]['url']
+    return Config.SPEC_DICT['servers'][0]['url']
 
 
 def get_paths_by_tag():
@@ -28,7 +31,7 @@ def get_paths_by_tag():
         else:
             paths_by_tag[tag].append(path)
 
-    for path_url, path_dict in cfg.SPEC_DICT['paths'].items():
+    for path_url, path_dict in Config.SPEC_DICT['paths'].items():
         parent_dict = {
             'url': path_url,
             'summary': path_dict.get('summary'),
@@ -37,7 +40,7 @@ def get_paths_by_tag():
             'parameters': path_dict.get('parameters')
         }
         for key, value in path_dict.items():
-            if re.match(cfg.EXT_REGEX, key):
+            if re.match(EXT_REGEX, key):
                 parent_dict[key] = value
         for method in methods:
             operation_dict = path_dict.get(method)
@@ -50,7 +53,7 @@ def get_paths_by_tag():
 
 def get_schemas_by_name():
     models = {}
-    for schema_name, schema in cfg.SPEC_DICT['components']['schemas'].items():
+    for schema_name, schema in Config.SPEC_DICT['components']['schemas'].items():
         model = Model(schema_name, schema)
         models[model.name] = model
 

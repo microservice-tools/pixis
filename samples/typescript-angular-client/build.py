@@ -1,2 +1,3 @@
 SPEC = 'swagger.yaml'
-LANGUAGE = 'typescript'
+APPLICATION = 'typescript'
+OUT = 'services'
