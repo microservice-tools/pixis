@@ -70,19 +70,19 @@ class OpenAPI3():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                s += Config.TYPE_MAPPINGS[Config.LANGUAGE]['>']
+                s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
             return s
         if schema_dict.get('type') == 'array':
-            return Config.TYPE_MAPPINGS[Config.LANGUAGE]['array'] + Config.TYPE_MAPPINGS[Config.LANGUAGE]['<'] + self.get_type(schema_dict['items'], depth + 1)
+            return Config.TYPE_MAPPINGS[Config.APPLICATION]['array'] + Config.TYPE_MAPPINGS[Config.APPLICATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            s = Config.TYPE_MAPPINGS[Config.LANGUAGE][_format]
+            s = Config.TYPE_MAPPINGS[Config.APPLICATION][_format]
         else:
-            s = Config.TYPE_MAPPINGS[Config.LANGUAGE][schema_dict['type']]
+            s = Config.TYPE_MAPPINGS[Config.APPLICATION][schema_dict['type']]
         for _ in range(depth):
-            s += Config.TYPE_MAPPINGS[Config.LANGUAGE]['>']
+            s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
         return s
 
     def to_boolean(self, s):
@@ -111,7 +111,7 @@ class Path(OpenAPI3):
     def __init__(self, parent_dict, operation_dict):
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
-        if Config.LANGUAGE == 'flask':
+        if Config.APPLICATION == 'flask':
             self.url = self.url.replace('}', '>').replace('{', '<')
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']

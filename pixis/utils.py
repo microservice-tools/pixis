@@ -37,7 +37,7 @@ def emit_template(template_path, output_dir, output_name):
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('template does not exist')
 
-    env.globals['cfg'] = cfg
+    env.globals['cfg'] = Config
     output_file = output_dir + os.path.sep + output_name
 
     directory = os.path.dirname(output_file)

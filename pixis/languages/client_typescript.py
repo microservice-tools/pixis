@@ -3,6 +3,7 @@ import os
 
 import pixis.utils as utils
 from pixis.config import Config
+from pixis.template_context import TEMPLATE_CONTEXT
 
 
 """
@@ -29,13 +30,13 @@ def typescript_specification_setup():
 def typescript_generate_service():
     # CHECK notes/servicetemplatesnodes.ts for TODO
     # almost done
-    utils.emit_template('typescript_client/service.j2', Config.PATH_OUT + os.path.sep + 'api', Config.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
+    utils.emit_template('typescript_client/service.j2', Config.PATH_OUT + os.path.sep + 'api', TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
 
 
 def typescript_models_setup():
     # model files
     print('typescript_models_setup')
-    utils.emit_template('typescript_client/model.j2', Config.PATH_OUT + os.path.sep + 'model', Config.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
+    utils.emit_template('typescript_client/model.j2', Config.PATH_OUT + os.path.sep + 'model', TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
 
 typescript_invocation_iterator_functions = [
