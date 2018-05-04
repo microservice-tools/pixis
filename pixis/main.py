@@ -1,10 +1,6 @@
 import argparse
-import importlib.util
-import json
-import os
 import sys
 
-import yaml
 from openapi_spec_validator import openapi_v3_spec_validator
 
 import pixis.utils as utils
