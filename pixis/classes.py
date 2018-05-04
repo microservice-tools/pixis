@@ -276,7 +276,7 @@ class RequestBody(OpenAPI3):
         request_body_dict = self.get_reference(dikt)
 
         self.formats = self.get_content_formats(request_body_dict)  # array<string>
-        self.types = self.get_content_types(request_body_dict)  # array<string>
+        self.types = MAPPING[cfg.APPLICATION].get_type(self.get_content_types(request_body_dict))  # array<string>
         self.contents = self.get_contents(request_body_dict)  # array<Content>
 
         # TODO
@@ -299,12 +299,14 @@ class Response(OpenAPI3):
         self.headers = response_dict.get('headers')
         self.extensions = self.get_extensions(response_dict)
 
-
+MAPPING = {
+    'angular2-client': JavaScript
+}
 class Parameter(OpenAPI3):
     def __init__(self, dikt):
         parameter_dict = self.get_reference(dikt)
 
-        self.name = parameter_dict.get('name')  # REQUIRED
+        self.name = JavaScript.get_name(parameter_dict.get('name'))  # REQUIRED
         self._in = parameter_dict.get('in')  # REQUIRED
         self.required = self.to_boolean(parameter_dict.get('required'))
         self.type = self.get_schema_type(parameter_dict)

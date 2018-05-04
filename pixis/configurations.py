@@ -62,6 +62,7 @@ TYPE_MAPPINGS = {
     'flask': PYTHON_TYPE_MAPPING,
     'javascript': JAVASCRIPT_TYPE_MAPPING,
     'typescript': JAVASCRIPT_TYPE_MAPPING,
+    'angular2': JavaScript
 }
 
 TEMPLATES_DIR = 'templates'

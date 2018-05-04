@@ -1,0 +1,2 @@
+class Python(Language):
+    pass

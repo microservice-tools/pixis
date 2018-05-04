@@ -15,4 +15,3 @@ export class CustomHttpUrlEncodingCodec extends HttpUrlEncodingCodec {
         return v.replace(/\+/gi, '%2B');
     }
 }
-

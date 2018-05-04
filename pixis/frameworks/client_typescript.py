@@ -8,6 +8,11 @@ import pixis.utils as utils
 """
 wrappers for emitting templates
 """
+global LANG_HANDLER = Angular2
+
+
+class Angular2(Language):
+    pass
 
 
 def typescript_project_setup():
