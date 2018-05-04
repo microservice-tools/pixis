@@ -1,2 +1,3 @@
 SPEC = 'swagger.yaml'
-LANGUAGE = 'flask'
+APPLICATION = 'flask'
+OUT = 'build'

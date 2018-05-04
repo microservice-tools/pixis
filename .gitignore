@@ -4,9 +4,12 @@ codegen-env
 venv
 .idea
 models
-rest_codegen.egg-info
+pixis.egg-info
 build
 .eggs
 .DS_Store
 .pytest_cache/
 services
+.tox
+ChangeLog
+AUTHORS
