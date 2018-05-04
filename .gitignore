@@ -10,3 +10,6 @@ build
 .DS_Store
 .pytest_cache/
 services
+.tox
+ChangeLog
+AUTHORS

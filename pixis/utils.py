@@ -28,14 +28,14 @@ def emit_template(template_path, output_dir, output_name):
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: flask_server/model.j2, so we have to do a name comparison here
         print("outputed file \" " + output_name + " \" from user defined template")
-    except jinja2.exceptions.TemplateNotFound as err:
+    except jinja2.exceptions.TemplateNotFound:
         # check for template in our package
         try:
             template_loader = jinja2.PackageLoader('pixis', 'templates')
             env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
             template = env.get_template(template_path)
         except jinja2.exceptions.TemplateNotFound as err:
-            raise ValueError('template does not exist')
+            raise ValueError('Template does not exist\n' + err)
 
     env.globals['cfg'] = Config
     output_file = output_dir + os.path.sep + output_name

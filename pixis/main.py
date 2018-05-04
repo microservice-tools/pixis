@@ -1,4 +1,4 @@
-import argparse
+# import argparse
 import sys
 
 from openapi_spec_validator import openapi_v3_spec_validator
@@ -35,9 +35,9 @@ def main():
 
 def validate_specification(spec):
     errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
-    l = list(errors_iterator)
-    if (len(l) > 0):
-        print(len(l), 'errors')
+    errors = list(errors_iterator)
+    if (len(errors) > 0):
+        print(len(errors), 'errors')
         sys.exit()
 
     print('specification is valid')
