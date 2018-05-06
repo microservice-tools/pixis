@@ -4,8 +4,18 @@ from pixis.config import Config
 
 EXT_REGEX = re.compile('x-.*')
 
+"""
+    - This module contains classes relevant for representing aspects of the OpenAPI specification
+    - Processing done in these classes will use swagger data types and unchanged names
+    - Language translations and implementation requirements will be handled in their respective modules
+"""
+
 
 class OpenAPI():
+    """
+    An abstract base class containing common functions for derived classes (such as Path, Response, RequestBody, etc)
+    """
+
     def get_reference(self, dikt):
         if '$ref' not in dikt:
             return dikt
@@ -70,19 +80,27 @@ class OpenAPI():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
+                # s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
+                s += '>'
             return s
         if schema_dict.get('type') == 'array':
-            return Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['array'] + Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
+            # return Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['array'] + Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
+            return 'array' + '<' + self.get_type(schema_dict['items'], depth + 1)
+
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][_format]
+            # s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][_format]
+            s = _format
         else:
-            s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][schema_dict['type']]
+            # s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][schema_dict['type']]
+            s = schema_dict['type']
+
         for _ in range(depth):
-            s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
+            # s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
+            s += '>'
+
         return s
 
     def to_boolean(self, s):
@@ -111,8 +129,6 @@ class Path(OpenAPI):
     def __init__(self, parent_dict, operation_dict):
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
-        if Config.IMPLEMENTATION == 'flask':
-            self.url = self.url.replace('}', '>').replace('{', '<')
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']
         self.function_name = path_dict.get('operationId')
