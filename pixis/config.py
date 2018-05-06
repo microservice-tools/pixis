@@ -73,9 +73,15 @@ class Config:
     }
 
     @staticmethod
+
     def load_build_file(build_file, cwd):
         file_path = cwd / build_file
         spec = importlib.util.spec_from_file_location(build_file, file_path.name)
+
+        if not spec:
+            print("The build file \"" + str(file_path) + "\" was expected to be a python file, ending with a .py extension")
+            sys.exit()
+
         build_script = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build_script)
         
@@ -97,17 +103,21 @@ class Config:
 
     @staticmethod
     def load_spec_file():
-        with Config.PATH_SPEC.open() as f:
-            try:
-                Config.SPEC_DICT = yaml.safe_load(f)
-            except yaml.YAMLError as yaml_error:
+        try:
+            with Config.PATH_SPEC.open() as f:
                 try:
-                    Config.SPEC_DICT = json.load(f)
-                except ValueError as json_error:
-                    extension = os.path.splitext(Config.PATH_SPEC)[1][1:]
-                    if extension == 'json':
-                        print(json_error)
-                        sys.exit()
-                    else:
-                        print(yaml_error)
-                        sys.exit()
+                    Config.SPEC_DICT = yaml.safe_load(f)
+                except yaml.YAMLError as yaml_error:
+                    try:
+                        Config.SPEC_DICT = json.load(f)
+                    except ValueError as json_error:
+                        extension = os.path.splitext(Config.PATH_SPEC)[1][1:]
+                        if extension == 'json':
+                            print(json_error)
+                            sys.exit()
+                        else:
+                            print(yaml_error)
+                            sys.exit()
+        except IOError:
+            print("The spec file \"" + str(Config.PATH_SPEC) + "\" could not be found")
+            sys.exit()

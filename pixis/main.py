@@ -1,4 +1,4 @@
-# import argparse
+import argparse
 import sys
 import os
 from pathlib import Path
@@ -17,10 +17,20 @@ from pixis.template_context import init_template_context
 
 
 def main():
-    if len(sys.argv) > 1:
-        build_file = sys.argv[1]
+
+    parser = argparse.ArgumentParser(description= 'A rest api code generator')
+    parser.add_argument('-b', help= "Use your own build file", dest='build_file')
+    parser.add_argument('-o', help= "Output",  action='store_true', dest='output') 
+
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('-q', '--quiet', help= "Suppress Output",  action='store_true', dest='quiet')
+    group.add_argument('-v', '--verbose', help="Increase output verbosity",  action='store_true', dest='verbose')
+    args = parser.parse_args()
+
+    if args.build_file:
         cwd = Path.cwd()
-        Config.load_build_file(build_file, cwd)
+        Config.load_build_file(args.build_file, cwd)
+
     Config.load_spec_file()
 
     if Config.APPLICATION == 'typescript':
