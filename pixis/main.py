@@ -16,17 +16,18 @@ from pixis.template_context import init_template_context
 
 def main():
     if len(sys.argv) > 1:
-        Config.load_build_file(sys.argv[1])
+        Config.load_build_file(sys.argv[1])  # need to get target implementation/language so we know which iterators to use
     Config.load_spec_file()
+    validate_specification(Config.SPEC_DICT)
 
-    if Config.APPLICATION == 'typescript':
-        from pixis.languages.client_typescript import stage_default_iterators
+    if Config.IMPLEMENTATION == 'typescript':
+        from pixis.implementations.client_typescript import stage_default_iterators
     else:
-        from pixis.languages.server_flask import stage_default_iterators
+        from pixis.implementations.server_flask import stage_default_iterators
 
     stage_default_iterators()
-
-    validate_specification(Config.SPEC_DICT)
+    if len(sys.argv) > 1:
+        Config.load_build_file(sys.argv[1])  # need to do this again to stage any custom iterators
 
     init_template_context()
 
