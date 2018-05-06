@@ -47,7 +47,6 @@ def emit_template(template_path, output_dir, output_name):
     # if not os.path.exists(directory):
     #     os.makedirs(directory)
 
-    print(output_file)
     with output_file.open('w') as outfile:
         outfile.write(template.render(TEMPLATE_CONTEXT))
 
