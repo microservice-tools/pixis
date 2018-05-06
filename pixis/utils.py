@@ -38,13 +38,17 @@ def emit_template(template_path, output_dir, output_name):
             raise ValueError('Template does not exist\n' + err)
 
     env.globals['cfg'] = Config
-    output_file = output_dir + os.path.sep + output_name
 
-    directory = os.path.dirname(output_file)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    output_dir.mkdir(parents=True, exist_ok=True) 
+    
+    output_file = output_dir / output_name
 
-    with open(output_file, 'w') as outfile:
+    # directory = os.path.dirname(output_file)
+    # if not os.path.exists(directory):
+    #     os.makedirs(directory)
+
+    print(output_file)
+    with output_file.open('w') as outfile:
         outfile.write(template.render(TEMPLATE_CONTEXT))
 
 

@@ -2,9 +2,8 @@ import importlib.util
 import json
 import os
 import sys
-
 import yaml
-
+from pathlib import Path
 
 class Config:
     APPLICATION = 'flask'
@@ -14,15 +13,15 @@ class Config:
     OUT = 'build'
 
     PATH_BUILD = None
-    PATH_SPEC = os.getcwd() + os.path.sep + SPEC
-    PATH_TEMPLATES = os.getcwd() + os.path.sep + TEMPLATES
-    PATH_OUT = os.getcwd() + os.path.sep + OUT
+    PATH_SPEC = Path(SPEC)
+    PATH_TEMPLATES = Path(TEMPLATES)
+    PATH_OUT = Path(OUT)
 
     SPEC_DICT = {}
 
     # unsure what we're going to do with these
     FLASK_SERVER_NAME = 'flask_server'
-    FLASK_SERVER_OUTPUT = PATH_OUT + os.path.sep + FLASK_SERVER_NAME
+    FLASK_SERVER_OUTPUT = PATH_OUT / FLASK_SERVER_NAME
     # WILL BE MOVED DURING LANGUAGE PART
     JAVASCRIPT_TYPE_MAPPING = {
         'integer': 'number',
@@ -74,30 +73,31 @@ class Config:
     }
 
     @staticmethod
-    def load_build_file(build_file):  # build_file should be a relative filepath
-        filepath = os.getcwd() + os.path.sep + build_file
-        spec = importlib.util.spec_from_file_location(build_file[:-3], filepath)
+    def load_build_file(build_file, cwd):
+        file_path = cwd / build_file
+        spec = importlib.util.spec_from_file_location(build_file, file_path.name)
         build_script = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build_script)
-
+        
         Config.APPLICATION = getattr(build_script, 'APPLICATION', 'flask')
-
-        Config.BUILD = build_file
+        Config.BUILD = cwd / build_file
         Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
         Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
         Config.OUT = getattr(build_script, 'OUT', 'build')
 
-        Config.PATH_BUILD = os.getcwd() + os.path.sep + build_file
-        Config.PATH_SPEC = os.getcwd() + os.path.sep + Config.SPEC
-        Config.PATH_TEMPLATES = os.getcwd() + os.path.sep + Config.TEMPLATES
-        Config.PATH_OUT = os.getcwd() + os.path.sep + Config.OUT
+        # Config.PATH_BUILD = os.getcwd() + os.path.sep + build_file
+        Config.PATH_BUILD = cwd / build_file
+        # Config.PATH_SPEC = os.getcwd() + os.path.sep + Config.SPEC
+        Config.PATH_SPEC = cwd / Config.SPEC        
+        Config.PATH_TEMPLATES = cwd / Config.TEMPLATES
+        Config.PATH_OUT = cwd / Config.OUT
 
         Config.FLASK_SERVER_NAME = 'flask_server'
-        Config.FLASK_SERVER_OUTPUT = Config.PATH_OUT + os.path.sep + Config.FLASK_SERVER_NAME
+        Config.FLASK_SERVER_OUTPUT = Config.PATH_OUT / Config.FLASK_SERVER_NAME
 
     @staticmethod
     def load_spec_file():
-        with open(Config.PATH_SPEC) as f:
+        with Config.PATH_SPEC.open() as f:
             try:
                 Config.SPEC_DICT = yaml.safe_load(f)
             except yaml.YAMLError as yaml_error:

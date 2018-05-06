@@ -20,7 +20,7 @@ def flask_project_setup():
 
 def flask_generate_base_model():
     print('flask_base_model_setup')
-    utils.emit_template('flask_server/base_model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', 'base_model.py')
+    utils.emit_template('flask_server/base_model.j2', Config.FLASK_SERVER_OUTPUT / 'models', 'base_model.py')
     utils.emit_template('flask_server/util.j2', Config.FLASK_SERVER_OUTPUT, 'util.py')
     utils.emit_template('flask_server/encoder.j2', Config.FLASK_SERVER_OUTPUT, 'encoder.py')
 
@@ -34,7 +34,7 @@ def flask_generate_main():
 def flask_generate_controller():
     # controller files
     print('flask_controllers_setup')
-    utils.emit_template('flask_server/controller.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
+    utils.emit_template('flask_server/controller.j2', Config.FLASK_SERVER_OUTPUT / 'controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
 
 
 def makeFirstLetterLower(s):
@@ -42,7 +42,7 @@ def makeFirstLetterLower(s):
 
 
 def flask_generate_model():
-    utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', makeFirstLetterLower(TEMPLATE_CONTEXT['_current_schema']) + '.py')
+    utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT / 'models', makeFirstLetterLower(TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
 
 flask_invocation_iterator_functions = [
