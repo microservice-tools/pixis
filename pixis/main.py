@@ -1,5 +1,7 @@
 # import argparse
 import sys
+import os
+from pathlib import Path
 
 from openapi_spec_validator import openapi_v3_spec_validator
 
@@ -16,7 +18,9 @@ from pixis.template_context import init_template_context
 
 def main():
     if len(sys.argv) > 1:
-        Config.load_build_file(sys.argv[1])
+        build_file = sys.argv[1]
+        cwd = Path.cwd()
+        Config.load_build_file(build_file, cwd)
     Config.load_spec_file()
 
     if Config.APPLICATION == 'typescript':

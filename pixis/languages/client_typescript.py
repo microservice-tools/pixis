@@ -19,8 +19,8 @@ def typescript_specification_setup():
     utils.emit_template('typescript_client/index.j2', Config.PATH_OUT, 'index.ts')
     utils.emit_template('typescript_client/variables.j2', Config.PATH_OUT, 'variables.ts')
     utils.emit_template('typescript_client/configuration.j2', Config.PATH_OUT, 'configuration.ts')
-    utils.emit_template('typescript_client/api_ts.j2', Config.PATH_OUT + os.path.sep + 'api', 'api.ts')
-    utils.emit_template('typescript_client/models.j2', Config.PATH_OUT + os.path.sep + 'model', 'models.ts')
+    utils.emit_template('typescript_client/api_ts.j2', Config.PATH_OUT / 'api', 'api.ts')
+    utils.emit_template('typescript_client/models.j2', Config.PATH_OUT / 'model', 'models.ts')
     utils.emit_template('typescript_client/encoder.j2', Config.PATH_OUT, 'encoder.ts')
     utils.emit_template('typescript_client/api_module.j2', Config.PATH_OUT, 'api.module.ts')
     utils.emit_template('typescript_client/rxjs.j2', Config.PATH_OUT, 'rxjs-operators.ts')
@@ -29,13 +29,13 @@ def typescript_specification_setup():
 def typescript_generate_service():
     # CHECK notes/servicetemplatesnodes.ts for TODO
     # almost done
-    utils.emit_template('typescript_client/service.j2', Config.PATH_OUT + os.path.sep + 'api', TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
+    utils.emit_template('typescript_client/service.j2', Config.PATH_OUT / 'api', TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
 
 
 def typescript_models_setup():
     # model files
     print('typescript_models_setup')
-    utils.emit_template('typescript_client/model.j2', Config.PATH_OUT + os.path.sep + 'model', TEMPLATE_CONTEXT['_current_schema'] + '.ts')
+    utils.emit_template('typescript_client/model.j2', Config.PATH_OUT / 'model', TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
 
 typescript_invocation_iterator_functions = [
