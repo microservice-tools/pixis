@@ -23,12 +23,12 @@ class Javascript(Language):
     }
 
     @staticmethod
-    def to_lang_type(x):
+    def to_lang_type(string):
         try:
-            return Javascript.TYPE_MAP[x]
-        except KeyError as e:
-            raise KeyError(e)
+            return Javascript.TYPE_MAP[string]
+        except KeyError as err:
+            raise KeyError(err)
 
     @staticmethod
-    def to_lang_style(x):
-        return x
+    def to_lang_style(string):
+        return Language.to_camel_case(string)
