@@ -3,11 +3,13 @@ import os
 import pixis.utils as utils
 from pixis.config import Config
 from pixis.template_context import TEMPLATE_CONTEXT
+from pixis.languages.python import Python
 
 
 """
 wrappers for emitting templates
 """
+LANGUAGE = Python
 
 
 def flask_project_setup():

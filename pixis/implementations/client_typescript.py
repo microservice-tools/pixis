@@ -3,12 +3,13 @@ import os
 import pixis.utils as utils
 from pixis.config import Config
 from pixis.template_context import TEMPLATE_CONTEXT
+from pixis.languages.javascript import Javascript
 
 
 """
 wrappers for emitting templates
 """
-global LANG_HANDLER = Angular2
+LANGUAGE = Javascript
 
 
 class Angular2(Language):
