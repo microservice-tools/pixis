@@ -9,7 +9,12 @@ from pixis.languages.python import Python
 """
 wrappers for emitting templates
 """
-LANGUAGE = Python
+
+
+def process():
+    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
+        for path in paths:
+            path.url = path.url.replace('}', '>').replace('{', '<')
 
 
 def flask_project_setup():
@@ -39,12 +44,12 @@ def flask_generate_controller():
     utils.emit_template('flask_server/controller.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
 
 
-def makeFirstLetterLower(s):
-    return s[:1].lower() + s[1:] if s else ''
-
-
 def flask_generate_model():
     utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', makeFirstLetterLower(TEMPLATE_CONTEXT['_current_schema']) + '.py')
+
+
+def makeFirstLetterLower(s):
+    return s[:1].lower() + s[1:] if s else ''
 
 
 flask_invocation_iterator_functions = [
@@ -66,6 +71,7 @@ flask_schemas_iterator_functions = [
 
 
 def stage_default_iterators():
+    Config.LANGUAGE = Python
     utils.stage_iterator(utils.invocation_iterator, flask_invocation_iterator_functions)
     utils.stage_iterator(utils.specification_iterator, flask_specification_iterator_functions)
     utils.stage_iterator(utils.schemas_iterator, flask_schemas_iterator_functions)
