@@ -12,6 +12,7 @@ wrappers for emitting templates
 
 def typescript_project_setup():
     print('typescript_project_setup')
+    utils.emit_template('typescript_client/Dockerfile.j2', os.getcwd(), 'Dockerfile')
 
 
 def typescript_specification_setup():
