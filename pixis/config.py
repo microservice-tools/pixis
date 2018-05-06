@@ -5,9 +5,11 @@ import sys
 
 import yaml
 
+from pixis.languages.python import Python
+
 
 class Config:
-    APPLICATION = 'flask'
+    IMPLEMENTATION = 'flask'
     BUILD = None
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'
@@ -19,6 +21,8 @@ class Config:
     PATH_OUT = os.getcwd() + os.path.sep + OUT
 
     SPEC_DICT = {}
+
+    LANGUAGE = Python
 
     # unsure what we're going to do with these
     FLASK_SERVER_NAME = 'flask_server'
@@ -80,7 +84,11 @@ class Config:
         build_script = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build_script)
 
-        Config.APPLICATION = getattr(build_script, 'APPLICATION', 'flask')
+        SUPPORTED = ['flask', 'angular2']
+        Config.IMPLEMENTATION = getattr(build_script, 'IMPLEMENTATION', 'flask')
+        if Config.IMPLEMENTATION not in SUPPORTED:
+            # TODO it's a custom implementation
+            pass
 
         Config.BUILD = build_file
         Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
