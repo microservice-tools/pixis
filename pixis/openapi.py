@@ -5,7 +5,7 @@ from pixis.config import Config
 EXT_REGEX = re.compile('x-.*')
 
 
-class OpenAPI3():
+class OpenAPI():
     def get_reference(self, dikt):
         if '$ref' not in dikt:
             return dikt
@@ -70,19 +70,19 @@ class OpenAPI3():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
+                s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
             return s
         if schema_dict.get('type') == 'array':
-            return Config.TYPE_MAPPINGS[Config.APPLICATION]['array'] + Config.TYPE_MAPPINGS[Config.APPLICATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
+            return Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['array'] + Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            s = Config.TYPE_MAPPINGS[Config.APPLICATION][_format]
+            s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][_format]
         else:
-            s = Config.TYPE_MAPPINGS[Config.APPLICATION][schema_dict['type']]
+            s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][schema_dict['type']]
         for _ in range(depth):
-            s += Config.TYPE_MAPPINGS[Config.APPLICATION]['>']
+            s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
         return s
 
     def to_boolean(self, s):
@@ -101,17 +101,17 @@ class OpenAPI3():
         return str(self.__dict__)
 
 
-class Path(OpenAPI3):
+class Path(OpenAPI):
     """
     description, summary, servers, parameters, extensions can be from higher level
-    paths have references, but not sure if we're going to support it because seems like openapi3 doesn't support it either?
+    paths have references, but not sure if we're going to support it because seems like OpenAPI doesn't support it either?
     highest level extensions aren't supported (i.e. paths -> ^x-)
     """
 
     def __init__(self, parent_dict, operation_dict):
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
-        if Config.APPLICATION == 'flask':
+        if Config.IMPLEMENTATION == 'flask':
             self.url = self.url.replace('}', '>').replace('{', '<')
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']
@@ -261,7 +261,7 @@ class Path(OpenAPI3):
         return dikt
 
 
-class Content(OpenAPI3):
+class Content(OpenAPI):
     def __init__(self, _format, content_dict):
         self.format = _format
         self.type = self.get_schema_type(content_dict)
@@ -273,12 +273,12 @@ class Content(OpenAPI3):
         self.extensions = self.get_extensions(content_dict)
 
 
-class RequestBody(OpenAPI3):
+class RequestBody(OpenAPI):
     def __init__(self, dikt):
         request_body_dict = self.get_reference(dikt)
 
         self.formats = self.get_content_formats(request_body_dict)  # array<string>
-        self.types = MAPPING[cfg.APPLICATION].get_type(self.get_content_types(request_body_dict))  # array<string>
+        self.types = self.get_content_types(request_body_dict)  # array<string>
         self.contents = self.get_contents(request_body_dict)  # array<Content>
 
         # TODO
@@ -287,7 +287,7 @@ class RequestBody(OpenAPI3):
         self.extensions = self.get_extensions(request_body_dict)
 
 
-class Response(OpenAPI3):
+class Response(OpenAPI):
     def __init__(self, response_code, dikt):
         response_dict = self.get_reference(dikt)
 
@@ -301,10 +301,8 @@ class Response(OpenAPI3):
         self.headers = response_dict.get('headers')
         self.extensions = self.get_extensions(response_dict)
 
-MAPPING = {
-    'angular2-client': JavaScript
-}
-class Parameter(OpenAPI3):
+
+class Parameter(OpenAPI):
     def __init__(self, dikt):
         parameter_dict = self.get_reference(dikt)
 
@@ -325,7 +323,7 @@ class Parameter(OpenAPI3):
         self.extensions = self.get_extensions(parameter_dict)
 
 
-class Model(OpenAPI3):
+class Model(OpenAPI):
     def __init__(self, name, schema_dict):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
@@ -373,7 +371,7 @@ class Model(OpenAPI3):
         return properties
 
 
-class Property(OpenAPI3):
+class Property(OpenAPI):
     def __init__(self, name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
         self.name = name
         self.type = self.get_type(schema_dict)
