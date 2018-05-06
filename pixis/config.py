@@ -80,13 +80,13 @@ class Config:
         spec.loader.exec_module(build_script)
         
         Config.APPLICATION = getattr(build_script, 'APPLICATION', 'flask')
-        Config.BUILD = cwd / build_file
+        Config.BUILD = build_file
         Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
         Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
         Config.OUT = getattr(build_script, 'OUT', 'build')
 
         # Config.PATH_BUILD = os.getcwd() + os.path.sep + build_file
-        Config.PATH_BUILD = cwd / build_file
+        Config.PATH_BUILD = cwd / Config.BUILD
         # Config.PATH_SPEC = os.getcwd() + os.path.sep + Config.SPEC
         Config.PATH_SPEC = cwd / Config.SPEC        
         Config.PATH_TEMPLATES = cwd / Config.TEMPLATES
