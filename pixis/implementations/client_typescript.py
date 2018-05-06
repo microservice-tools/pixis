@@ -9,10 +9,9 @@ from pixis.languages.javascript import Javascript
 """
 wrappers for emitting templates
 """
-LANGUAGE = Javascript
 
 
-class Angular2(Language):
+def process():
     pass
 
 
@@ -62,6 +61,7 @@ typescript_schemas_iterator_functions = [
 
 
 def stage_default_iterators():
+    Config.LANGUAGE = Javascript
     utils.stage_iterator(utils.invocation_iterator, typescript_invocation_iterator_functions)
     utils.stage_iterator(utils.specification_iterator, typescript_specification_iterator_functions)
     utils.stage_iterator(utils.schemas_iterator, typescript_schemas_iterator_functions)
