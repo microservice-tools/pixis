@@ -1,6 +1,6 @@
 import re
 
-from pixis.config import Config
+import pixis.config as cfg
 
 EXT_REGEX = re.compile('x-.*')
 
@@ -23,7 +23,7 @@ class OpenAPI():
         ref_string = dikt['$ref']
         ref_path = ref_string.split('/')
 
-        ref = Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
+        ref = cfg.Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
         return ref
 
     def get_extensions(self, dikt):
@@ -80,21 +80,21 @@ class OpenAPI():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                s += Config.LANGUAGE.to_lang_type('>')
+                s += cfg.Config.LANGUAGE.to_lang_type('>')
             return s
         if schema_dict.get('type') == 'array':
-            return Config.LANGUAGE.to_lang_type('array') + Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], depth + 1)
+            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], depth + 1)
 
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            s = Config.LANGUAGE.to_lang_type(_format)
+            s = cfg.Config.LANGUAGE.to_lang_type(_format)
         else:
-            s = Config.LANGUAGE.to_lang_type(schema_dict['type'])
+            s = cfg.Config.LANGUAGE.to_lang_type(schema_dict['type'])
 
         for _ in range(depth):
-            s += Config.LANGUAGE.to_lang_type('>')
+            s += cfg.Config.LANGUAGE.to_lang_type('>')
 
         return s
 
@@ -314,7 +314,7 @@ class Parameter(OpenAPI):
     def __init__(self, dikt):
         parameter_dict = self.get_reference(dikt)
 
-        self.name = JavaScript.get_name(parameter_dict.get('name'))  # REQUIRED
+        self.name = parameter_dict.get('name')  # REQUIRED
         self._in = parameter_dict.get('in')  # REQUIRED
         self.required = self.to_boolean(parameter_dict.get('required'))
         self.type = self.get_schema_type(parameter_dict)
