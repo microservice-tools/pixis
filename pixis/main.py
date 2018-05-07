@@ -5,7 +5,7 @@ from openapi_spec_validator import openapi_v3_spec_validator
 
 import pixis.utils as utils
 from pixis.config import Config
-from pixis.template_context import init_template_context
+from pixis.template_context import create_template_context
 
 
 """
@@ -20,16 +20,11 @@ def main():
     Config.load_spec_file()
     validate_specification(Config.SPEC_DICT)
 
-    if Config.IMPLEMENTATION == 'typescript':
-        from pixis.implementations.client_typescript import stage_default_iterators
-    else:
-        from pixis.implementations.server_flask import stage_default_iterators
-
-    stage_default_iterators()
+    Config.IMPLEMENTATION.stage_default_iterators()
     if len(sys.argv) > 1:
         Config.load_build_file(sys.argv[1])  # need to do this again to stage any custom iterators
 
-    init_template_context()
+    create_template_context()
 
     utils.run_iterators()
 
