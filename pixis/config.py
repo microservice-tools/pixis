@@ -6,10 +6,10 @@ import sys
 import yaml
 
 from pixis.languages.python import Python
+from pixis.implementations.server_flask import Flask
 
 
-class Config:
-    IMPLEMENTATION = 'flask'
+class Config():
     BUILD = None
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'
@@ -23,59 +23,11 @@ class Config:
     SPEC_DICT = {}
 
     LANGUAGE = Python
+    IMPLEMENTATION = Flask
 
     # unsure what we're going to do with these
     FLASK_SERVER_NAME = 'flask_server'
     FLASK_SERVER_OUTPUT = PATH_OUT + os.path.sep + FLASK_SERVER_NAME
-    # WILL BE MOVED DURING LANGUAGE PART
-    JAVASCRIPT_TYPE_MAPPING = {
-        'integer': 'number',
-        'int32': 'number',
-        'long': 'number',
-        'int64': 'number',
-        'float': 'number',
-        'double': 'number',
-        'string': 'string',
-        'byte': 'string',
-        'binary': 'string',
-        'boolean': 'boolean',
-        'date': 'string',
-        'date-time': 'Date',
-        'password': 'string',
-        'object': 'any',  # TODO
-        'array': 'Array',
-        '<': '<',
-        '>': '>',
-    }
-
-    PYTHON_TYPE_MAPPING = {
-        'integer': 'int',
-        'int32': 'int',
-        'long': 'int',
-        'int64': 'int',
-        'float': 'float',
-        'double': 'float',
-        'string': 'str',
-        # 'byte': 'ByteArray',
-        'byte': 'str',
-        'binary': 'str',
-        # 'binary': 'Binary',
-        'boolean': 'bool',
-        'date': 'date',
-        'date-time': 'datetime',
-        'password': 'str',
-        'object': 'object',  # TODO
-        'array': 'List',
-        '<': '[',
-        '>': ']',
-    }
-
-    TYPE_MAPPINGS = {
-        'python': PYTHON_TYPE_MAPPING,
-        'flask': PYTHON_TYPE_MAPPING,
-        'javascript': JAVASCRIPT_TYPE_MAPPING,
-        'typescript': JAVASCRIPT_TYPE_MAPPING,
-    }
 
     @staticmethod
     def load_build_file(build_file):  # build_file should be a relative filepath
