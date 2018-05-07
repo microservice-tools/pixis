@@ -2,77 +2,53 @@ import os
 
 import pixis.utils as utils
 from pixis.config import Config
-from pixis.template_context import TEMPLATE_CONTEXT
+from pixis.implementations.implementation import Implementation
 from pixis.languages.python import Python
+from pixis.template_context import TEMPLATE_CONTEXT
 
 
-"""
-wrappers for emitting templates
-"""
+class Flask(Implementation):
+    LANGUAGE = Python
 
+    once_iterator_functions = [
+        generate_once,
+    ]
 
-def process():
-    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
-        for path in paths:
-            path.url = path.url.replace('}', '>').replace('{', '<')
+    tag_iterator_functions = [
+        generate_per_tag,
+    ]
 
+    schema_iterator_functions = [
+        generate_per_schema,
+    ]
 
-def flask_project_setup():
-    # outer codegen folder: setup.py, requirements.txt. Dockerfile
-    print('flask_project_setup')
-    utils.emit_template('flask_server/requirements.j2', Config.PATH_OUT, 'requirements.txt')
-    utils.emit_template('flask_server/Dockerfile.j2', Config.PATH_OUT, 'Dockerfile')
-    # utils.emit_template('flask_server/setup.j2', Config.PATH_OUT, 'setup.py')
+    @staticmethod
+    def process():
+        for tag, paths in TEMPLATE_CONTEXT['paths'].items():
+            for path in paths:
+                path.url = path.url.replace('}', '>').replace('{', '<')
 
+    @staticmethod
+    def generate_once():
+        utils.emit_template('flask_server/requirements.j2', Config.PATH_OUT, 'requirements.txt')
+        utils.emit_template('flask_server/Dockerfile.j2', Config.PATH_OUT, 'Dockerfile')
+        utils.emit_template('flask_server/util.j2', Config.FLASK_SERVER_OUTPUT, 'util.py')
+        utils.emit_template('flask_server/encoder.j2', Config.FLASK_SERVER_OUTPUT, 'encoder.py')
+        utils.emit_template('flask_server/base_model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', 'base_model.py')
+        utils.emit_template('flask_server/init.j2', Config.FLASK_SERVER_OUTPUT, '__init__.py')
+        utils.emit_template('flask_server/main.j2', Config.FLASK_SERVER_OUTPUT, '__main__.py')
+        # utils.emit_template('flask_server/setup.j2', Config.PATH_OUT, 'setup.py')
 
-def flask_generate_base_model():
-    print('flask_base_model_setup')
-    utils.emit_template('flask_server/base_model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', 'base_model.py')
-    utils.emit_template('flask_server/util.j2', Config.FLASK_SERVER_OUTPUT, 'util.py')
-    utils.emit_template('flask_server/encoder.j2', Config.FLASK_SERVER_OUTPUT, 'encoder.py')
+    @staticmethod
+    def generate_per_tag():
+        utils.emit_template('flask_server/controller.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
 
+    @staticmethod
+    def generate_per_schema():
+        utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', Implementation.lower_first(TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
-def flask_generate_main():
-    print('flask_generate_main')
-    utils.emit_template('flask_server/init.j2', Config.FLASK_SERVER_OUTPUT, '__init__.py')
-    utils.emit_template('flask_server/main.j2', Config.FLASK_SERVER_OUTPUT, '__main__.py')
-
-
-def flask_generate_controller():
-    # controller files
-    print('flask_controllers_setup')
-    utils.emit_template('flask_server/controller.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
-
-
-def flask_generate_model():
-    utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', makeFirstLetterLower(TEMPLATE_CONTEXT['_current_schema']) + '.py')
-
-
-def makeFirstLetterLower(s):
-    return s[:1].lower() + s[1:] if s else ''
-
-
-flask_invocation_iterator_functions = [
-    flask_project_setup,
-]
-
-flask_specification_iterator_functions = [
-    flask_generate_main,
-    flask_generate_base_model,
-]
-
-flask_paths_iterator_functions = [
-    flask_generate_controller,
-]
-
-flask_schemas_iterator_functions = [
-    flask_generate_model,
-]
-
-
-def stage_default_iterators():
-    Config.LANGUAGE = Python
-    utils.stage_iterator(utils.invocation_iterator, flask_invocation_iterator_functions)
-    utils.stage_iterator(utils.specification_iterator, flask_specification_iterator_functions)
-    utils.stage_iterator(utils.schemas_iterator, flask_schemas_iterator_functions)
-    utils.stage_iterator(utils.paths_iterator, flask_paths_iterator_functions)
+    @staticmethod
+    def stage_default_iterators():
+        utils.stage_iterator(Flask.once_iterator, Flask.once_iterator_functions)
+        utils.stage_iterator(Flask.tag_iterator, Flask.tag_iterator_functions)
+        utils.stage_iterator(Flask.schema_iterator, Flask. schema_iterator_functions)
