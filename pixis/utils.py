@@ -20,6 +20,11 @@ def stage_iterator(x_iterator, x_iterator_functions):
     iterator_functions_mapping[iterator_name] = x_iterator_functions
 
 
+def run_iterators():
+    for iterator_name, iterator in iterators_mapping.items():
+        iterator(iterator_functions_mapping[iterator_name])
+
+
 def emit_template(template_path, output_dir, output_name):
     try:
         # check for their custom templates
@@ -46,33 +51,3 @@ def emit_template(template_path, output_dir, output_name):
 
     with open(output_file, 'w') as outfile:
         outfile.write(template.render(TEMPLATE_CONTEXT))
-
-
-def run_iterators():
-    # run each iterator once
-    for iterator_name, iterator in iterators_mapping.items():
-        iterator(iterator_functions_mapping[iterator_name])
-
-
-def invocation_iterator(invocation_iterator_functions):
-    for f in invocation_iterator_functions:
-        f()
-
-
-def specification_iterator(specification_iterator_functions):
-    for f in specification_iterator_functions:
-        f()
-
-
-def schemas_iterator(schemas_iterator_functions):
-    for schema_name, schema in TEMPLATE_CONTEXT['schemas'].items():
-        TEMPLATE_CONTEXT['_current_schema'] = schema_name
-        for f in schemas_iterator_functions:
-            f()
-
-
-def paths_iterator(paths_iterator_functions):
-    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
-        TEMPLATE_CONTEXT['_current_tag'] = tag
-        for f in paths_iterator_functions:
-            f()
