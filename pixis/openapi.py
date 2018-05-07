@@ -80,26 +80,21 @@ class OpenAPI():
         if ref is not None:
             s = ref.split('/')[3]
             for _ in range(depth):
-                # s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
-                s += '>'
+                s += Config.LANGUAGE.to_lang_type('>')
             return s
         if schema_dict.get('type') == 'array':
-            # return Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['array'] + Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['<'] + self.get_type(schema_dict['items'], depth + 1)
-            return 'array' + '<' + self.get_type(schema_dict['items'], depth + 1)
+            return Config.LANGUAGE.to_lang_type('array') + Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], depth + 1)
 
         # TODO OBJECTS
         # KeyError if schema doesn't have 'type' attribute
         _format = schema_dict.get('format')
         if _format is not None:
-            # s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][_format]
-            s = _format
+            s = Config.LANGUAGE.to_lang_type(_format)
         else:
-            # s = Config.TYPE_MAPPINGS[Config.IMPLEMENTATION][schema_dict['type']]
-            s = schema_dict['type']
+            s = Config.LANGUAGE.to_lang_type(schema_dict['type'])
 
         for _ in range(depth):
-            # s += Config.TYPE_MAPPINGS[Config.IMPLEMENTATION]['>']
-            s += '>'
+            s += Config.LANGUAGE.to_lang_type('>')
 
         return s
 
