@@ -8,19 +8,9 @@ from pixis.template_context import TEMPLATE_CONTEXT
 
 
 class Flask(Implementation):
-    LANGUAGE = Python
-
-    once_iterator_functions = [
-        generate_once,
-    ]
-
-    tag_iterator_functions = [
-        generate_per_tag,
-    ]
-
-    schema_iterator_functions = [
-        generate_per_schema,
-    ]
+    @staticmethod
+    def init():
+        Config.LANGUAGE = Python
 
     @staticmethod
     def process():
@@ -46,6 +36,18 @@ class Flask(Implementation):
     @staticmethod
     def generate_per_schema():
         utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', Implementation.lower_first(TEMPLATE_CONTEXT['_current_schema']) + '.py')
+
+    once_iterator_functions = [
+        generate_once,
+    ]
+
+    tag_iterator_functions = [
+        generate_per_tag,
+    ]
+
+    schema_iterator_functions = [
+        generate_per_schema,
+    ]
 
     @staticmethod
     def stage_default_iterators():

@@ -1,5 +1,13 @@
 class Implementation():
     @staticmethod
+    def init():
+        pass
+
+    @staticmethod
+    def process():
+        pass
+
+    @staticmethod
     def generate_custom():
         pass
 
@@ -41,10 +49,6 @@ class Implementation():
             TEMPLATE_CONTEXT['_current_tag'] = tag
             for f in tag_iterator_functions:
                 f()
-
-    @staticmethod
-    def process():
-        pass
 
     @staticmethod
     def lower_first(s):

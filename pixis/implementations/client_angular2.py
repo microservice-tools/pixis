@@ -3,12 +3,14 @@ import os
 import pixis.utils as utils
 from pixis.config import Config
 from pixis.implementations.implementation import Implementation
-from pixis.languages.python import Javascript
+from pixis.languages.javascript import Javascript
 from pixis.template_context import TEMPLATE_CONTEXT
 
 
 class Angular2(Implementation):
-    LANGUAGE = Javascript
+    @staticmethod
+    def init():
+        Config.LANGUAGE = Javascript
 
     @staticmethod
     def generate_once():
