@@ -108,9 +108,6 @@ class OpenAPI():
         return False
 
     def __repr__(self):
-        return self.to_str()
-
-    def to_str(self):
         return str(self.__dict__)
 
 
