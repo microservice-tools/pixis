@@ -7,11 +7,12 @@ EXT_REGEX = re.compile('x-.*')
 TEMPLATE_CONTEXT = {}
 
 
-def init_template_context():
+def create_template_context():
     TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
     TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
     TEMPLATE_CONTEXT['base_path'] = get_base_path()
     TEMPLATE_CONTEXT['cfg'] = Config
+    Config.IMPLEMENTATION.process()
 
 
 def get_base_path():
