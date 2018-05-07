@@ -1,7 +1,10 @@
 import os
 
+import yaml
 
-class Config():
+
+class Config:
+    APPLICATION = 'flask'
     BUILD = None
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'

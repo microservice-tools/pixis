@@ -24,20 +24,20 @@ def to_class(string):
     return SUPPORTED[string.lower()]
 
 
-"""
-entrypoints into our code generation, for us and users
-"""
-
 iterators_mapping = collections.OrderedDict()
 iterator_functions_mapping = collections.OrderedDict()
+
+
+def set_output(out):
+    cfg.Config.OUT = out
+    cfg.Config.PATH_OUT = os.getcwd() + os.path.sep + cfg.Config.OUT
+    cfg.Config.FLASK_SERVER_OUTPUT = cfg.Config.PATH_OUT + os.path.sep + cfg.Config.FLASK_SERVER_NAME
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
     iterator_functions_mapping[iterator_name] = [static.__func__ for static in x_iterator_functions]
-    print(iterator_name)
-    print(x_iterator_functions)
 
 
 def run_iterators():
@@ -72,7 +72,14 @@ def tag_iterator(tag_iterator_functions):
 
 def load_build_file(build_file):  # build_file should be a relative filepath
     filepath = os.getcwd() + os.path.sep + build_file
+    print(build_file[:-3], filepath)
     spec = importlib.util.spec_from_file_location(build_file[:-3], filepath)
+    # spec = importlib.util.spec_from_file_location(build_file, filepath.name)
+
+    if not spec:
+        print("The build file \"" + str(file_path) + "\" was expected to be a python file, ending with a .py extension")
+        sys.exit()
+
     build_script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_script)
 
@@ -106,7 +113,8 @@ def set_language():
 
 
 def load_spec_file():
-    with open(cfg.Config.PATH_SPEC) as f:
+    print(cfg.Config.PATH_SPEC)
+    with open(os.getcwd() + os.path.sep + cfg.Config.SPEC) as f:
         try:
             cfg.Config.SPEC_DICT = yaml.safe_load(f)
         except yaml.YAMLError as yaml_error:
