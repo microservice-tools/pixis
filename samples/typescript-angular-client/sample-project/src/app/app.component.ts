@@ -19,11 +19,11 @@ export class AppComponent implements OnInit {
     this.petService.getPetById(0)
       .subscribe(
         (response) => {
-          console.log('getPetById(0)');
+          console.log('getPetById(0) response');
           console.log(response);
         },
         (err) => {
-          console.log('getPetById(0)');
+          console.log('getPetById(0) error');
           console.log(err);
         }
       );
