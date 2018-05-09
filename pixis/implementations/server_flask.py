@@ -23,8 +23,10 @@ class Flask(Implementation):
         tmpl.emit_template('server_flask/encoder.j2', cfg.Config.FLASK_SERVER_OUTPUT, 'encoder.py')
         tmpl.emit_template('server_flask/base_model.j2', cfg.Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', 'base_model.py')
         tmpl.emit_template('server_flask/init.j2', cfg.Config.FLASK_SERVER_OUTPUT, '__init__.py')
+        tmpl.emit_template('server_flask/init.j2', cfg.Config.FLASK_SERVER_OUTPUT + os.path.sep + 'models', '__init__.py')
+        tmpl.emit_template('server_flask/init.j2', cfg.Config.FLASK_SERVER_OUTPUT + os.path.sep + 'controllers', '__init__.py')
         tmpl.emit_template('server_flask/main.j2', cfg.Config.FLASK_SERVER_OUTPUT, '__main__.py')
-        # tmpl.emit_template('server_flask/setup.j2', cfg.Config.PATH_OUT, 'setup.py')
+        tmpl.emit_template('server_flask/setup.j2', cfg.Config.PATH_OUT, 'setup.py')
 
     @staticmethod
     def generate_per_tag():
