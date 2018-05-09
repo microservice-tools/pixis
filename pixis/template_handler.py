@@ -38,7 +38,7 @@ def emit_template(template_path, output_dir, output_name):
             env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
             template = env.get_template(template_path)
         except jinja2.exceptions.TemplateNotFound as err:
-            raise ValueError('Template does not exist\n' + err)
+            raise ValueError('Template does not exist\n')
 
     # env.globals['cfg'] = cfg.Config
     output_file = output_dir + os.path.sep + output_name
@@ -91,8 +91,9 @@ def get_paths_by_tag():
 
 def get_schemas_by_name():
     models = {}
-    for schema_name, schema in cfg.Config.SPEC_DICT['components']['schemas'].items():
-        model = oapi.Model(schema_name, schema)
-        models[model.name] = model
+    if 'components' in cfg.Config.SPEC_DICT and 'schemas' in cfg.Config.SPEC_DICT['components']:
+        for schema_name, schema in cfg.Config.SPEC_DICT['components']['schemas'].items():
+            model = oapi.Model(schema_name, schema)
+            models[model.name] = model
 
     return models
