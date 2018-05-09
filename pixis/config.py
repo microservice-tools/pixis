@@ -1,9 +1,14 @@
+"""
+Contains all of the variables that the user can modify
+"""
+
+
 import os
 
 import yaml
 
 
-class Config:
+class Config():
     APPLICATION = 'flask'
     BUILD = None
     SPEC = 'swagger.yaml'
@@ -20,6 +25,6 @@ class Config:
     LANGUAGE = None
     IMPLEMENTATION = 'flask'
 
-    # unsure what we're going to do with these
+    #: unsure what we're going to do with these
     FLASK_SERVER_NAME = 'flask_server'
     FLASK_SERVER_OUTPUT = PATH_OUT + os.path.sep + FLASK_SERVER_NAME

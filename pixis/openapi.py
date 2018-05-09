@@ -1,14 +1,13 @@
+"""
+- This module contains classes relevant for representing aspects of the OpenAPI specification
+- Processing done in these classes will use swagger data types and unchanged names
+- Language translations and implementation requirements will be handled in their respective modules
+"""
 import re
 
 import pixis.config as cfg
 
 EXT_REGEX = re.compile('x-.*')
-
-"""
-    - This module contains classes relevant for representing aspects of the OpenAPI specification
-    - Processing done in these classes will use swagger data types and unchanged names
-    - Language translations and implementation requirements will be handled in their respective modules
-"""
 
 
 class OpenAPI():

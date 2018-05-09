@@ -1,3 +1,8 @@
+"""
+Handles everything related to the template context and emitting templates
+"""
+
+
 import re
 import os
 
