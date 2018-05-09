@@ -4,11 +4,11 @@ class Language():
     """
     @staticmethod
     def to_lang_type(string):
-        raise NotImplementedError()
+        return string
 
     @staticmethod
     def to_lang_style(string):
-        raise NotImplementedError()
+        return string
 
     @staticmethod
     def to_camel_case(string):
