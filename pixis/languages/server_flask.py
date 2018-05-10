@@ -42,6 +42,7 @@ def makeFirstLetterLower(s):
 
 
 def flask_generate_model():
+    print('flask_model_setup')
     utils.emit_template('flask_server/model.j2', Config.FLASK_SERVER_OUTPUT / 'models', makeFirstLetterLower(TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
 
