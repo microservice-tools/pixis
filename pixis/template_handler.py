@@ -30,7 +30,7 @@ def emit_template(template_path, output_dir, output_name):
         template_loader = jinja2.FileSystemLoader(os.getcwd() + os.path.sep + cfg.Config.TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
-        print("outputed file \" " + output_name + " \" from user defined template")
+        print("output file \" " + output_name + " \" from user defined template")
     except jinja2.exceptions.TemplateNotFound:
         # check for template in our package
         try:
