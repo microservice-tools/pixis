@@ -1,81 +1,142 @@
 import collections  # for OrderedDict
+import importlib.util
+import inspect
+import json
 import os
+import sys
 
 import jinja2
+import yaml
+from openapi_spec_validator import openapi_v3_spec_validator
 
-from pixis.config import Config
-from pixis.template_context import TEMPLATE_CONTEXT
+import pixis.config as cfg
+import pixis.template_handler as tmpl
+import pixis.implementations.client_angular2 as pixis_angular2
+import pixis.implementations.server_flask as pixis_flask
 
-"""
-entrypoints into our code generation, for us and users
-"""
+SUPPORTED = {
+    'flask': pixis_flask.Flask,
+    'angular2': pixis_angular2.Angular2,
+}
+
+
+def to_class(string):
+    return SUPPORTED[string.lower()]
+
 
 iterators_mapping = collections.OrderedDict()
 iterator_functions_mapping = collections.OrderedDict()
 
 
+def set_output(out):
+    cfg.Config.OUT = out
+    cfg.Config.PATH_OUT = os.getcwd() + os.path.sep + cfg.Config.OUT
+    cfg.Config.FLASK_SERVER_OUTPUT = cfg.Config.PATH_OUT + os.path.sep + cfg.Config.FLASK_SERVER_NAME
+
+
 def stage_iterator(x_iterator, x_iterator_functions):
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
-    iterator_functions_mapping[iterator_name] = x_iterator_functions
-
-
-def emit_template(template_path, output_dir, output_name):
-    try:
-        # check for their custom templates
-        template_name = template_path.split('/')[-1]
-        template_loader = jinja2.FileSystemLoader(os.getcwd() + os.path.sep + Config.TEMPLATES)
-        env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
-        template = env.get_template(template_name)  # template_path is something like: flask_server/model.j2, so we have to do a name comparison here
-        print("outputed file \" " + output_name + " \" from user defined template")
-    except jinja2.exceptions.TemplateNotFound:
-        # check for template in our package
-        try:
-            template_loader = jinja2.PackageLoader('pixis', 'templates')
-            env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
-            template = env.get_template(template_path)
-        except jinja2.exceptions.TemplateNotFound as err:
-            raise ValueError('Template does not exist\n' + err)
-
-    env.globals['cfg'] = Config
-
-    output_dir.mkdir(parents=True, exist_ok=True) 
-    
-    output_file = output_dir / output_name
-
-    # directory = os.path.dirname(output_file)
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
-
-    with output_file.open('w') as outfile:
-        outfile.write(template.render(TEMPLATE_CONTEXT))
+    iterator_functions_mapping[iterator_name] = [static.__func__ for static in x_iterator_functions]
 
 
 def run_iterators():
-    # run each iterator once
     for iterator_name, iterator in iterators_mapping.items():
         iterator(iterator_functions_mapping[iterator_name])
 
 
-def invocation_iterator(invocation_iterator_functions):
-    for f in invocation_iterator_functions:
+def set_iterators():
+    cfg.Config.IMPLEMENTATION.stage_default_iterators()
+    if cfg.Config.BUILD is not None:
+        load_build_file(cfg.Config.BUILD)
+
+
+def once_iterator(once_iterator_functions):
+    for f in once_iterator_functions:
         f()
 
 
-def specification_iterator(specification_iterator_functions):
-    for f in specification_iterator_functions:
-        f()
-
-
-def schemas_iterator(schemas_iterator_functions):
-    for schema_name, schema in TEMPLATE_CONTEXT['schemas'].items():
-        TEMPLATE_CONTEXT['_current_schema'] = schema_name
-        for f in schemas_iterator_functions:
+def schema_iterator(schema_iterator_functions):
+    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
+        for f in schema_iterator_functions:
             f()
 
 
-def paths_iterator(paths_iterator_functions):
-    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
-        TEMPLATE_CONTEXT['_current_tag'] = tag
-        for f in paths_iterator_functions:
+def tag_iterator(tag_iterator_functions):
+    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
+        for f in tag_iterator_functions:
             f()
+
+
+def load_build_file(build_file):  # build_file should be a relative filepath
+    filepath = os.getcwd() + os.path.sep + build_file
+    print(build_file[:-3], filepath)
+    spec = importlib.util.spec_from_file_location(build_file[:-3], filepath)
+    # spec = importlib.util.spec_from_file_location(build_file, filepath.name)
+
+    if not spec:
+        print("The build file \"" + str(file_path) + "\" was expected to be a python file, ending with a .py extension")
+        sys.exit()
+
+    build_script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_script)
+
+    SUPPORTED = ['flask', 'angular2']
+    impl = getattr(build_script, 'IMPLEMENTATION', 'flask')
+    if impl in SUPPORTED:
+        cfg.Config.IMPLEMENTATION = to_class(impl)
+    elif inspect.isclass(impl):
+        cfg.Config.IMPLEMENTATION = impl
+    else:
+        raise TypeError('expected: class or string of supported implementations (such as "flask")')
+
+    cfg.Config.BUILD = build_file
+    cfg.Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
+    cfg.Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
+    cfg.Config.OUT = getattr(build_script, 'OUT', 'build')
+
+    cfg.Config.PATH_BUILD = os.getcwd() + os.path.sep + build_file
+    cfg.Config.PATH_SPEC = os.getcwd() + os.path.sep + cfg.Config.SPEC
+    cfg.Config.PATH_TEMPLATES = os.getcwd() + os.path.sep + cfg.Config.TEMPLATES
+    cfg.Config.PATH_OUT = os.getcwd() + os.path.sep + cfg.Config.OUT
+
+    cfg.Config.FLASK_SERVER_NAME = 'flask_server'
+    cfg.Config.FLASK_SERVER_OUTPUT = cfg.Config.PATH_OUT + os.path.sep + cfg.Config.FLASK_SERVER_NAME
+
+
+def set_language():
+    if type(cfg.Config.IMPLEMENTATION) == str:
+        cfg.Config.IMPLEMENTATION = to_class(cfg.Config.IMPLEMENTATION)
+    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
+
+
+def load_spec_file():
+    print(cfg.Config.PATH_SPEC)
+    with open(os.getcwd() + os.path.sep + cfg.Config.SPEC) as f:
+        try:
+            cfg.Config.SPEC_DICT = yaml.safe_load(f)
+        except yaml.YAMLError as yaml_error:
+            try:
+                cfg.Config.SPEC_DICT = json.load(f)
+            except ValueError as json_error:
+                extension = os.path.splitext(cfg.Config.PATH_SPEC)[1][1:]
+                if extension == 'json':
+                    print(json_error)
+                    sys.exit()
+                else:
+                    print(yaml_error)
+                    sys.exit()
+
+    validate_specification(cfg.Config.SPEC_DICT)
+
+
+def validate_specification(spec):
+    errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
+    errors = list(errors_iterator)
+    if (len(errors) > 0):
+        print(len(errors), 'errors')
+        sys.exit()
+
+    print('specification is valid')

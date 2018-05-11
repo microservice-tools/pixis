@@ -5,8 +5,7 @@
 - sorting things alphabetically
 - language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
 - update README
-- update module imports!!!
-- allow user to redirect project output
+- update module imports!!! (check generated pet.py from flask. filenames should be lowercase)
 - show how to extend pixis functionality in samples (make more advanced build files available)
 ---
 ## Python packaging
