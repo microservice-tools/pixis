@@ -92,7 +92,7 @@ def get_schemas_by_name():
     models = {}
     if 'components' in cfg.Config.SPEC_DICT and 'schemas' in cfg.Config.SPEC_DICT['components']:
         for schema_name, schema in cfg.Config.SPEC_DICT['components']['schemas'].items():
-            model = oapi.Model(schema_name, schema)
+            model = oapi.Schema(schema_name, schema)
             models[model.name] = model
 
     return models

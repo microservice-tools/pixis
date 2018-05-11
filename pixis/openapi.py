@@ -330,7 +330,7 @@ class Parameter(OpenAPI):
         self.extensions = self.get_extensions(parameter_dict)
 
 
-class Model(OpenAPI):
+class Schema(OpenAPI):
     def __init__(self, name, schema_dict):
         self.name = name
         # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
