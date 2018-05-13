@@ -33,7 +33,7 @@ def load_spec_file():
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
             except ValueError as json_error:
-                extension = Path(Config.SPEC).suffix
+                extension = Path(cfg.Config.SPEC).suffix
                 if extension == 'json':
                     print(json_error)
                     sys.exit()
@@ -69,7 +69,7 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
     if not spec:
-        print("The build file \"" + str(file_path) + "\" was expected to be a python file, ending with a .py extension")
+        print("The build file \"" + str(filepath) + "\" was expected to be a python file, ending with a .py extension")
         sys.exit()
 
     build_script = importlib.util.module_from_spec(spec)
