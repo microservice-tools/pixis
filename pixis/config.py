@@ -23,6 +23,5 @@ class Config():
     LANGUAGE = None
     IMPLEMENTATION = 'flask'
 
-    #: unsure what we're going to do with these
     FLASK_SERVER_NAME = 'flask_server'
     FLASK_SERVER_OUTPUT = str(Path(PATH_OUT) / FLASK_SERVER_NAME)

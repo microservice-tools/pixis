@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 import jinja2
+
 import pixis.config as cfg
 import pixis.openapi as oapi
 
