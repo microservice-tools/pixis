@@ -25,15 +25,15 @@ def validate_specification(spec):
 
 
 def load_spec_file():
-    print(cfg.Config.PATH_SPEC)
-    with Path(cfg.Config.PATH_SPEC).open() as f:
+    print(cfg.Config.SPEC)
+    with Path(cfg.Config.SPEC).open() as f:
         try:
             cfg.Config.SPEC_DICT = yaml.safe_load(f)
         except yaml.YAMLError as yaml_error:
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
             except ValueError as json_error:
-                extension = Path(Config.PATH_SPEC).suffix
+                extension = Path(Config.SPEC).suffix
                 if extension == 'json':
                     print(json_error)
                     sys.exit()
@@ -55,9 +55,7 @@ def to_class(string):
 
 
 def set_output(out):
-    cfg.Config.OUT = str(Path(out))
-    cfg.Config.PATH_OUT = str(Path(cfg.Config.OUT))
-    cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
+    cfg.Config.OUT = out
 
 
 def set_language():
@@ -77,26 +75,14 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     build_script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_script)
 
-    impl = getattr(build_script, 'IMPLEMENTATION', 'flask')
-    if impl in SUPPORTED:
-        cfg.Config.IMPLEMENTATION = to_class(impl)
-    elif inspect.isclass(impl):
-        cfg.Config.IMPLEMENTATION = impl
-    else:
-        raise TypeError('expected: class or string of supported implementations (such as "flask")')
+    members = inspect.getmembers(build_script, lambda a: not(inspect.isroutine(a)))
+    attributes = [attribute for attribute in members if not(attribute[0].startswith('__') and attribute[0].endswith('__'))]
+    for attribute in attributes:
+        setattr(cfg.Config, attribute[0], attribute[1])
 
-    cfg.Config.BUILD = build_file
-    cfg.Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
-    cfg.Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
-    cfg.Config.OUT = getattr(build_script, 'OUT', 'build')
-
-    cfg.Config.PATH_BUILD = str(Path(build_file))
-    cfg.Config.PATH_SPEC = str(Path(cfg.Config.SPEC))
-    cfg.Config.PATH_TEMPLATES = str(Path(cfg.Config.TEMPLATES))
-    cfg.Config.PATH_OUT = str(Path(cfg.Config.OUT))
-
-    cfg.Config.FLASK_SERVER_NAME = 'flask_server'
-    cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
+    impl = getattr(build_script, 'IMPLEMENTATION')
+    if impl not in SUPPORTED or not inspect.isclass(impl):
+        raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
 
 iterators_mapping = collections.OrderedDict()
