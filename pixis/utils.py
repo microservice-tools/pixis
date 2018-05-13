@@ -75,11 +75,10 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     build_script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_script)
 
-    print(dir(build_script))
-    print(type(dir(build_script)), type(dir(build_script)[0]))
-    for attr in dir(build_script):
-        if '__' not in attr:
-            setattr(cfg.Config, attr, build_script.__dict__[attr])
+    members = inspect.getmembers(build_script, lambda a: not(inspect.isroutine(a)))
+    attributes = [attribute for attribute in members if not(attribute[0].startswith('__') and attribute[0].endswith('__'))]
+    for attribute in attributes:
+        setattr(cfg.Config, attribute[0], attribute[1])
 
     impl = getattr(build_script, 'IMPLEMENTATION')
     if impl not in SUPPORTED or not inspect.isclass(impl):
