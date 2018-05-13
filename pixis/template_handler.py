@@ -26,7 +26,7 @@ def create_template_context():
 def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
     try:  # check for their custom templates
         template_name = Path(template_path).name
-        template_loader = jinja2.FileSystemLoader(cfg.Config.PATH_TEMPLATES)
+        template_loader = jinja2.FileSystemLoader(cfg.Config.TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
         print("Output file \" " + output_name + " \" from user-defined template")
