@@ -3,7 +3,6 @@
 """
 
 import argparse
-import sys
 
 import pixis.template_handler as tmpl
 import pixis.utils as utils
@@ -33,14 +32,9 @@ def main():
     if args.build_file:
         print(args.build_file)
         utils.load_build_file(args.build_file)  # get target implementation/language
-        # cwd = Path.cwd()
-        # Config.load_build_file(args.build_file, cwd)
 
     if args.output:
         utils.set_output(args.output)
-        # Config.out = args.output
-        # Config.PATH_OUT = Path(Config.OUT)
-        # Config.FLASK_SERVER_OUTPUT = Config.PATH_OUT / Config.FLASK_SERVER_NAME
 
     utils.set_language()  # set language class to use for template context translation
     utils.load_spec_file()  # load spec dictionary and verify spec

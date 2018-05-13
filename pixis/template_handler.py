@@ -4,14 +4,11 @@ Handles everything related to the template context and emitting templates
 
 
 import re
-import os
+from pathlib import Path
 
 import jinja2
-
 import pixis.config as cfg
 import pixis.openapi as oapi
-
-from pathlib import Path
 
 EXT_REGEX = re.compile('x-.*')
 TEMPLATE_CONTEXT = {}
@@ -25,28 +22,23 @@ def create_template_context():
     cfg.Config.IMPLEMENTATION.process()
 
 
-def emit_template(template_path, output_dir, output_name):
-    try:
-        # check for their custom templates
+def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
+    try:  # check for their custom templates
         template_name = Path(template_path).name
         template_loader = jinja2.FileSystemLoader(cfg.Config.PATH_TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
         print("Output file \" " + output_name + " \" from user-defined template")
     except jinja2.exceptions.TemplateNotFound:
-        # check for template in our package
-        try:
+        try:  # check for template in Pixis
             template_loader = jinja2.PackageLoader('pixis', 'templates')
             env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
             template = env.get_template(template_path)
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('Template does not exist\n')
 
-    output_dir.mkdir(parents=True, exist_ok=True) # make directories if it does not already exist 
-    output_file = output_dir / output_name 
-    # directory = os.path.dirname(output_file)
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
+    output_file = Path(output_dir) / Path(output_name)
 
     with output_file.open('w') as outfile:
         outfile.write(template.render(TEMPLATE_CONTEXT))

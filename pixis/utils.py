@@ -1,19 +1,17 @@
-import collections  # for OrderedDict
+import collections
 import importlib.util
 import inspect
 import json
-import os
 import sys
-
-import jinja2
-import yaml
-from openapi_spec_validator import openapi_v3_spec_validator
 from pathlib import Path
 
+import yaml
+from openapi_spec_validator import openapi_v3_spec_validator
+
 import pixis.config as cfg
-import pixis.template_handler as tmpl
 import pixis.implementations.client_angular2 as pixis_angular2
 import pixis.implementations.server_flask as pixis_flask
+import pixis.template_handler as tmpl
 
 SUPPORTED = {
     'flask': pixis_flask.Flask,
@@ -122,7 +120,6 @@ def load_spec_file():
                 cfg.Config.SPEC_DICT = json.load(f)
             except ValueError as json_error:
                 extension = Path(Config.PATH_SPEC).suffix
-                # extension = os.path.splitext(cfg.Config.PATH_SPEC)[1][1:]
                 if extension == 'json':
                     print(json_error)
                     sys.exit()
