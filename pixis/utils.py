@@ -75,19 +75,15 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     build_script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_script)
 
-    impl = getattr(build_script, 'IMPLEMENTATION', 'flask')
-    if impl in SUPPORTED:
-        cfg.Config.IMPLEMENTATION = to_class(impl)
-    elif inspect.isclass(impl):
-        cfg.Config.IMPLEMENTATION = impl
-    else:
-        raise TypeError('expected: class or string of supported implementations (such as "flask")')
+    print(dir(build_script))
+    print(type(dir(build_script)), type(dir(build_script)[0]))
+    for attr in dir(build_script):
+        if '__' not in attr:
+            setattr(cfg.Config, attr, build_script.__dict__[attr])
 
-    cfg.Config.BUILD = build_file
-    cfg.Config.SPEC = getattr(build_script, 'SPEC', 'swagger.yaml')
-    cfg.Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
-    cfg.Config.OUT = getattr(build_script, 'OUT', 'build')
-    cfg.Config.FLASK_SERVER_NAME = getattr(build_script, 'FLASK_SERVER_NAME', 'flask_server')
+    impl = getattr(build_script, 'IMPLEMENTATION')
+    if impl not in SUPPORTED or not inspect.isclass(impl):
+        raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
 
 iterators_mapping = collections.OrderedDict()
