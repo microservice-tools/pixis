@@ -11,6 +11,8 @@ import jinja2
 import pixis.config as cfg
 import pixis.openapi as oapi
 
+from pathlib import Path
+
 EXT_REGEX = re.compile('x-.*')
 TEMPLATE_CONTEXT = {}
 
@@ -26,11 +28,11 @@ def create_template_context():
 def emit_template(template_path, output_dir, output_name):
     try:
         # check for their custom templates
-        template_name = template_path.split('/')[-1]
-        template_loader = jinja2.FileSystemLoader(os.getcwd() + os.path.sep + cfg.Config.TEMPLATES)
+        template_name = Path(template_path).name
+        template_loader = jinja2.FileSystemLoader(cfg.Config.PATH_TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
-        print("output file \" " + output_name + " \" from user defined template")
+        print("Output file \" " + output_name + " \" from user-defined template")
     except jinja2.exceptions.TemplateNotFound:
         # check for template in our package
         try:
@@ -40,13 +42,13 @@ def emit_template(template_path, output_dir, output_name):
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('Template does not exist\n')
 
-    output_file = output_dir + os.path.sep + output_name
+    output_dir.mkdir(parents=True, exist_ok=True) # make directories if it does not already exist 
+    output_file = output_dir / output_name 
+    # directory = os.path.dirname(output_file)
+    # if not os.path.exists(directory):
+    #     os.makedirs(directory)
 
-    directory = os.path.dirname(output_file)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    with open(output_file, 'w') as outfile:
+    with output_file.open('w') as outfile:
         outfile.write(template.render(TEMPLATE_CONTEXT))
 
 
