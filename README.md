@@ -66,30 +66,22 @@ We recommend using a virtual environment when generating and testing generated c
 
 This example will use our **sample/python-flask-server/** directory, containing **build.py** and **swagger.yaml**
 
-1. `$ pixis [build.py]`
-    - A directory named **build/** should have been generated
-1. `$ cd build`
-1. `$ pip3 install -r requirements.txt`
-    - The Flask server dependencies will be installed
-1. `$ python3 -m flask_server`
-    - A server should be opened on your localhost
-    - To test a route, append to the basepath: `/pet/0`
-    - You should see the route printed onto the screen
-    - Future versions will have more exciting examples!
-```
-$ cd sample/python-flask-server/
-$ pixis build.py
-```
-To run the server:
-```
-$ cd build
-$ python3 -m flask_server
-```
-- Go to the url that the server is hosted on (ex. https://localhost:8080)
-- Append to the basepath: `/pet/0`
-- You should see the route printed to the screen, and the console will register the GET request
-- Future versions will have more exciting examples!
----
+1.   `$ cd sample/python-flask-server/`
+2.   `$ pixis [build.py]`
+      - A directory named **build/** should have been generated
+3.   `$ cd build`
+      - The Flask server dependencies will be installed
+4.   `$ pip3 install -r requirements.txt`
+      To run the server:
+5.   `$ python3 -m flask_server`
+      - A server should be opened on your localhost
+      - To test a route, append to the basepath: `/pet/0`
+      - You should see the route printed onto the screen
+      - Future versions will have more exciting examples!
+    
+To run in a docker container:
+-   `$ docker build -t your_tag .`
+-   `$ docker run -p 8080:8080 your_tag .`
 
 ## Generating a client
 To use the Angular2/TypeScript client, some prerequisites need to be installed. Earlier versions are untested.
@@ -110,7 +102,7 @@ This example will use our ready to go Angular2 project **sample-project** in **s
 ```
 $ cd sample/typescript-angular-client
 $ pixis build.py
-$ mv build/ sample-project/src/services/
+$ mv services/ sample-project/src/
 $ cd sample-project
 $ npm install
 ```
@@ -118,7 +110,11 @@ To run the client: `npm start` or `ng serve`
 - Go to the url that the client is being served to (ex. http://localhost:4200)
 - If you are also running a server on localhost, you will run into a CORS issue which can be resolved using a google chrome extension (https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?utm_source=chrome-app-launcher-info-dialog)
 - If using our modified angular2 component files, open console (f12) and you should see **getPetById(0)**, meaning that the client is using the generated files. The server will also receive the requests.
----
+
+To run in a docker container:
+- `$ docker build -t your_tag .`
+- `$ docker run -p 4200:4200 your_tag .`
+
 
 # Specification File
 Specification file according to OpenAPI 3.0 Specification guidelines
