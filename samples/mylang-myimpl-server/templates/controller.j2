@@ -1,0 +1,26 @@
+import json
+
+from flask import Blueprint
+from flask import jsonify
+from flask import abort
+from flask import make_response
+from flask import request
+
+from flask_server import util
+
+{{ _current_tag }}_api = Blueprint('{{ _current_tag }}', __name__)
+
+
+{% for path in paths[_current_tag] %}
+@{{ _current_tag }}_api.route('{{path.url}}', methods=['{{path.method}}'])
+def {{path.function_name}}({% for param in path.parameters %}{{param.name}}{% if not loop.last %}, {% endif %}{% endfor %}):
+    {% if path.method == 'post'%}
+    if not request.json:
+        abort(400)
+    {% endif %}
+    return '{{ path.url }} {{ path.method.upper() }}'
+{% if not loop.last %}
+
+
+{% endif %}
+{% endfor %}

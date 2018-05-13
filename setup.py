@@ -8,7 +8,8 @@ setup(
     license='MIT',
     include_package_data=True,
     package_data={
-        'pixis': ['templates/server_flask/*', 'templates/client_angular2/*'],
+        'pixis': ['templates/*'],
+        'samples': ['*'],
     },
     entry_points={
         'console_scripts': [

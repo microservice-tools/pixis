@@ -3,7 +3,7 @@
 import sys
 from setuptools import setup, find_packages
 
-NAME = "{{cfg.FLASK_SERVER_NAME}}"
+NAME = "my_flask_server"
 VERSION = "1.0.0"
 
 # To install the library, run the following
@@ -22,7 +22,7 @@ setup(
     keywords=[],
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['{{cfg.FLASK_SERVER_NAME}}={{cfg.FLASK_SERVER_NAME}}.__main__:main']},
+        'console_scripts': ['my_flask_server=my_flask_server.__main__:main']},
     long_description="""\
     This is a sample Petstore server.  You can find  out more about Swagger at  [http://swagger.io](http://swagger.io) or on  [irc.freenode.net, #swagger](http://swagger.io/irc/). 
     """
