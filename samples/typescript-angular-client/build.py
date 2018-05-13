@@ -1,3 +1,3 @@
 SPEC = 'swagger.yaml'
-APPLICATION = 'typescript'
+IMPLEMENTATION = 'angular2'
 OUT = 'services'

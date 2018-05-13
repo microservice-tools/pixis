@@ -1,13 +1,14 @@
 # **TODO**
 
 ## Misc
-- pep8 conventions
-- sorting things alphabetically
-- language specific modifications (ex. Flask url parameters use '<>' whereas typescript url parameters use '{}')
 - update README
-- update module imports!!!
-- allow user to redirect project output
-- show how to extend pixis functionality in samples (make more advanced build files available)
+---
+## Templates
+- sorting functions/classes alphabetically
+- double check module imports!!!
+- angular2
+    - encodeURIcomponent part needs to be fixed
+    - POST methods aren't being generated correctly
 ---
 ## Python packaging
 - check out package data and Manifest.in, package data now includes the templates but the Manifest.in is not correct
@@ -23,13 +24,12 @@
 ---
 ## Testing
 - **pytest** for unit testing
-- **tox** for integration/setup testing
-- **travis ci** for continuous integration
 ---
 
 ## Documentation
 - docstrings on functions/classes
-- look into documentation options
+- docs on how to change code generation/new languages
+- docs on how templates and template context work
 ---
 
 ## Expand on schemas part of template context
@@ -41,19 +41,9 @@
 - node.js
 ---
 
-## Code functionality
-- response/request handlers
----
-
-## Style & coding conventions
-- make custom Jinja2 filters ( {{ my_variable | toCamelCase }} )
----
-
 ## Docker & Kubernetes support
 ---
 
 ## Code persistence
----
 
-## Demo!
----
+
