@@ -13,6 +13,37 @@ import pixis.implementations.client_angular2 as pixis_angular2
 import pixis.implementations.server_flask as pixis_flask
 import pixis.template_handler as tmpl
 
+
+def validate_specification(spec):
+    errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
+    errors = list(errors_iterator)
+    if (len(errors) > 0):
+        print(len(errors), 'errors')
+        sys.exit()
+
+    print('specification is valid')
+
+
+def load_spec_file():
+    print(cfg.Config.PATH_SPEC)
+    with Path(cfg.Config.PATH_SPEC).open() as f:
+        try:
+            cfg.Config.SPEC_DICT = yaml.safe_load(f)
+        except yaml.YAMLError as yaml_error:
+            try:
+                cfg.Config.SPEC_DICT = json.load(f)
+            except ValueError as json_error:
+                extension = Path(Config.PATH_SPEC).suffix
+                if extension == 'json':
+                    print(json_error)
+                    sys.exit()
+                else:
+                    print(yaml_error)
+                    sys.exit()
+
+    validate_specification(cfg.Config.SPEC_DICT)
+
+
 SUPPORTED = {
     'flask': pixis_flask.Flask,
     'angular2': pixis_angular2.Angular2,
@@ -23,50 +54,16 @@ def to_class(string):
     return SUPPORTED[string.lower()]
 
 
-iterators_mapping = collections.OrderedDict()
-iterator_functions_mapping = collections.OrderedDict()
-
-
 def set_output(out):
-    cfg.Config.OUT = out
+    cfg.Config.OUT = str(Path(out))
     cfg.Config.PATH_OUT = str(Path(cfg.Config.OUT))
     cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
 
 
-def stage_iterator(x_iterator, x_iterator_functions):
-    iterator_name = x_iterator.__name__
-    iterators_mapping[iterator_name] = x_iterator
-    iterator_functions_mapping[iterator_name] = [static.__func__ for static in x_iterator_functions]
-
-
-def run_iterators():
-    for iterator_name, iterator in iterators_mapping.items():
-        iterator(iterator_functions_mapping[iterator_name])
-
-
-def set_iterators():
-    cfg.Config.IMPLEMENTATION.stage_default_iterators()
-    if cfg.Config.BUILD is not None:
-        load_build_file(cfg.Config.BUILD)
-
-
-def once_iterator(once_iterator_functions):
-    for f in once_iterator_functions:
-        f()
-
-
-def schema_iterator(schema_iterator_functions):
-    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
-        for f in schema_iterator_functions:
-            f()
-
-
-def tag_iterator(tag_iterator_functions):
-    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
-        for f in tag_iterator_functions:
-            f()
+def set_language():
+    if type(cfg.Config.IMPLEMENTATION) == str:
+        cfg.Config.IMPLEMENTATION = to_class(cfg.Config.IMPLEMENTATION)
+    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
 def load_build_file(build_file):  # build_file should be a relative filepath
@@ -104,37 +101,41 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
 
 
-def set_language():
-    if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = to_class(cfg.Config.IMPLEMENTATION)
-    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
+iterators_mapping = collections.OrderedDict()
+iterator_functions_mapping = collections.OrderedDict()
 
 
-def load_spec_file():
-    print(cfg.Config.PATH_SPEC)
-    with Path(cfg.Config.PATH_SPEC).open() as f:
-        try:
-            cfg.Config.SPEC_DICT = yaml.safe_load(f)
-        except yaml.YAMLError as yaml_error:
-            try:
-                cfg.Config.SPEC_DICT = json.load(f)
-            except ValueError as json_error:
-                extension = Path(Config.PATH_SPEC).suffix
-                if extension == 'json':
-                    print(json_error)
-                    sys.exit()
-                else:
-                    print(yaml_error)
-                    sys.exit()
-
-    validate_specification(cfg.Config.SPEC_DICT)
+def stage_iterator(x_iterator, x_iterator_functions):
+    iterator_name = x_iterator.__name__
+    iterators_mapping[iterator_name] = x_iterator
+    iterator_functions_mapping[iterator_name] = [static.__func__ for static in x_iterator_functions]
 
 
-def validate_specification(spec):
-    errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
-    errors = list(errors_iterator)
-    if (len(errors) > 0):
-        print(len(errors), 'errors')
-        sys.exit()
+def run_iterators():
+    for iterator_name, iterator in iterators_mapping.items():
+        iterator(iterator_functions_mapping[iterator_name])
 
-    print('specification is valid')
+
+def set_iterators():
+    cfg.Config.IMPLEMENTATION.stage_default_iterators()
+    if cfg.Config.BUILD is not None:
+        load_build_file(cfg.Config.BUILD)
+
+
+def once_iterator(once_iterator_functions):
+    for f in once_iterator_functions:
+        f()
+
+
+def schema_iterator(schema_iterator_functions):
+    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
+        for f in schema_iterator_functions:
+            f()
+
+
+def tag_iterator(tag_iterator_functions):
+    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
+        for f in tag_iterator_functions:
+            f()
