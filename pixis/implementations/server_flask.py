@@ -28,27 +28,15 @@ class Flask(Implementation):
 
     @staticmethod
     def generate_per_tag():
-        tmpl.emit_template('server_flask/controller.j2', cfg.Config.OUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/controllers', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '_controller' + '.py')
+        tmpl.emit_template('server_flask/controller.j2', cfg.Config.OUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/controllers', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '_controller.py')
 
     @staticmethod
     def generate_per_schema():
         tmpl.emit_template('server_flask/model.j2', cfg.Config.OUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/models', Implementation.lower_first(tmpl.TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
-    once_iterator_functions = [
-        generate_once,
-    ]
-
-    tag_iterator_functions = [
-        generate_per_tag,
-    ]
-
-    schema_iterator_functions = [
-        generate_per_schema,
-    ]
-
     @staticmethod
     def stage_default_iterators():
         import pixis.utils as utils
-        utils.stage_iterator(utils.once_iterator, Flask.once_iterator_functions)
-        utils.stage_iterator(utils.tag_iterator, Flask.tag_iterator_functions)
-        utils.stage_iterator(utils.schema_iterator, Flask.schema_iterator_functions)
+        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
+        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
+        utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])

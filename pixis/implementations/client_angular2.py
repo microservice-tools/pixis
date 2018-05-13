@@ -26,21 +26,9 @@ class Angular2(Implementation):
     def generate_per_schema():
         tmpl.emit_template('client_angular2/model.j2', cfg.Config.OUT + '/model', tmpl.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
-    once_iterator_functions = [
-        generate_once,
-    ]
-
-    tag_iterator_functions = [
-        generate_per_tag,
-    ]
-
-    schema_iterator_functions = [
-        generate_per_schema,
-    ]
-
     @staticmethod
     def stage_default_iterators():
         import pixis.utils as utils
-        utils.stage_iterator(utils.once_iterator, Angular2.once_iterator_functions)
-        utils.stage_iterator(utils.tag_iterator, Angular2.tag_iterator_functions)
-        utils.stage_iterator(utils.schema_iterator, Angular2.schema_iterator_functions)
+        utils.stage_iterator(utils.once_iterator, [Angular2.generate_once])
+        utils.stage_iterator(utils.tag_iterator, [Angular2.generate_per_tag])
+        utils.stage_iterator(utils.schema_iterator, [Angular2.generate_per_schema])

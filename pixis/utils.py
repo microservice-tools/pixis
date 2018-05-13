@@ -81,7 +81,7 @@ def load_build_file(build_file):  # build_file should be a relative filepath
         setattr(cfg.Config, attribute[0], attribute[1])
 
     impl = getattr(build_script, 'IMPLEMENTATION')
-    if impl not in SUPPORTED or not inspect.isclass(impl):
+    if impl not in SUPPORTED and not inspect.isclass(impl):
         raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
 
@@ -92,7 +92,7 @@ iterator_functions_mapping = collections.OrderedDict()
 def stage_iterator(x_iterator, x_iterator_functions):
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
-    iterator_functions_mapping[iterator_name] = [static.__func__ for static in x_iterator_functions]
+    iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
 
 
 def run_iterators():
