@@ -8,6 +8,7 @@ import sys
 import jinja2
 import yaml
 from openapi_spec_validator import openapi_v3_spec_validator
+from pathlib import Path
 
 import pixis.config as cfg
 import pixis.template_handler as tmpl
@@ -30,8 +31,8 @@ iterator_functions_mapping = collections.OrderedDict()
 
 def set_output(out):
     cfg.Config.OUT = out
-    cfg.Config.PATH_OUT = os.getcwd() + os.path.sep + cfg.Config.OUT
-    cfg.Config.FLASK_SERVER_OUTPUT = cfg.Config.PATH_OUT + os.path.sep + cfg.Config.FLASK_SERVER_NAME
+    cfg.Config.PATH_OUT = str(Path(cfg.Config.OUT))
+    cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
@@ -71,9 +72,8 @@ def tag_iterator(tag_iterator_functions):
 
 
 def load_build_file(build_file):  # build_file should be a relative filepath
-    filepath = os.getcwd() + os.path.sep + build_file
-    print(build_file[:-3], filepath)
-    spec = importlib.util.spec_from_file_location(build_file[:-3], filepath)
+    filepath = Path(build_file)
+    spec = importlib.util.spec_from_file_location(build_file, filepath.name)
     # spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
     if not spec:
@@ -97,13 +97,13 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     cfg.Config.TEMPLATES = getattr(build_script, 'TEMPLATES', 'templates')
     cfg.Config.OUT = getattr(build_script, 'OUT', 'build')
 
-    cfg.Config.PATH_BUILD = os.getcwd() + os.path.sep + build_file
-    cfg.Config.PATH_SPEC = os.getcwd() + os.path.sep + cfg.Config.SPEC
-    cfg.Config.PATH_TEMPLATES = os.getcwd() + os.path.sep + cfg.Config.TEMPLATES
-    cfg.Config.PATH_OUT = os.getcwd() + os.path.sep + cfg.Config.OUT
+    cfg.Config.PATH_BUILD = str(Path(build_file))
+    cfg.Config.PATH_SPEC = str(Path(cfg.Config.SPEC))
+    cfg.Config.PATH_TEMPLATES = str(Path(cfg.Config.TEMPLATES))
+    cfg.Config.PATH_OUT = str(Path(cfg.Config.OUT))
 
     cfg.Config.FLASK_SERVER_NAME = 'flask_server'
-    cfg.Config.FLASK_SERVER_OUTPUT = cfg.Config.PATH_OUT + os.path.sep + cfg.Config.FLASK_SERVER_NAME
+    cfg.Config.FLASK_SERVER_OUTPUT = str(Path(cfg.Config.PATH_OUT) / cfg.Config.FLASK_SERVER_NAME)
 
 
 def set_language():
@@ -114,14 +114,15 @@ def set_language():
 
 def load_spec_file():
     print(cfg.Config.PATH_SPEC)
-    with open(os.getcwd() + os.path.sep + cfg.Config.SPEC) as f:
+    with Path(cfg.Config.PATH_SPEC).open() as f:
         try:
             cfg.Config.SPEC_DICT = yaml.safe_load(f)
         except yaml.YAMLError as yaml_error:
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
             except ValueError as json_error:
-                extension = os.path.splitext(cfg.Config.PATH_SPEC)[1][1:]
+                extension = Path(Config.PATH_SPEC).suffix
+                # extension = os.path.splitext(cfg.Config.PATH_SPEC)[1][1:]
                 if extension == 'json':
                     print(json_error)
                     sys.exit()
