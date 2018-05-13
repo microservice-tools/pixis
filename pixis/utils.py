@@ -69,7 +69,6 @@ def set_language():
 def load_build_file(build_file):  # build_file should be a relative filepath
     filepath = Path(build_file)
     spec = importlib.util.spec_from_file_location(build_file, filepath.name)
-    # spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
     if not spec:
         print("The build file \"" + str(file_path) + "\" was expected to be a python file, ending with a .py extension")
@@ -78,7 +77,6 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     build_script = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_script)
 
-    SUPPORTED = ['flask', 'angular2']
     impl = getattr(build_script, 'IMPLEMENTATION', 'flask')
     if impl in SUPPORTED:
         cfg.Config.IMPLEMENTATION = to_class(impl)

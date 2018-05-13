@@ -32,6 +32,11 @@ def main():
     if args.build_file:
         print(args.build_file)
         utils.load_build_file(args.build_file)  # get target implementation/language
+    else:
+        try:
+            utils.load_build_file('build.py')
+        except:
+            pass
 
     if args.output:
         utils.set_output(args.output)
