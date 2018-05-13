@@ -35,8 +35,8 @@ def main():
     else:
         try:
             utils.load_build_file('build.py')
-        except:
-            pass
+        except FileNotFoundError as e:
+            print('no build file found: using defaults')
 
     if args.output:
         utils.set_output(args.output)
