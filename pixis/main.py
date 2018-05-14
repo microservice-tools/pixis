@@ -30,14 +30,15 @@ def main():
     # group.add_argument('-v', '--verbose', help="Increase output verbosity", action='store_true', dest='verbose')
     args = parser.parse_args()
 
+    utils.set_config('templates', args.templates)
+    utils.set_config('out', args.output)
+
     try:
         utils.load_build_file(args.build_file)
     except FileNotFoundError:
         print('no build file found: using Pixis defaults')
 
-    utils.set_config('templates', args.templates)
-    utils.set_config('out', args.output)
-    utils.set_config('parent', str(Path(args.output).parent))
+    utils.set_parent()
     utils.set_language()  # set language class to use for template context translation
     utils.load_spec_file()  # load spec dictionary and verify spec
     utils.set_iterators()
