@@ -1,3 +1,4 @@
+import os
 import pixis.config as cfg
 import pixis.template_handler as tmpl
 from pixis.implementations.implementation import Implementation
