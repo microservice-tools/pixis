@@ -1,0 +1,28 @@
+FROM ubuntu:latest
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+ADD . /app
+
+#update apt-get
+RUN apt-get update
+
+#get nodejs and npm
+RUN apt-get install -y nodejs npm
+
+#upgrade npm
+RUN npm install -y npm -g
+
+#get angular
+RUN npm install -y -g @angular/cli@latest
+
+#install the client
+RUN npm install
+
+# Make port 80 available to the world outside this container
+EXPOSE 4200
+
+#start the client
+ENTRYPOINT ["ng", "serve", "--host", "0.0.0.0"]

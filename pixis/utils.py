@@ -50,17 +50,17 @@ SUPPORTED = {
 }
 
 
-def to_class(string):
-    return SUPPORTED[string.lower()]
+def set_config(key, value):
+    setattr(cfg.Config, key.upper(), value)
 
 
-def set_output(out):
-    cfg.Config.OUT = out
+def set_parent():
+    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
 
 
 def set_language():
     if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = to_class(cfg.Config.IMPLEMENTATION)
+        cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
     cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 

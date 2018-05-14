@@ -21,26 +21,24 @@ import pixis.utils as utils
 
 def main():
     parser = argparse.ArgumentParser(description='A rest api code generator')
-    parser.add_argument('-b', help="Use your own build file", dest='build_file')
-    parser.add_argument('-o', help="Output", dest='output')
+    parser.add_argument('-b', '--build', default='build.py', help="Set build file location, default: %(default)s", dest='build_file')
+    parser.add_argument('-o', '--output', default='build', help="Set output directory location, default: %(default)s", dest='output')
+    parser.add_argument('-t', '--templates', default='templates', help="Set local template directory, default: %(default)s", dest='templates')
 
-    group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument('-q', '--quiet', help="Suppress Output", action='store_true', dest='quiet')
-    group.add_argument('-v', '--verbose', help="Increase output verbosity", action='store_true', dest='verbose')
+    # group = parser.add_mutually_exclusive_group(required=False)
+    # group.add_argument('-q', '--quiet', help="Suppress Output", action='store_true', dest='quiet')
+    # group.add_argument('-v', '--verbose', help="Increase output verbosity", action='store_true', dest='verbose')
     args = parser.parse_args()
 
-    if args.build_file:
-        print(args.build_file)
-        utils.load_build_file(args.build_file)  # get target implementation/language
-    else:
-        try:
-            utils.load_build_file('build.py')
-        except FileNotFoundError as e:
-            print('no build file found: using defaults')
+    utils.set_config('templates', args.templates)
+    utils.set_config('out', args.output)
 
-    if args.output:
-        utils.set_output(args.output)
+    try:
+        utils.load_build_file(args.build_file)
+    except FileNotFoundError:
+        print('no build file found: using Pixis defaults')
 
+    utils.set_parent()
     utils.set_language()  # set language class to use for template context translation
     utils.load_spec_file()  # load spec dictionary and verify spec
     utils.set_iterators()
