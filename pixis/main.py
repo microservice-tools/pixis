@@ -37,6 +37,7 @@ def main():
 
     utils.set_config('templates', args.templates)
     utils.set_config('out', args.output)
+    utils.set_config('parent', str(Path(args.output).parent))
     utils.set_language()  # set language class to use for template context translation
     utils.load_spec_file()  # load spec dictionary and verify spec
     utils.set_iterators()

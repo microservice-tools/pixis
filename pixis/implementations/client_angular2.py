@@ -1,4 +1,3 @@
-import os
 import pixis.config as cfg
 import pixis.template_handler as tmpl
 from pixis.implementations.implementation import Implementation
@@ -18,7 +17,7 @@ class Angular2(Implementation):
         tmpl.emit_template('client_angular2/encoder.j2', cfg.Config.OUT, 'encoder.ts')
         tmpl.emit_template('client_angular2/api_module.j2', cfg.Config.OUT, 'api.module.ts')
         tmpl.emit_template('client_angular2/rxjs.j2', cfg.Config.OUT, 'rxjs-operators.ts')
-        tmpl.emit_template('typescript_client/Dockerfile.j2', os.getcwd(), 'Dockerfile')
+        tmpl.emit_template('client_angular2/Dockerfile.j2', cfg.Config.PARENT, 'Dockerfile')
 
     @staticmethod
     def generate_per_tag():
