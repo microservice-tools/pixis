@@ -333,17 +333,74 @@ class Parameter(OpenAPI):
 class Schema(OpenAPI):
     def __init__(self, name, schema_dict):
         self.name = name
-        # key is filename, value is class that is being imported. **NOT SURE IF THIS WILL BE KEPT**
         self.dependencies = self.get_dependencies(schema_dict)
-        self.properties = self.get_properties(schema_dict)  # dictionary with key is property name, value is property type
         self.has_enums = self.enums_exist(schema_dict)
+        self.title = schema_dict.get('title')
+        self.description = schema_dict.get('description')
+        self.default = schema_dict.get('default')
+        self.type = schema_dict.get('type')
+        self.format = schema_dict.get('format')
+
+        # if type is object
+        # additionalProperties can be schema_object or ref
+        self.additionalProperties = self.get_additional_properties(schema_dict.get('additionalProperties'))
+        self.maxProperties = schema_dict.get('maxProperties')
+        self.minProperties = schema_dict.get('minProperties')
+        self.properties = self.get_properties(schema_dict)
+
+        # if type is not specified because schema object is reference to another object
+        # creates an empty class
+        self.ref = schema_dict.get('$ref')
+
+        # if type is array
+        self.maxItems = schema_dict.get('maxItems')
+        self.minItems = schema_dict.get('minItems')
+        self.uniqueItems = schema_dict.get('uniqueItems')
+        # TODO: this is a schema object but does the user need any information from items?
+        # a class will only be created for array if the outer schema is an array and it will be an 
+        # empty class
+        # self.items = 
+
+        # if type is string
+        self.pattern = schema_dict.get('pattern')
+        self.maxLength = schema_dict.get('maxLength')
+        self.minLength = schema_dict.get('minLength')
+
+        # if type is integer or number
+        self.maximum = schema_dict.get('maximum')
+        self.exclusiveMaximum = schema_dict.get('exclusiveMaximum')
+        self.minimum = schema_dict.get('minimum')
+        self.exclusiveMinimum = schema_dict.get('exclusiveMinimum')
+        self.multipleOf = schema_dict.get('multipleOf')
 
     def enums_exist(self, schema_dict):
-        for attribute_name, attribute_dict in schema_dict['properties'].items():
-            if attribute_dict.get('enum') is not None:
-                return True
+        if schema_dict.get('properties') is not None:
+            for attribute_name, attribute_dict in schema_dict['properties'].items():
+                if attribute_dict.get('enum') is not None:
+                    return True
+            return False
+        return None
 
-        return False
+    def get_additional_properties(self, schema_dict):
+        if schema_dict is None:
+            return None
+        else:
+            return self.get_type(schema_dict)
+
+    # def get_additional_properties(self, schema_dict):
+    #     ref = schema_dict.get('$ref')
+    #     if ref is not None:
+    #         return ref.split('/')[3]
+        
+    #     property_type = schema_dict.get('type')  
+        
+    #     if property_type == 'array':
+
+    #     if property_type != 'object':
+    #         return property_type
+    #     if property_type == 'object':
+    #         return property_type
+    #     elif 
 
     def get_dependencies(self, schema_dict):
 
@@ -354,16 +411,32 @@ class Schema(OpenAPI):
             if ref is not None:
                 deps_by_attr.append(ref.split('/')[3])
 
-            elif attribute_dict['type'] == 'array':
+            elif attribute_dict.get('type') == 'array':
                 deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dict['items'])
 
             return deps_by_attr
 
         dependencies = []
 
-        for attribute_name, attribute_dict in schema_dict['properties'].items():
-            attr_deps = get_dep_by_attr(attribute_dict)
-            dependencies = dependencies + attr_deps
+        ref = schema_dict.get('$ref')
+        additionalProperties = schema_dict.get('additionalProperties')
+        properties = schema_dict.get('properties')
+
+        if ref is not None:
+            dependencies.append(ref.split('/')[3])
+            return dependencies
+        
+        if properties is not None:
+            for attribute_name, attribute_dict in schema_dict['properties'].items():
+                attr_deps = get_dep_by_attr(attribute_dict)
+                dependencies = dependencies + attr_deps
+
+        # TODO: additionalProperties is a schema_obj
+        # add refs to dependencies
+        # if additionalProperties is not None:
+        #      for type in schema_dict['additionalProperties'].items():
+        #         attr_deps = get_dep_by_attr(attribute_dict)
+        #         dependencies = dependencies + attr_deps
 
         return dependencies
 

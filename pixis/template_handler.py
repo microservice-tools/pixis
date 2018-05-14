@@ -85,9 +85,37 @@ def get_paths_by_tag():
 
 def get_schemas_by_name():
     models = {}
-    if 'components' in cfg.Config.SPEC_DICT and 'schemas' in cfg.Config.SPEC_DICT['components']:
-        for schema_name, schema in cfg.Config.SPEC_DICT['components']['schemas'].items():
-            model = oapi.Schema(schema_name, schema)
-            models[model.name] = model
+
+    def parse_schema(schema_name, schema_obj, depth):
+        print(schema_name)
+        if schema_obj.get('$ref') is None:
+            attr_type = schema_obj.get('type')
+            if attr_type == 'array':
+                depth = depth + 1
+                parse_schema(schema_name, schema_obj.get('items'), depth)
+            elif attr_type == 'object':
+                models[schema_name] = oapi.Schema(schema_name, schema_obj)
+                if schema_obj.get('properties') is not None:
+                    for attr_name, attr_obj in schema_obj.get('properties').items():
+                        string = '_inner'*depth + '_'
+                        parse_schema(schema_name + string + attr_name, attr_obj, 0)
+                    
+    def attr_primitive(schema_obj):
+        if schema_obj.get('$ref') is None:
+            attr_type = schema_obj.get('type')
+            if attr_type == "string" or attr_type == "integer" or attr_type == "boolean":
+                return True
+            elif attr_type == "object":
+                return False
+            else:
+                attr_primitive(schema_obj.get('items'))
+        return True
+
+    for schema_name, schema_obj in cfg.Config.SPEC_DICT['components']['schemas'].items():
+        attr_is_primitive = attr_primitive(schema_obj)
+        if attr_is_primitive is True:
+            models[schema_name] = oapi.Schema(schema_name,schema_obj)
+        else: 
+            parse_schema(schema_name, schema_obj, 0)
 
     return models
