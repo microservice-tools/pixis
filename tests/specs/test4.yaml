@@ -1,0 +1,20 @@
+#TESTS EXAMPLE CLASS
+
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Pet Store
+paths:
+  /pets:
+    post:
+      responses:
+        '200':
+          description: array of pets
+      requestBody:
+        content:
+          application/json:
+            example:
+              type: integer
+              format: int32
+
+

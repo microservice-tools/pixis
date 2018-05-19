@@ -1,0 +1,16 @@
+#TESTS PARAMETER
+
+openapi: 3.0.0
+info:
+  title: Pet Store
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: array of pets
+      parameters:
+        - name: 'pets'
+          in: 'path'
+
