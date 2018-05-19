@@ -40,7 +40,7 @@ Our system allows for simple and flexible customization as well. The default [Ji
         - `python3 setup.py develop`
 - Uninstall:
     - `pip3 uninstall pixis`
-# Note: If you are having issues installing on Mac OSX try
+**Note: If you are having issues installing on Mac OSX try**
     - pip3 install pbr certifi
 # Usage
 TODO: build file section
