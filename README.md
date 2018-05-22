@@ -45,19 +45,19 @@ Our system allows for simple and flexible customization. The default [Jinja2](ht
     - pip3 install pbr certifi
 
 # Usage
-TODO: build file section
+**Pixis default behavior**: Implementation is *Flask*, Output is *build/*, Templates is *templates/*, Specification file is *swagger.yaml*
 
-**Default settings for Pixis:**
-- Looks for a user-defined build file named **build.py** in the current working directory. If it exists, run it
-- If specification file is not specified in the build file, looks for a specification file named **swagger.yaml** in the current working directory
-- If a folder named **templates/** exists in current working directory, then Pixis will use templates inside that folder instead of default templates, as long as those templates are the same name as the defaults
-- Pixis will generate a Flask server directory named **build** in the current working directory
+`$ pixis`: Looks for **build.py** in the current directory.
 
-**Run Pixis using default settings with:** `$ pixis`
+| COMMAND | LONG        | ARGUMENTS     | DESCRIPTION                                       |
+|---------|-------------|---------------|---------------------------------------------------|
+| -h      | --help      | N/A          | Displays Pixis information and commands           |
+| -b      | --build     | build_file    | Set build file location, default: `build.py`      |
+| -o      | --output    | output_dir    | Set output directory location, default: build/    |
+| -t      | --templates | templates_dir | Set local template directory, default: templates/ |
 
-**Run Pixis using a build file:** `$ pixis build.py`
 
-Sample build file with available options can be found in our repository's **samples/** directory (documentation soon!)
+Refer to `BUILD.md` for more information on the build file
 
 ---
 
@@ -69,12 +69,15 @@ We recommend using a virtual environment when generating and testing generated c
 
 This example will use our **samples/python-flask-server/** directory, containing **build.py** and **swagger.yaml**
 
-1.   `$ cd samples/python-flask-server/`
-2.   `$ pixis` OR `$ pixis -b build.py`
-3.   `$ cd build`
-4.   `$ pip3 install -r requirements.txt`
-5.   `$ pip3 install .`
-6.   `$ my_flask_server`
+```bash
+$ cd samples/python-flask-server/
+$ pixis [-b build.py]
+$ cd build
+$ pip3 install -r requirements.txt
+$ pip3 install .
+$ my_flask_server
+```
+
 - A server should be opened on your localhost
 - To test a route, append to the basepath: `/pet/0`
 - You should see the route printed onto the screen
@@ -99,7 +102,7 @@ This example will use our ready to go Angular2 project **sample-project** in **s
 
 **samples/typescript-angular-client** includes **build.py** and **swagger.yaml**
 
-```
+```bash
 $ cd sample/typescript-angular-client
 $ pixis build.py
 $ mv services/ sample-project/src/
