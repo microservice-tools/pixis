@@ -24,6 +24,15 @@
 ---
 ## Testing
 - **pytest** for unit testing
+- Command line tests:
+    - pixis
+    - pixis -b buildfiles/build1.py
+    - pixis --build buildfiles/build1.py
+    - pixis -o OUT
+    - pixis --output OUT
+    - pixis -t mytemplates
+    - pixis --templates mytemplates
+
 ---
 
 ## Documentation
