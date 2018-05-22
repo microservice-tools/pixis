@@ -2,9 +2,9 @@
 
 Pixis is a flexible and lightweight Python 3 module that can generate server and client files for your REST API. You provide an [OpenAPI3 Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md), we generate the skeleton code to get your API up and running.
 
-Our system allows for simple and flexible customization as well. The default [Jinja2](http://jinja.pocoo.org/docs/2.10/) templates can be easily modifed and/or replaced, so you can generate exactly the code you want. Our build file lets you specify exactly how you want your project to look like, and with a little Python, you can add custom functionality to Pixis, and even generate code in a new language!
+Our system allows for simple and flexible customization. The default [Jinja2](http://jinja.pocoo.org/docs/2.10/) templates can be modifed and/or replaced, so you can generate exactly the code you want. Our build file lets you specify exactly how you want your project to look like, and with a little Python, you can add custom functionality to Pixis, and even generate code in a new language!
 
-### Currently supported server languages: 
+### Currently supported server languages:
 - [Python-Flask](http://flask.pocoo.org/)
 
 ### Currently supported client languages: 
@@ -57,7 +57,7 @@ TODO: build file section
 
 **Run Pixis using a build file:** `$ pixis build.py`
 
-Sample build file with available options can be found in our repository's **sample/** directory (documentation soon!)
+Sample build file with available options can be found in our repository's **samples/** directory (documentation soon!)
 
 ---
 
@@ -67,20 +67,18 @@ We recommend using a virtual environment when generating and testing generated c
 
 ## Generating a server
 
-This example will use our **sample/python-flask-server/** directory, containing **build.py** and **swagger.yaml**
+This example will use our **samples/python-flask-server/** directory, containing **build.py** and **swagger.yaml**
 
-1.   `$ cd sample/python-flask-server/`
-2.   `$ pixis [build.py]`
-      - A directory named **build/** should have been generated
+1.   `$ cd samples/python-flask-server/`
+2.   `$ pixis` OR `$ pixis -b build.py`
 3.   `$ cd build`
-      - The Flask server dependencies will be installed
 4.   `$ pip3 install -r requirements.txt`
-      To run the server:
-5.   `$ python3 -m flask_server`
-      - A server should be opened on your localhost
-      - To test a route, append to the basepath: `/pet/0`
-      - You should see the route printed onto the screen
-      - Future versions will have more exciting examples!
+5.   `$ pip3 install .`
+6.   `$ my_flask_server`
+- A server should be opened on your localhost
+- To test a route, append to the basepath: `/pet/0`
+- You should see the route printed onto the screen
+- Future versions will have more exciting examples!
     
 To run in a docker container:
 -   `$ docker build -t your_tag .`
@@ -88,8 +86,7 @@ To run in a docker container:
 
 ## Generating a client
 To use the Angular2/TypeScript client, some prerequisites need to be installed. Earlier versions are untested.
-- **node.js** >= 8.6.0 
-    - https://nodejs.org/en/
+- [**node.js**](https://nodejs.org/en/) >= 8.6.0 
 - **npm** >= 5.6.0 
     - installed with node.js
     - get latest version with: `[sudo] npm install npm -g`
@@ -98,9 +95,9 @@ To use the Angular2/TypeScript client, some prerequisites need to be installed. 
 
 ---
 
-This example will use our ready to go Angular2 project **sample-project** in **sample/typescript-angular-client**. Our project contains edits (imports and API usage) that a newly generated Angular2 project will not have. Instruction for generating a new Angular2 project can be found [here](https://cli.angular.io/).
+This example will use our ready to go Angular2 project **sample-project** in **samples/typescript-angular-client**. Our project contains edits (imports and API usage) that a newly generated Angular2 project will not have. Instruction for generating a new Angular2 project can be found [here](https://cli.angular.io/).
 
-**sample/typescript-angular-client** includes **build.py** and **swagger.yaml**
+**samples/typescript-angular-client** includes **build.py** and **swagger.yaml**
 
 ```
 $ cd sample/typescript-angular-client
@@ -123,12 +120,5 @@ To run in a docker container:
 Specification file according to OpenAPI 3.0 Specification guidelines
 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
 
-# Configuration File (build.py)
-The configuration file can be used in order to specify the language that the user wants to generate, the specification file to be used, and the output directory name for the generated code.
-
-Please refer to **sample/build.py** for details.
-
-1. `SPEC`: refers to the name of the specification file
-2. `LANGUAGE`: refers to the language the user wants to generate
-    - only python generation is available for server as of now
-    - only typescript generation is available for client as of now
+# Build File (`build.py`)
+Refer to `BUILD.md`
