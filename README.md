@@ -21,7 +21,7 @@ Our system allows for simple and flexible customization as well. The default [Ji
 * [Configuration File](#configuration-file)
 
 # Virtual Environment Setup
-## Linux Users:
+## Linux & Mac Users:
 1. Install latest version of virtualenv using: `sudo pip3 install virtualenv`
 2. Create virtual environment: 
 `virtualenv venv`
@@ -40,6 +40,9 @@ Our system allows for simple and flexible customization as well. The default [Ji
         - `python3 setup.py develop`
 - Uninstall:
     - `pip3 uninstall pixis`
+
+**Note: If you are having issues installing on Mac OSX try**
+    - pip3 install pbr certifi
 
 # Usage
 TODO: build file section
