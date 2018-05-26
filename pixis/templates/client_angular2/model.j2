@@ -6,6 +6,9 @@ import { {{ file_name | capitalize}} } from './{{file_name}}';
 {% endif %}
 {% endfor %}
 export interface {{_current_schema}} {
+    {% if schemas[_current_schema].additionalProperties %}
+    [key: string]: {{schemas[_current_schema].additionalProperties}};
+    {% endif %}
     {% for property in schemas[_current_schema].properties %}
     {{property.name}}{% if not property.is_required %}?{% endif %}: {{property.type}};
     {% endfor %}

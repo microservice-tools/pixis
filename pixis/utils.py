@@ -123,3 +123,4 @@ def tag_iterator(tag_iterator_functions):
         tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
             f()
+    pass
