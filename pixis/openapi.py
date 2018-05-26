@@ -72,9 +72,9 @@ class OpenAPI():
         if schema_dict is None:
             return None
 
-        return self.get_type(schema_dict)
+        return self.get_type(schema_dict, "")
 
-    def get_type(self, schema_dict, depth=0):
+    def get_type(self, schema_dict, model_attr_name, depth=0):
         ref = schema_dict.get('$ref')
         if ref is not None:
             s = ref.split('/')[3]
@@ -82,15 +82,16 @@ class OpenAPI():
                 s += cfg.Config.LANGUAGE.to_lang_type('>')
             return s
         if schema_dict.get('type') == 'array':
-            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], depth + 1)
-
-        # TODO OBJECTS
-        # KeyError if schema doesn't have 'type' attribute
-        _format = schema_dict.get('format')
-        if _format is not None:
-            s = cfg.Config.LANGUAGE.to_lang_type(_format)
+            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'],  model_attr_name, depth + 1)
+        
+        if schema_dict.get('type') == 'object':
+            s = model_attr_name
         else:
-            s = cfg.Config.LANGUAGE.to_lang_type(schema_dict['type'])
+            _format = schema_dict.get('format')
+            if _format is not None:
+                s = cfg.Config.LANGUAGE.to_lang_type(_format)
+            else:
+                s = cfg.Config.LANGUAGE.to_lang_type(schema_dict['type'])
 
         for _ in range(depth):
             s += cfg.Config.LANGUAGE.to_lang_type('>')
@@ -373,6 +374,9 @@ class Schema(OpenAPI):
         self.exclusiveMinimum = schema_dict.get('exclusiveMinimum')
         self.multipleOf = schema_dict.get('multipleOf')
 
+    # def snake_to_camel_case(self,name):
+    #     return name.title().replace("_","")
+
     def enums_exist(self, schema_dict):
         if schema_dict.get('properties') is not None:
             for attribute_name, attribute_dict in schema_dict['properties'].items():
@@ -385,22 +389,7 @@ class Schema(OpenAPI):
         if schema_dict is None:
             return None
         else:
-            return self.get_type(schema_dict)
-
-    # def get_additional_properties(self, schema_dict):
-    #     ref = schema_dict.get('$ref')
-    #     if ref is not None:
-    #         return ref.split('/')[3]
-        
-    #     property_type = schema_dict.get('type')  
-        
-    #     if property_type == 'array':
-
-    #     if property_type != 'object':
-    #         return property_type
-    #     if property_type == 'object':
-    #         return property_type
-    #     elif 
+            return self.get_type(schema_dict, '')
 
     def get_dependencies(self, schema_dict):
 
@@ -446,16 +435,16 @@ class Schema(OpenAPI):
 
         properties = []
         for property_name, property_dict in schema_dict['properties'].items():
-            properties.append(Property(property_name, property_dict, schema_dict.get('required')))
+            properties.append(Property(self.name, property_name, property_dict, schema_dict.get('required')))
 
         return properties
 
 
 class Property(OpenAPI):
-    def __init__(self, name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
-        self.name = name
-        self.type = self.get_type(schema_dict)
-        self.is_required = self.attr_required(name, required_list)
+    def __init__(self, schema_name, property_name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
+        self.name = property_name
+        self.type = self.get_type(schema_dict, schema_name + property_name)
+        self.is_required = self.attr_required(property_name, required_list)
         self.enums = schema_dict.get('enum')
 
     def attr_required(self, attribute_name, required_list):

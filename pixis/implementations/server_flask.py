@@ -9,9 +9,10 @@ class Flask(Implementation):
 
     @staticmethod
     def process():
-        for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
-            for path in paths:
-                path.url = path.url.replace('}', '>').replace('{', '<')
+        # for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
+        #     for path in paths:
+        #         path.url = path.url.replace('}', '>').replace('{', '<')
+        pass
 
     @staticmethod
     def generate_once():
@@ -37,6 +38,6 @@ class Flask(Implementation):
     @staticmethod
     def stage_default_iterators():
         import pixis.utils as utils
-        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
+        # utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
+        # utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
         utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])

@@ -87,7 +87,6 @@ def get_schemas_by_name():
     models = {}
 
     def parse_schema(schema_name, schema_obj, depth):
-        print(schema_name)
         if schema_obj.get('$ref') is None:
             attr_type = schema_obj.get('type')
             if attr_type == 'array':
@@ -97,8 +96,8 @@ def get_schemas_by_name():
                 models[schema_name] = oapi.Schema(schema_name, schema_obj)
                 if schema_obj.get('properties') is not None:
                     for attr_name, attr_obj in schema_obj.get('properties').items():
-                        string = '_inner'*depth + '_'
-                        parse_schema(schema_name + string + attr_name, attr_obj, 0)
+                        string = 'Inner'*depth
+                        parse_schema(schema_name + string + attr_name.capitalize(), attr_obj, 0)
                     
     def attr_primitive(schema_obj):
         if schema_obj.get('$ref') is None:
