@@ -5,6 +5,9 @@ Handles everything related to the template context and emitting templates
 
 import re
 from pathlib import Path
+import hashlib
+import difflib
+import json
 
 import jinja2
 
@@ -40,9 +43,45 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
     output_file = Path(output_dir) / Path(output_name)
+    hash_path = Path(".pixis.json")
 
-    with output_file.open('w') as outfile:
-        outfile.write(template.render(TEMPLATE_CONTEXT))
+    if not hash_path.is_file():
+        with hash_path.open('w') as hf:
+            json.dump({}, hf)
+
+    file_is_new = False
+    if not output_file.is_file():
+        output_file.open('w').close()
+        file_is_new = True
+
+    with hash_path.open('r+') as hash_file, output_file.open('r+') as outfile:
+        hash_dict = json.load(hash_file)
+        new_file = template.render(TEMPLATE_CONTEXT)
+        ans = 'y'
+        if not file_is_new:
+            current_file = outfile.read()
+            current_hash = hashlib.md5(current_file).hexdigest()
+            if current_hash != hash_dict[output_name]:
+                for line in difflib.unified_diff(current_file, new_file, fromfile='current file', tofile='new file', lineterm=''):
+                    print(line)
+                ans = raw_input("You have modified " + output_name + " since your last generation. "
+                                                "Do you want to overwrite and erase all your work?")
+                if ans[0].lower == 'y':
+                    print("Overwriting file...")
+                    outfile.seek(0)
+                else:
+                    print("Original file kept")
+
+        if ans[0].lower == 'y':
+            outfile.write(new_file)
+            new_hash = hashlib.md5(new_file).hexdigest()
+            hash_dict[output_name] = new_hash
+
+        hash_file.seek(0)
+        json.dump(hash_dict, hash_file)
+
+
+
 
 
 def get_base_path():
