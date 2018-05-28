@@ -15,6 +15,12 @@ import pixis.template_handler as tmpl
 
 
 def validate_specification(spec):
+    """
+    Takes in the specification file specified by 'spec' and uses the 'openapi_v3_spec_validator' library to validate for definition errors.
+    
+    Args:
+        spec (dict): dictionary that stores all the definitions where keys and values are defined by OpenAPI v3.0 specification guide
+    """
     errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
     errors = list(errors_iterator)
     if (len(errors) > 0):
@@ -25,6 +31,9 @@ def validate_specification(spec):
 
 
 def load_spec_file():
+    """
+    Reads in 'yaml' or 'json' file, validates for syntax errors and validates the definition of the specification file.
+    """
     print(cfg.Config.SPEC)
     with Path(cfg.Config.SPEC).open() as f:
         try:
@@ -51,20 +60,40 @@ SUPPORTED = {
 
 
 def set_config(key, value):
+    """
+    Set default configuration values for config.py
+
+    Args:
+        key (str): object variable to set 'value' to
+        value (str): value to set config variable to
+    """
     setattr(cfg.Config, key.upper(), value)
 
 
 def set_parent():
+    """
+    Set default configuration value for PARENT for config.py
+    """
     setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
 
 
 def set_language():
+    """
+    Maps and sets the default configuration value for 'LANGUAGE' from given 'IMPLEMENTATION'
+    """
     if type(cfg.Config.IMPLEMENTATION) == str:
         cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
     cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
 def load_build_file(build_file):  # build_file should be a relative filepath
+    """
+    Load and builds module from file name specified by 'build_file' to be executed
+
+    Args:
+        build_file (str): name of build file used for generation customization
+    """
+
     filepath = Path(build_file)
     spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
@@ -90,28 +119,54 @@ iterator_functions_mapping = collections.OrderedDict()
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
+    """
+    Defines all the iterator mappings associated with code generation.
+
+    Args: 
+        x_iterator (function): iterator function to be defined
+            Valid functions are 'once_iterator', 'schema_iterator', and 'tag_iterator'
+        x_iterator_functions (List[function]): list of functions to be generated using specified iterator
+    """
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
     iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
 
 
 def run_iterators():
+    """
+    Executes list of functions of each iterator
+    """
     for iterator_name, iterator in iterators_mapping.items():
         iterator(iterator_functions_mapping[iterator_name])
 
 
 def set_iterators():
+    """
+    Sets the appropriate iterators with function iterators. Uses the build file defined iterators and iterator functions
+    """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
     if cfg.Config.BUILD is not None:
         load_build_file(cfg.Config.BUILD)
 
 
 def once_iterator(once_iterator_functions):
+    """
+    Runs functions mapped to once_iterator
+
+    Args:
+        once_iterator_functions (List[function]): iterator functions that generate once per project. 
+    """
     for f in once_iterator_functions:
         f()
 
 
 def schema_iterator(schema_iterator_functions):
+    """
+    Runs functions mapped to schema_iterator
+
+    Args:
+        schema_iterator_functions (List[function]): iterator functions that generate for each defined schema
+    """
     for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
         tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
         for f in schema_iterator_functions:
@@ -119,6 +174,12 @@ def schema_iterator(schema_iterator_functions):
 
 
 def tag_iterator(tag_iterator_functions):
+    """
+    Runs functions mapped to tag_iterator
+
+    Args:
+        tag_iterator_functions (List[function]): iterator functions that generate for each defined path
+    """
     for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
         tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
