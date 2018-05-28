@@ -332,7 +332,32 @@ class Parameter(OpenAPI):
 
 
 class Schema(OpenAPI):
+    """
+    A class for a schema object defined for the template context
+    Attributes follow the OpenAPI v3.0 specification
+    """
+
     def __init__(self, name, schema_dict):
+        """
+        Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
+        
+        Args:
+            name (str): name of schema object
+            schema_dict(Dict): attribute dictionary of schema object
+
+        Attributes:
+            name (str): name of schema object
+            dependencies (List[str]): dependencies needed by schema object
+            has_enums (bool): True if schema object has at least one enum, False otherwise
+            title (str): title of schema object
+            description (str): description of schema object
+            default (str): default value if none is provided
+            type (str): type of schema object
+                Possible values are 'array', 'boolean', 'integer', 'number', 'object', and 'string'
+            format (str): format of the schema object type
+                Possible values are: 'int32' and 'int64' if type is 'integer'; 'float' and 'double' if type is 'number'; 'byte', 'binary', 'date', 'date-time' and 'password' if type is 'string';
+
+        """
         self.name = name
         self.dependencies = self.get_dependencies(schema_dict)
         self.has_enums = self.enums_exist(schema_dict)
@@ -378,22 +403,57 @@ class Schema(OpenAPI):
     #     return name.title().replace("_","")
 
     def enums_exist(self, schema_dict):
+        """
+        Determines if enums exist for schema object
+
+        Args:
+            schema_dict (Dict): attribute dictionary of schema object
+
+        Returns:
+            True if enums exist for schema object, False otherwise; if properties is not defined, return None 
+        """
         if schema_dict.get('properties') is not None:
             for attribute_name, attribute_dict in schema_dict['properties'].items():
                 if attribute_dict.get('enum') is not None:
                     return True
             return False
-        return None
+        return None # this can just be False?
 
     def get_additional_properties(self, schema_dict):
+        """
+        Gets additional properties of schema object
+
+        Args:
+            schema_dict (Dict): 'additionalProperties' attribute dictionary of schema object
+        
+        Returns:
+            type of additional object if it exists, None otherwise
+        """
         if schema_dict is None:
             return None
         else:
             return self.get_type(schema_dict, '')
 
     def get_dependencies(self, schema_dict):
+        """
+        Gets dependencies based on 'additionalProperties', references, and 'properties' defined for schema object
 
+        Args:
+            schema_dict (Dict): attribute dictionary of schema object
+
+        Returns:
+            list of dependencies of schema object
+        """
         def get_dep_by_attr(attribute_dict):
+            """
+            Gets dependencies by each property in schema object by looking at all '$ref' values defined recursively
+
+            Args:
+                attribute_dict (Dict): property attributes dictionary
+
+            Returns:
+                list of dependencies for that property
+            """
             deps_by_attr = []
 
             ref = attribute_dict.get('$ref')
@@ -430,6 +490,15 @@ class Schema(OpenAPI):
         return dependencies
 
     def get_properties(self, schema_dict):
+        """
+        Gets the properties of the object and creates a Property object for each property of the schema object
+
+        Args:
+            schema_dict (Dict): properties attributes dictionary of schema object 
+
+        Returns:
+            list of Property objects
+        """
         if schema_dict.get('properties') is None:
             return []
 
@@ -441,13 +510,43 @@ class Schema(OpenAPI):
 
 
 class Property(OpenAPI):
+    """
+    A class for a property object defined for the template context
+    Attributes follow the OpenAPI v3.0 specification
+    """
     def __init__(self, schema_name, property_name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
+        """
+        Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
+
+        Args:
+            schema_name (str): name for the defined schema the new property object belongs to
+            property_name (str): name attribute for property object
+            schema_dict (dict): value attributes of property defined from specification file
+            required_list (List[str]): list of all required properties of schema object this property belongs to
+        
+        Attributes:
+            name (str): name of property
+            type (str): type of property
+                Can be 'string', 'array', 'integer', or 'object'
+            is_required (bool): False for not required property of schema object, True for required
+            enums (List[str]): possible enums of property 
+        """
         self.name = property_name
         self.type = self.get_type(schema_dict, schema_name + property_name)
         self.is_required = self.attr_required(property_name, required_list)
         self.enums = schema_dict.get('enum')
 
     def attr_required(self, attribute_name, required_list):
+        """
+        Determines if the attribute is required in the schema object
+
+        Args:
+            attribute_name (str): name of property to search for in 'required_list'
+            required_list (List[str]): list of required names of required properties of schema object
+
+        Returns:
+            True if attribute is required in schema object, False otherwise
+        """
         if required_list is None:
             return False
         return attribute_name in required_list

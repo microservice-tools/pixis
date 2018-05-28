@@ -16,6 +16,11 @@ TEMPLATE_CONTEXT = {}
 
 
 def create_template_context():
+    """
+    Creates the template context for 'schemas', 'paths', and 'base_path' based on the specification file and the 'cfg' variables defined in config.py
+
+    Also modifies the template context defaults based on user-defined implementation and/or framework specific type mappings, name case mappings and serialization
+    """
     TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
     TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
     TEMPLATE_CONTEXT['base_path'] = get_base_path()
@@ -23,7 +28,15 @@ def create_template_context():
     cfg.Config.IMPLEMENTATION.process()
 
 
-def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
+def emit_template(template_path, output_dir, output_name):
+    """
+    Creates a file using template defined by 'template_path' into directory defined by 'output_dir' with the name defined by 'output_name'
+
+    Args:
+        template_path (str): template path to use to obtain template for file output
+        output_dir (str): name of output directory
+        output_name (str): name of output file name
+    """
     try:  # check for their custom templates
         template_name = Path(template_path).name
         template_loader = jinja2.FileSystemLoader(cfg.Config.TEMPLATES)
@@ -46,10 +59,22 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
 
 def get_base_path():
+    """
+    Gets the base path from the specification file
+
+    Returns:
+        string of server base path of application
+    """
     return cfg.Config.SPEC_DICT['servers'][0]['url']
 
 
 def get_paths_by_tag():
+    """
+    Gets the paths and organizes it by 'tag' with attributes of each Path object including method, parameters and operationId from the specification file
+
+    Returns:
+        dictionary with the tag as key and list of Path objects
+    """
     paths_by_tag = {}
     methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
 
@@ -84,9 +109,24 @@ def get_paths_by_tag():
 
 
 def get_schemas_by_name():
+    """
+    Get schemas dictionary and accesses attributes of schema by name including dependencies, type and properties
+
+    Returns:
+        dictionary of schemas with the schema name as the key and Schema object as the value
+    """
     models = {}
 
     def parse_schema(schema_name, schema_obj, depth):
+        """
+        Create Schema objects within Schema objects and recursively
+
+        Args:
+            schema_name (str): name of schema object
+            schema_obj (Dict): attributes of schema object
+            depth (int): value of the depth schema object within arrays
+                For example, an array of Schema objects will have a depth of '1'. An array of an array of Schema objects will have a depth of '2'.
+        """
         if schema_obj.get('$ref') is None:
             attr_type = schema_obj.get('type')
             if attr_type == 'array':
@@ -100,6 +140,17 @@ def get_schemas_by_name():
                         parse_schema(schema_name + string + attr_name.capitalize(), attr_obj, 0)
                     
     def attr_primitive(schema_obj):
+        """
+        Determines if schema object type is primitive. If type is 'string', 'integer', or 'boolean', schema object is primitive. If schema object type is object, schema object is not primitive.
+        
+        Recursively determines within type of 'items' of arrays within arrays of schema_obj to determine if the base is primitive
+        
+        Args:
+            schema_obj (Dict): schema object attributes dictionary
+
+        Returns:
+            True if 'schema_obj' is primitive. False, otherwise
+        """
         if schema_obj.get('$ref') is None:
             attr_type = schema_obj.get('type')
             if attr_type == "string" or attr_type == "integer" or attr_type == "boolean":
