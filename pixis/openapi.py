@@ -590,7 +590,8 @@ class Schema(OpenAPI):
         dependencies = []
 
         ref = schema_dict.get('$ref')
-        additionalProperties = schema_dict.get('additionalProperties')
+        # TODO? flake8 error: assigned to but never used
+        # additionalProperties = schema_dict.get('additionalProperties')
         properties = schema_dict.get('properties')
 
         if ref is not None:
