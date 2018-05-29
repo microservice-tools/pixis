@@ -4,16 +4,30 @@ Contains all of the variables that the user can modify
 
 
 class Config():
+    """Provides variables that pixis uses to configure code generation
+
+    Attributes:
+        BUILD: Relative path to build file
+        SPEC: Relative path to specification file
+        TEMPLATES: Relative path to custom templates folder
+        OUT: Relative path to output directory
+        PARENT: Relative path to parent of output directory
+        FLASK_SERVER_NAME: Default server name for flask server implementation
+        VERBOSE: Verbose setting
+        LANGUAGE: Language class implementation
+        IMPLEMENTATION: Implementation class implementation OR string of supported implementations ('flask', 'angular2')
+        SPEC_DICT: raw specification dictionary
+    """
     # DEFAULTS
     # These are relative paths
-    BUILD = None
+    BUILD = 'build.py'
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'
     OUT = 'build'
     PARENT = None
 
-    # These are not relative paths
     FLASK_SERVER_NAME = 'flask_server'
+    VERBOSE = False
 
     LANGUAGE = None
     IMPLEMENTATION = 'flask'
