@@ -43,46 +43,31 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
     output_file = Path(output_dir) / Path(output_name)
-    hash_path = Path(".pixis.json")
+    new_file_str = template.render(TEMPLATE_CONTEXT)
 
-    if not hash_path.is_file():
-        with hash_path.open('w') as hf:
-            json.dump({}, hf)
+    if generate_file(output_file, new_file_str):
+        with output_file.open('w') as out_file:
+            out_file.write(new_file_str)
+            cfg.Config.HASH_DICT[output_name] = hashlib.md5(new_file_str.encode('utf-8')).hexdigest()
 
-    file_is_new = False
-    if not output_file.is_file():
-        output_file.open('w').close()
-        file_is_new = True
-
-    with hash_path.open('r+') as hash_file, output_file.open('r+') as outfile:
-        hash_dict = json.load(hash_file)
-        new_file = template.render(TEMPLATE_CONTEXT)
-        ans = 'y'
-        if not file_is_new:
-            current_file = outfile.read()
-            current_hash = hashlib.md5(current_file).hexdigest()
-            if current_hash != hash_dict[output_name]:
-                for line in difflib.unified_diff(current_file, new_file, fromfile='current file', tofile='new file', lineterm=''):
+def generate_file(file_path, file_str):
+    overwrite = "n"
+    hash_dict = cfg.Config.HASH_DICT
+    if file_path.is_file():
+        with file_path.open('r') as current_file:
+            current_file_str = current_file.read()
+            current_hash = hashlib.md5(current_file_str.encode('utf-8')).hexdigest()
+            if file_path.name not in hash_dict or current_hash != hash_dict[file_path.name]:
+                for line in difflib.unified_diff(current_file_str.splitlines(), file_str.splitlines(),
+                                                 fromfile='current file', tofile='new file'):
                     print(line)
-                ans = raw_input("You have modified " + output_name + " since your last generation. "
-                                                "Do you want to overwrite and erase all your work?")
-                if ans[0].lower == 'y':
-                    print("Overwriting file...")
-                    outfile.seek(0)
-                else:
-                    print("Original file kept")
+                overwrite = input("You have modified " + file_path.name + ". Do you want to overwrite (y/n)? ")
+                print('Overwriting file...' if overwrite[0].lower() == 'y' else 'Original file kept')
 
-        if ans[0].lower == 'y':
-            outfile.write(new_file)
-            new_hash = hashlib.md5(new_file).hexdigest()
-            hash_dict[output_name] = new_hash
-
-        hash_file.seek(0)
-        json.dump(hash_dict, hash_file)
-
-
-
-
+    if overwrite[0].lower() == 'y' or not file_path.is_file():
+        return True
+    else:
+        return False
 
 def get_base_path():
     return cfg.Config.SPEC_DICT['servers'][0]['url']

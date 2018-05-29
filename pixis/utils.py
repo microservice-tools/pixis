@@ -44,6 +44,17 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
+def load_hash_file():
+    try:
+        with Path('.pixis.json').open('r') as f:
+            cfg.Config.HASH_DICT = json.load(f)
+    except:
+        cfg.Config.HASH_DICT = {}
+
+def dump_hashes():
+    with Path('.pixis.json').open('w') as f:
+        json.dump(cfg.Config.HASH_DICT, f)
+
 SUPPORTED = {
     'flask': pixis_flask.Flask,
     'angular2': pixis_angular2.Angular2,
