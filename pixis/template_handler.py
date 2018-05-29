@@ -1,8 +1,3 @@
-"""
-Handles everything related to the template context and emitting templates
-"""
-
-
 import re
 from pathlib import Path
 
@@ -16,10 +11,11 @@ TEMPLATE_CONTEXT = {}
 
 
 def create_template_context():
-    """
-    Creates the template context for 'schemas', 'paths', and 'base_path' based on the specification file and the 'cfg' variables defined in config.py
+    """Creates the template context
 
-    Also modifies the template context defaults based on user-defined implementation and/or framework specific type mappings, name case mappings and serialization
+    Delegates other functions to create context for template variables
+    Default template context has the variables: 'schemas', 'paths', 'base_path', 'cfg'
+    Calls Config.IMPLEMENTATION.process() to allow the user to make final changes
     """
     TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
     TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
@@ -29,12 +25,11 @@ def create_template_context():
 
 
 def emit_template(template_path, output_dir, output_name):
-    """
-    Creates a file using template defined by 'template_path' into directory defined by 'output_dir' with the name defined by 'output_name'
+    """Creates a file using template defined by @template_path into directory defined by @output_dir with filename defined by @output_name
 
     Args:
-        template_path (str): template path to use to obtain template for file output
-        output_dir (str): name of output directory
+        template_path (str): where the template is and what the template file's name is
+        output_dir (str): where to output files
         output_name (str): name of output file name
     """
     try:  # check for their custom templates
@@ -59,18 +54,16 @@ def emit_template(template_path, output_dir, output_name):
 
 
 def get_base_path():
-    """
-    Gets the base path from the specification file
+    """Gets the base path
 
     Returns:
-        string of server base path of application
+        string of server base path for application
     """
     return cfg.Config.SPEC_DICT['servers'][0]['url']
 
 
 def get_paths_by_tag():
-    """
-    Gets the paths and organizes it by 'tag' with attributes of each Path object including method, parameters and operationId from the specification file
+    """Organizes each path by tag
 
     Returns:
         dictionary with the tag as key and list of Path objects
@@ -136,15 +129,15 @@ def get_schemas_by_name():
                 models[schema_name] = oapi.Schema(schema_name, schema_obj)
                 if schema_obj.get('properties') is not None:
                     for attr_name, attr_obj in schema_obj.get('properties').items():
-                        string = 'Inner'*depth
+                        string = 'Inner' * depth
                         parse_schema(schema_name + string + attr_name.capitalize(), attr_obj, 0)
-                    
+
     def attr_primitive(schema_obj):
         """
         Determines if schema object type is primitive. If type is 'string', 'integer', or 'boolean', schema object is primitive. If schema object type is object, schema object is not primitive.
-        
+
         Recursively determines within type of 'items' of arrays within arrays of schema_obj to determine if the base is primitive
-        
+
         Args:
             schema_obj (Dict): schema object attributes dictionary
 
@@ -164,8 +157,8 @@ def get_schemas_by_name():
     for schema_name, schema_obj in cfg.Config.SPEC_DICT['components']['schemas'].items():
         attr_is_primitive = attr_primitive(schema_obj)
         if attr_is_primitive is True:
-            models[schema_name] = oapi.Schema(schema_name,schema_obj)
-        else: 
+            models[schema_name] = oapi.Schema(schema_name, schema_obj)
+        else:
             parse_schema(schema_name, schema_obj, 0)
 
     return models
