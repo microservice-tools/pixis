@@ -146,7 +146,7 @@ def set_iterators():
     """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
     try:
-        utils.load_build_file(args.build_file)
+        load_build_file(cfg.Config.BUILD)
     except FileNotFoundError:
         pass
 
