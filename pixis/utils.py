@@ -15,11 +15,10 @@ import pixis.template_handler as tmpl
 
 
 def validate_specification(spec):
-    """
-    Takes in the specification file specified by 'spec' and uses the 'openapi_v3_spec_validator' library to validate for definition errors.
-    
+    """Validates the specification using **openapi_spec_validator** library
+
     Args:
-        spec (dict): dictionary that stores all the definitions where keys and values are defined by OpenAPI v3.0 specification guide
+        spec (dict): OpenAPI 3.0 specification as a dictionary
     """
     errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
     errors = list(errors_iterator)
@@ -60,26 +59,27 @@ SUPPORTED = {
 
 
 def set_config(key, value):
-    """
-    Set default configuration values for config.py
+    """Sets Config class variable (@key) to @value
 
     Args:
-        key (str): object variable to set 'value' to
-        value (str): value to set config variable to
+        key (str): Config class variable to set
+        value (str): Value to set Config class variable to
     """
     setattr(cfg.Config, key.upper(), value)
 
 
 def set_parent():
-    """
-    Set default configuration value for PARENT for config.py
+    """Sets Config.PARENT to the parent directory filepath of Config.OUT
+
+    Can be used by *emit_template()* to generate files outside of the build directory
     """
     setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
 
 
 def set_language():
-    """
-    Maps and sets the default configuration value for 'LANGUAGE' from given 'IMPLEMENTATION'
+    """Sets Language class for Pixis to use
+
+    Language class is defined within the Implementation class
     """
     if type(cfg.Config.IMPLEMENTATION) == str:
         cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
@@ -87,11 +87,15 @@ def set_language():
 
 
 def load_build_file(build_file):  # build_file should be a relative filepath
-    """
-    Load and builds module from file name specified by 'build_file' to be executed
+    """Executes and pulls info from the user's build file
+
+    Any variable X defined by the user's build file will be integrated into Config class (Config.X)
 
     Args:
-        build_file (str): name of build file used for generation customization
+        build_file (str): filepath of build file used for generation customization
+
+    Raises:
+        TypeError: Occurs if IMPLEMENTATION was an unsupported string, or if Implementation class could not be found
     """
 
     filepath = Path(build_file)
@@ -119,13 +123,11 @@ iterator_functions_mapping = collections.OrderedDict()
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
-    """
-    Defines all the iterator mappings associated with code generation.
+    """Stages iterators and their functions to be executed
 
-    Args: 
-        x_iterator (function): iterator function to be defined
-            Valid functions are 'once_iterator', 'schema_iterator', and 'tag_iterator'
-        x_iterator_functions (List[function]): list of functions to be generated using specified iterator
+    Args:
+        x_iterator (function): iterator function to execute. Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
+        x_iterator_functions (List[function]): list of functions to be executed by specified iterator
     """
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
@@ -133,39 +135,37 @@ def stage_iterator(x_iterator, x_iterator_functions):
 
 
 def run_iterators():
-    """
-    Executes list of functions of each iterator
+    """Executes each iterator that was staged by *stage_iterator()*
     """
     for iterator_name, iterator in iterators_mapping.items():
         iterator(iterator_functions_mapping[iterator_name])
 
 
 def set_iterators():
-    """
-    Sets the appropriate iterators with function iterators. Uses the build file defined iterators and iterator functions
+    """Stages implementation default iterators as well as any user-defined iterators
     """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
-    if cfg.Config.BUILD is not None:
-        load_build_file(cfg.Config.BUILD)
+    try:
+        utils.load_build_file(args.build_file)
+    except FileNotFoundError:
+        pass
 
 
 def once_iterator(once_iterator_functions):
-    """
-    Runs functions mapped to once_iterator
+    """Executes each function in @once_iterator_functions once
 
     Args:
-        once_iterator_functions (List[function]): iterator functions that generate once per project. 
+        once_iterator_functions (List[function]): functions that this iterator will execute
     """
     for f in once_iterator_functions:
         f()
 
 
 def schema_iterator(schema_iterator_functions):
-    """
-    Runs functions mapped to schema_iterator
+    """Executes each function in @schema_iterator_functions once per schema
 
     Args:
-        schema_iterator_functions (List[function]): iterator functions that generate for each defined schema
+        schema_iterator_functions (List[function]): functions that this iterator will execute
     """
     for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
         tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
@@ -174,11 +174,10 @@ def schema_iterator(schema_iterator_functions):
 
 
 def tag_iterator(tag_iterator_functions):
-    """
-    Runs functions mapped to tag_iterator
+    """Executes each function in @tag_iterator_functions once per tag
 
     Args:
-        tag_iterator_functions (List[function]): iterator functions that generate for each defined path
+        tag_iterator_functions (List[function]): functions that this iterator will execute
     """
     for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
         tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
