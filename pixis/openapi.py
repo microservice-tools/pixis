@@ -11,11 +11,20 @@ EXT_REGEX = re.compile('x-.*')
 
 
 class OpenAPI():
-    """
-    An abstract base class containing common functions for derived classes (such as Path, Response, RequestBody, etc)
+    """An abstract base class containing common functions for derived classes (such as Path, Response, RequestBody, etc)
     """
 
     def get_reference(self, dikt):
+        """Resolves the reference, if there was one
+
+        Retrieves the reference from the spec, or just returns @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to resolve the potential reference for
+
+        Returns:
+            A dict that is either the reference, or @dikt
+        """
         if '$ref' not in dikt:
             return dikt
 
@@ -26,6 +35,15 @@ class OpenAPI():
         return ref
 
     def get_extensions(self, dikt):
+        """Retrieves all extensions from @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to retrieve the extensions for
+
+        Returns:
+            A dict that contains all extensions found in @dikt as key, value pairs.
+            If no extensions exist, returns an empty dictionary
+        """
         extensions = {}
 
         for key, value in dikt.items():
@@ -35,6 +53,14 @@ class OpenAPI():
         return extensions
 
     def get_contents(self, dikt):
+        """Retrieves all Content objects (format and type) from @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to retrieve Contents for
+
+        Returns:
+            A list of Content objects
+        """
         content_dict = dikt.get('content')
         if content_dict is None:
             return []
@@ -46,6 +72,14 @@ class OpenAPI():
         return contents
 
     def get_content_formats(self, dikt):
+        """Retrieves the formats allowed from @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to retrieve content formats for
+
+        Returns:
+            A list of strings that describe accepted formats
+        """
         contents = self.get_contents(dikt)
         if contents is None:
             return []
@@ -57,6 +91,14 @@ class OpenAPI():
         return formats
 
     def get_content_types(self, dikt):
+        """Retrieves the format types from @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to retrieve content format types for
+
+        Returns:
+            A list of strings that describe accepted format types
+        """
         contents = self.get_contents(dikt)
         if contents is None:
             return []
@@ -68,6 +110,14 @@ class OpenAPI():
         return types
 
     def get_schema_type(self, dikt):
+        """Retrieves the formats allowed from @dikt
+
+        Args:
+            dikt (dict): The dictionary that we want to retrieve content formats for
+
+        Returns:
+            A list of strings that describe accepted formats
+        """
         schema_dict = dikt.get('schema')
         if schema_dict is None:
             return None
@@ -82,8 +132,8 @@ class OpenAPI():
                 s += cfg.Config.LANGUAGE.to_lang_type('>')
             return s
         if schema_dict.get('type') == 'array':
-            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'],  model_attr_name, depth + 1)
-        
+            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], model_attr_name, depth + 1)
+
         if schema_dict.get('type') == 'object':
             s = model_attr_name
         else:
@@ -99,11 +149,19 @@ class OpenAPI():
         return s
 
     def to_boolean(self, s):
+        """Helper function to resolve strings and None to boolean values
+
+        Args:
+            s (None OR str): What we want to make boolean
+
+        Returns:
+            A boolean value. None and non-string values result in False
+        """
         if s is None:
             return False
         if type(s) is bool:
             return s
-        if s.lower() == 'true':
+        if isinstance(s, str) and s.lower() == 'true':
             return True
         return False
 
@@ -119,6 +177,8 @@ class Path(OpenAPI):
     """
 
     def __init__(self, parent_dict, operation_dict):
+        """Inits Path to reflect the spec's info
+        """
         path_dict = self.merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
         self.tag = self.get_tag(path_dict)
@@ -142,7 +202,16 @@ class Path(OpenAPI):
         self.extensions = self.get_extensions(path_dict)
 
     def get_dependencies(self, path_dict):
+        """Retrieves the schema classes that the path depends on
 
+        Searches through 'requestBody' and 'responses' inside @path_dict
+
+        Args:
+            path_dict (dict): The dictionary that we want to find schemas in
+
+        Returns:
+            A set of strings (schema names)
+        """
         def get_dependency(dikt):
             schema_dict = dikt.get('schema')
             if schema_dict is None:
@@ -181,12 +250,25 @@ class Path(OpenAPI):
         return dependencies
 
     def get_tag(self, path_dict):
+        """Retrieves the first tag from @path_dict
+
+        Args:
+            path_dict (dict): The dictionary that we want the tag for
+
+        Returns:
+            A str for @path_dict first tag
+        """
         tags = path_dict.get('tags')
         if tags is None:
             return None
         return tags[0]
 
     def get_response_formats(self):
+        """Retrieves the response formats from self.responses
+
+        Returns:
+            A set of str describing the accepted response formats
+        """
         # self.responses will never be None
         response_formats = set()
 
@@ -197,6 +279,14 @@ class Path(OpenAPI):
         return response_formats
 
     def get_request_body(self, path_dict):
+        """Retrieves the request body from @path_dict
+
+        Args:
+            path_dict (dict): The dict that we want the request body for
+
+        Returns:
+            A RequestBody object that describes the requestBody from @path_dict
+        """
         request_body_dict = path_dict.get('requestBody')
         if request_body_dict is None:
             return None
@@ -204,6 +294,11 @@ class Path(OpenAPI):
         return RequestBody(request_body_dict)
 
     def get_parameters_in(self):
+        """Retrieves all possible parameter input locations for a path
+
+        Returns:
+            A set that includes all possible parameter input locations for the path
+        """
         if self.parameters is None:
             return set()
 
@@ -214,6 +309,14 @@ class Path(OpenAPI):
         return parameters_in
 
     def get_parameters(self, path_dict):
+        """Retrieves all parameters for a path
+
+        Args:
+            path_dict (dict): The dict that we want the parameters for
+
+        Returns:
+            A list of Parameter objects for a path
+        """
         params_list = path_dict.get('parameters')
         if params_list is None:
             return []
@@ -225,6 +328,14 @@ class Path(OpenAPI):
         return parameters
 
     def get_responses(self, path_dict):
+        """Retrieves all responses for a path
+
+        Args:
+            path_dict (dict): The dict that we want the responses for
+
+        Returns:
+            A dict of string to Response objects for a path
+        """
         resp_dict = path_dict.get('responses')
 
         responses = {}
@@ -234,6 +345,17 @@ class Path(OpenAPI):
         return responses
 
     def merge_dicts(self, fallback_dict, priority_dict):
+        """Merges the main parent path dict from the spec into the child path dict
+
+        Prioritizes values from the child path dict @priority_dict
+
+        Args:
+            fallback_dict (dict): The parent path dict
+            priority_dict (dict): The child path dict
+
+        Returns:
+            A dict of strings to all path values
+        """
         dikt = {}
 
         for key, value in fallback_dict.items():
@@ -340,7 +462,7 @@ class Schema(OpenAPI):
     def __init__(self, name, schema_dict):
         """
         Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
-        
+
         Args:
             name (str): name of schema object
             schema_dict(Dict): attribute dictionary of schema object
@@ -383,9 +505,9 @@ class Schema(OpenAPI):
         self.minItems = schema_dict.get('minItems')
         self.uniqueItems = schema_dict.get('uniqueItems')
         # TODO: this is a schema object but does the user need any information from items?
-        # a class will only be created for array if the outer schema is an array and it will be an 
+        # a class will only be created for array if the outer schema is an array and it will be an
         # empty class
-        # self.items = 
+        # self.items =
 
         # if type is string
         self.pattern = schema_dict.get('pattern')
@@ -410,14 +532,14 @@ class Schema(OpenAPI):
             schema_dict (Dict): attribute dictionary of schema object
 
         Returns:
-            True if enums exist for schema object, False otherwise; if properties is not defined, return None 
+            True if enums exist for schema object, False otherwise; if properties is not defined, return None
         """
         if schema_dict.get('properties') is not None:
             for attribute_name, attribute_dict in schema_dict['properties'].items():
                 if attribute_dict.get('enum') is not None:
                     return True
             return False
-        return None # this can just be False?
+        return None  # this can just be False?
 
     def get_additional_properties(self, schema_dict):
         """
@@ -425,7 +547,7 @@ class Schema(OpenAPI):
 
         Args:
             schema_dict (Dict): 'additionalProperties' attribute dictionary of schema object
-        
+
         Returns:
             type of additional object if it exists, None otherwise
         """
@@ -474,7 +596,7 @@ class Schema(OpenAPI):
         if ref is not None:
             dependencies.append(ref.split('/')[3])
             return dependencies
-        
+
         if properties is not None:
             for attribute_name, attribute_dict in schema_dict['properties'].items():
                 attr_deps = get_dep_by_attr(attribute_dict)
@@ -494,7 +616,7 @@ class Schema(OpenAPI):
         Gets the properties of the object and creates a Property object for each property of the schema object
 
         Args:
-            schema_dict (Dict): properties attributes dictionary of schema object 
+            schema_dict (Dict): properties attributes dictionary of schema object
 
         Returns:
             list of Property objects
@@ -514,6 +636,7 @@ class Property(OpenAPI):
     A class for a property object defined for the template context
     Attributes follow the OpenAPI v3.0 specification
     """
+
     def __init__(self, schema_name, property_name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
         """
         Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
@@ -523,13 +646,13 @@ class Property(OpenAPI):
             property_name (str): name attribute for property object
             schema_dict (dict): value attributes of property defined from specification file
             required_list (List[str]): list of all required properties of schema object this property belongs to
-        
+
         Attributes:
             name (str): name of property
             type (str): type of property
                 Can be 'string', 'array', 'integer', or 'object'
             is_required (bool): False for not required property of schema object, True for required
-            enums (List[str]): possible enums of property 
+            enums (List[str]): possible enums of property
         """
         self.name = property_name
         self.type = self.get_type(schema_dict, schema_name + property_name)
