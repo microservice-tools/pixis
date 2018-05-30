@@ -57,12 +57,15 @@ def generate_file(file_path, file_str):
         with file_path.open('r') as current_file:
             current_file_str = current_file.read()
             current_hash = hashlib.md5(current_file_str.encode('utf-8')).hexdigest()
+            new_hash = hashlib.md5(file_str.encode('utf-8')).hexdigest()
             if file_path.name not in hash_dict or current_hash != hash_dict[file_path.name]:
                 for line in difflib.unified_diff(current_file_str.splitlines(), file_str.splitlines(),
                                                  fromfile='current file', tofile='new file'):
                     print(line)
                 overwrite = input("You have modified " + file_path.name + ". Do you want to overwrite (y/n)? ")
                 print('Overwriting file...' if overwrite[0].lower() == 'y' else 'Original file kept')
+            elif new_hash != current_hash:
+                return True
 
     if overwrite[0].lower() == 'y' or not file_path.is_file():
         return True
