@@ -13,3 +13,4 @@ services
 .tox
 ChangeLog
 AUTHORS
+.pixis.json
