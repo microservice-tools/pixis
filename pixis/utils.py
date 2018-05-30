@@ -15,6 +15,11 @@ import pixis.template_handler as tmpl
 
 
 def validate_specification(spec):
+    """Validates the specification using **openapi_spec_validator** library
+
+    Args:
+        spec (dict): OpenAPI 3.0 specification as a dictionary
+    """
     errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
     errors = list(errors_iterator)
     if (len(errors) > 0):
@@ -25,6 +30,9 @@ def validate_specification(spec):
 
 
 def load_spec_file():
+    """
+    Reads in 'yaml' or 'json' file, validates for syntax errors and validates the definition of the specification file.
+    """
     print(cfg.Config.SPEC)
     with Path(cfg.Config.SPEC).open() as f:
         try:
@@ -51,20 +59,45 @@ SUPPORTED = {
 
 
 def set_config(key, value):
+    """Sets Config class variable (@key) to @value
+
+    Args:
+        key (str): Config class variable to set
+        value (str): Value to set Config class variable to
+    """
     setattr(cfg.Config, key.upper(), value)
 
 
 def set_parent():
+    """Sets Config.PARENT to the parent directory filepath of Config.OUT
+
+    Can be used by *emit_template()* to generate files outside of the build directory
+    """
     setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
 
 
 def set_language():
+    """Sets Language class for Pixis to use
+
+    Language class is defined within the Implementation class
+    """
     if type(cfg.Config.IMPLEMENTATION) == str:
         cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
     cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
 def load_build_file(build_file):  # build_file should be a relative filepath
+    """Executes and pulls info from the user's build file
+
+    Any variable X defined by the user's build file will be integrated into Config class (Config.X)
+
+    Args:
+        build_file (str): filepath of build file used for generation customization
+
+    Raises:
+        TypeError: Occurs if IMPLEMENTATION was an unsupported string, or if Implementation class could not be found
+    """
+
     filepath = Path(build_file)
     spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
@@ -90,28 +123,50 @@ iterator_functions_mapping = collections.OrderedDict()
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
+    """Stages iterators and their functions to be executed
+
+    Args:
+        x_iterator (function): iterator function to execute. Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
+        x_iterator_functions (List[function]): list of functions to be executed by specified iterator
+    """
     iterator_name = x_iterator.__name__
     iterators_mapping[iterator_name] = x_iterator
     iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
 
 
 def run_iterators():
+    """Executes each iterator that was staged by *stage_iterator()*
+    """
     for iterator_name, iterator in iterators_mapping.items():
         iterator(iterator_functions_mapping[iterator_name])
 
 
 def set_iterators():
+    """Stages implementation default iterators as well as any user-defined iterators
+    """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
-    if cfg.Config.BUILD is not None:
+    try:
         load_build_file(cfg.Config.BUILD)
+    except FileNotFoundError:
+        pass
 
 
 def once_iterator(once_iterator_functions):
+    """Executes each function in @once_iterator_functions once
+
+    Args:
+        once_iterator_functions (List[function]): functions that this iterator will execute
+    """
     for f in once_iterator_functions:
         f()
 
 
 def schema_iterator(schema_iterator_functions):
+    """Executes each function in @schema_iterator_functions once per schema
+
+    Args:
+        schema_iterator_functions (List[function]): functions that this iterator will execute
+    """
     for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
         tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
         for f in schema_iterator_functions:
@@ -119,6 +174,11 @@ def schema_iterator(schema_iterator_functions):
 
 
 def tag_iterator(tag_iterator_functions):
+    """Executes each function in @tag_iterator_functions once per tag
+
+    Args:
+        tag_iterator_functions (List[function]): functions that this iterator will execute
+    """
     for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
         tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
