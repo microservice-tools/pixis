@@ -41,12 +41,11 @@ def main():
     utils.set_parent()
     utils.set_language()  # set language class to use for template context translation
     utils.load_spec_file()  # load spec dictionary and verify spec
-    utils.load_hash_file()
+    tmpl.load_checksums()
     utils.set_iterators()
     tmpl.create_template_context()
     utils.run_iterators()
-    utils.dump_hashes()
-
+    tmpl.save_checksums()
 
 
 if __name__ == '__main__':
