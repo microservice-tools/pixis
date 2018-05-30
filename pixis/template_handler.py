@@ -16,6 +16,7 @@ import pixis.openapi as oapi
 
 EXT_REGEX = re.compile('x-.*')
 TEMPLATE_CONTEXT = {}
+cfg.Config._checksums = {}
 
 
 def create_template_context():
@@ -24,6 +25,20 @@ def create_template_context():
     TEMPLATE_CONTEXT['base_path'] = get_base_path()
     TEMPLATE_CONTEXT['cfg'] = cfg.Config
     cfg.Config.IMPLEMENTATION.process()
+
+
+def load_checksums():
+    try:
+        cfg.Config._checksums = json.loads(Path('.pixis.json').read_text())
+        print('Found .pixis.json!')
+    except FileNotFoundError:
+        print('No .pixis.json found')
+        return
+
+
+def save_checksums():
+    Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
+    print('Saved hashes for generated files in .pixis.json')
 
 
 def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
@@ -42,35 +57,55 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
             raise ValueError('Template does not exist\n')
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
-    output_file = Path(output_dir) / Path(output_name)
-    new_file_str = template.render(TEMPLATE_CONTEXT)
+    file_path = Path(output_dir) / Path(output_name)
+    new_file_text = template.render(TEMPLATE_CONTEXT)
 
-    if generate_file(output_file, new_file_str):
-        with output_file.open('w') as out_file:
-            out_file.write(new_file_str)
-            cfg.Config.HASH_DICT[output_name] = hashlib.md5(new_file_str.encode('utf-8')).hexdigest()
+    new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
+    old_file_checksum = cfg.Config._checksums.get(str(file_path))
+    cur_file_checksum = None
+    cur_file_text = None
 
-def generate_file(file_path, file_str):
-    overwrite = "n"
-    hash_dict = cfg.Config.HASH_DICT
-    if file_path.is_file():
-        with file_path.open('r') as current_file:
-            current_file_str = current_file.read()
-            current_hash = hashlib.md5(current_file_str.encode('utf-8')).hexdigest()
-            new_hash = hashlib.md5(file_str.encode('utf-8')).hexdigest()
-            if file_path.name not in hash_dict or current_hash != hash_dict[file_path.name]:
-                for line in difflib.unified_diff(current_file_str.splitlines(), file_str.splitlines(),
-                                                 fromfile='current file', tofile='new file'):
-                    print(line)
-                overwrite = input("You have modified " + file_path.name + ". Do you want to overwrite (y/n)? ")
-                print('Overwriting file...' if overwrite[0].lower() == 'y' else 'Original file kept')
-            elif new_hash != current_hash:
-                return True
+    try:
+        cur_file_text = file_path.read_text()
+        cur_file_checksum = hashlib.md5(cur_file_text.encode('utf-8')).hexdigest()
+    except FileNotFoundError:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "] because file doesn't exist yet")
+        return
 
-    if overwrite[0].lower() == 'y' or not file_path.is_file():
-        return True
+    # TODO: maybe if there is no old_file_checksum, we want to ask the user before overwriting files
+    if old_file_checksum is None:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "] because checksum didn't exist")
+        return
+
+    if new_file_checksum == old_file_checksum:
+        print('Not generating [' + str(file_path) + '] because it will be the same')
+        return
+
+    # old checksum exists, and is different from new checksum
+    # cur file and cur checksum exists
+
+    if cur_file_checksum == old_file_checksum:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "]. File is unmodified, but something has changed (templates/Pixis/etc)")
+        return
+
+    for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(), fromfile=output_name + '(current)', tofile=output_name + '(new)'):
+        print(line)
+    overwrite = input('Do you want to overwrite your current file [' + str(file_path) + ']? (y/n) ') + ' '
+    if overwrite[0].lower() == 'y':
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print('[' + str(file_path) + '] has been overwritten!')
     else:
-        return False
+        print('Current file [' + str(file_path) + '] unmodified')
+
+
+def generate_file(path, text, checksum):
+    with path.open('w') as outfile:
+        outfile.write(text)
+        cfg.Config._checksums[str(path)] = checksum
+
 
 def get_base_path():
     return cfg.Config.SPEC_DICT['servers'][0]['url']
@@ -123,9 +158,9 @@ def get_schemas_by_name():
                 models[schema_name] = oapi.Schema(schema_name, schema_obj)
                 if schema_obj.get('properties') is not None:
                     for attr_name, attr_obj in schema_obj.get('properties').items():
-                        string = 'Inner'*depth
+                        string = 'Inner' * depth
                         parse_schema(schema_name + string + attr_name.capitalize(), attr_obj, 0)
-                    
+
     def attr_primitive(schema_obj):
         if schema_obj.get('$ref') is None:
             attr_type = schema_obj.get('type')
@@ -140,8 +175,8 @@ def get_schemas_by_name():
     for schema_name, schema_obj in cfg.Config.SPEC_DICT['components']['schemas'].items():
         attr_is_primitive = attr_primitive(schema_obj)
         if attr_is_primitive is True:
-            models[schema_name] = oapi.Schema(schema_name,schema_obj)
-        else: 
+            models[schema_name] = oapi.Schema(schema_name, schema_obj)
+        else:
             parse_schema(schema_name, schema_obj, 0)
 
     return models

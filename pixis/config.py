@@ -19,5 +19,4 @@ class Config():
     IMPLEMENTATION = 'flask'
 
     SPEC_DICT = {}
-
-    HASH_DICT = {}
+    _checksums = {}
