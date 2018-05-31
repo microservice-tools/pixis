@@ -1,226 +1,223 @@
-openapi: <string> REQUIRED
-info: <Info Object> REQUIRED
-    title: <string> REQUIRED,
-    description: <string>
-    termsOfService: <string>
-    contact: <Contact Object>
-        name: <string>
-        url: <string>
-        email: <string>
-        ^x-: <any>
-    license: <License Object>
-        name: <string> REQUIRED
-        url: <string>
-        ^x-: <any>
-    version: <string> REQUIRED
-    ^x-: <any>
-servers: [<Server Object>]
-    url: <string> REQUIRED
-    description: <string>
-    variables: <Map[<string>, <Server Variable Object>]>
-        <string>: 
-            enum: [<string>]
-            default: <string> REQUIRED
-            description: <string>
-            ^x-: <any>
-    ^x-: <any>
-paths: <Paths Object> REQUIRED
-    /{path}: <Path Item Object>
-        $ref: <string>
-        summary: <string>
-        description: <string>
-        get: <Operation Object>
-            tags: [<string>]
-            summary: <string>
-            description: <string>
-            externalDocs: <External Documentation Object>
-            operationId: <string>
-            parameters: [<Parameter Object | Reference Object>]
-            requestBody: <Request Body Object | Reference Object>
-                $ref: 'asdfasdf'
-            responses: <Responses Object> REQUIRED
-                default: <Response Object | Reference Object>
-                {HTTP Status Code}: <Response Object | Reference Object>
-            callbacks: <Map[<string>, <Callback Object | Reference Object>]
-            deprecated: <boolean>
-            security: [<Security Requirement Object>]
-            servers: [<Server Object>]
-            ^x-: <any>
-        put: <Operation Object>
-        post: <Operation Object>
-        delete: <Operation Object>
-        options: <Operation Object>
-        head: <Operation Object>
-        patch: <Operation Object>
-        trace: <Operation Object>
-        servers: [<Server Object>]
-        parameters: [<Parameter Object | Reference Object>]
-        ^x-: <any>
-    ^x-: <any>
-components: <Components Object>
-    schemas: <Map[<string>, <Schema Object | Reference Object>]>
-        <string>:
+openapi: # string  REQUIRED
+info: # Info Object  REQUIRED
+    title: # string  REQUIRED
+    description: # string 
+    termsOfService: # string 
+    contact: # Contact Object 
+        name: # string 
+        url: # string 
+        email: # string 
+        ^x-: # any 
+    license: # License Object 
+        name: # string  REQUIRED
+        url: # string 
+        ^x-: # any 
+    version: # string  REQUIRED
+    ^x-: # any 
+servers:  # [ Server Object ]
+    url: # string  REQUIRED
+    description: # string 
+    variables: # Map { string : Server Variable Object }
+        string: 
+            enum:  # [ string ]
+            default: # string  REQUIRED
+            description: # string 
+            ^x-: # any 
+    ^x-: # any 
+paths: # Paths Object  REQUIRED
+    /{path}: # Path Item Object 
+        $ref: # string 
+        summary: # string 
+        description: # string 
+        get: # Operation Object 
+            tags:  # [ string ]
+            summary: # string 
+            description: # string 
+            externalDocs: # External Documentation Object 
+            operationId: # string 
+            parameters:  # [ Parameter Object | Reference Object ]
+            requestBody: # Request Body Object | Reference Object
+            responses: # Responses Object  REQUIRED
+                default: # Response Object | Reference Object
+                {HTTP Status Code}: # Response Object | Reference Object
+            callbacks: # Map { string : Callback Object | Reference Object }
+            deprecated: # boolean 
+            security:  # [ Security Requirement Object ]
+            servers:  # [ Server Object ]
+            ^x-: # any 
+        put: # Operation Object 
+        post: # Operation Object 
+        delete: # Operation Object 
+        options: # Operation Object 
+        head: # Operation Object 
+        patch: # Operation Object 
+        trace: # Operation Object 
+        servers:  # [ Server Object ]
+        parameters:  # [ Parameter Object | Reference Object ]
+        ^x-: # any 
+    ^x-: # any 
+components: # Components Object 
+    schemas: # Map { string : Schema Object | Reference Object }
+        {string}:
             # REFERENCE OBJECT
-            $ref: <string> REQUIRED
+            $ref: # string  REQUIRED
 
             # SCHEMA OBJECT
-            title: <string>
-            multipleOf: <array> ?
-            maximum: <number> ?
-            exclusiveMaximum: <boolean>
-            minimum: <number>
-            exclusiveMinimum: <boolean>
-            maxLength: <number>
-            minLength: <number>
-            pattern: <string>
-            maxItems: <number>
-            minItems: <number>
-            uniqueItems: <boolean>
-            maxProperties: <number>
-            minProperties: <number>
-            required: [<string>]
-            enum: [<any>]
-            type: <string>
-            allOf: [<Schema Object | Reference Object>]
-            oneOf: [<Schema Object | Reference Object>]
-            anyOf: [<Schema Object | Reference Object>]
-            not: [<Schema Object | Reference Object>]
-            items: <Schema Object | Reference Object>
-            properties: <Map[<string>, <Schema Object | Reference Object>]>
-            additionalProperties: <boolean> or <Schema Object | Reference Object>
-            description: <string>
-            format: <string> ?
-            default: <any>
+            title: # string 
+            multipleOf: # array  ?
+            maximum: # number  ?
+            exclusiveMaximum: # boolean 
+            minimum: # number 
+            exclusiveMinimum: # boolean 
+            maxLength: # number 
+            minLength: # number 
+            pattern: # string 
+            maxItems: # number 
+            minItems: # number 
+            uniqueItems: # boolean 
+            maxProperties: # number 
+            minProperties: # number 
+            required:  # [ string ]
+            enum:  # [ any ]
+            type: # string 
+            allOf:  # [ Schema Object | Reference Object ]
+            oneOf:  # [ Schema Object | Reference Object ]
+            anyOf:  # [ Schema Object | Reference Object ]
+            not:  # [ Schema Object | Reference Object ]
+            items: # Schema Object | Reference Object 
+            properties: # Map { string : Schema Object | Reference Object }
+            additionalProperties: # boolean  or # Schema Object | Reference Object 
+            description: # string 
+            format: # string  ?
+            default: # any 
 
             # Fixed fields
-            nullable: <boolean>
-            discriminator: <Discriminator Object>
-                propertyName: <string> REQUIRED
-                mapping: <Map[<string>, <string>]>
-            readOnly: <boolean>
-            writeOnly: <boolean>
-            xml: <XML Object>
-                name: <string>
-                namespace: <string>
-                prefix: <string>
-                attribute: <boolean>
-                wrapped: <boolean>
-                ^x-: <any>
-            externalDocs: <External Documentation Object>
-            example: <any>
-            deprecated: <boolean>
-            ^x-: <any>
-    responses: <Map[<string>, <Response Object | Reference Object>]>
-        <string>:
-            description: <string> REQUIRED
-            headers: <Map[<string>, <Header Object | Reference Object>]>
-            content: <Map[<string>, <Media Type Object | Reference Object>]>
-                <string>:
-                    schema: <Schema Object | Reference Object>
-                    example: <any>
-                    examples: <Map[<string>, <Example Object | Reference Object]>
-                    encoding: <Map[<string>, <Encoding Object>]>
-                        <string>:
-                            contentType: <string>
-                            headers: <Map[<string>, <Header Object | Reference Object>]>
-                            style: <string>
-                            explode: <boolean>
-                            allowReserved: <boolean>
-                            ^x-: <any>
-                    ^x-: <any>
-            links: <Map[<string>, <Link Object | Reference Object>]>
-            ^x-: <any>
-    parameters: <Map[<string>, <Parameter Object | Reference Object>]>
-        <string>:
-            name: <string> REQUIRED
-            in: <string> REQUIRED
-            description: <string>
-            required: <boolean>
-            deprecated: <boolean>
-            allowEmptyValue: <boolean>
-            style: <string>
-            explode: <boolean>
-            allowReserved: <boolean>
-            schema: <Schema Object | Reference Object>
-            example: <any>
-            examples: <Map[<string>, <Example Object | Reference Object>]>
-            content: <Map[<string>, <Media Type Object>]>
-            ^x-: <any>
-            # look at https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject
-    examples: <Map[<string>, <Example Object | Reference Object>]>
-        <string>:
-            summary: <string>
-            description: <string>
-            value: <any>
-            externalValue: <string>
-            ^x-: <any>
-    requestBodies: <Map[<string>, <Request Body Object | Reference Object>]>
-        <string>:
-            description: <string>
-            content: <Map[<string>, <Media Type Object>]> REQUIRED
-            required: <boolean>
-            ^x-: <any>
-    headers: <Map[<string>, <Header Object | Reference Object>]>
-        <string>:
-            # name: <string> REQUIRED   / GIVEN IN CORRESPONDING HEADERS MAP
-            # in: <string> REQUIRED     / IMPLICITLY IN HEADER
+            nullable: # boolean 
+            discriminator: # Discriminator Object 
+                propertyName: # string  REQUIRED
+                mapping: # Map { string : string }
+            readOnly: # boolean 
+            writeOnly: # boolean 
+            xml: # XML Object 
+                name: # string 
+                namespace: # string 
+                prefix: # string 
+                attribute: # boolean 
+                wrapped: # boolean 
+                ^x-: # any 
+            externalDocs: # External Documentation Object 
+            example: # any 
+            deprecated: # boolean 
+            ^x-: # any 
+    responses: # Map { string : Response Object | Reference Object }
+        string:
+            description: # string  REQUIRED
+            headers: # Map { string : Header Object | Reference Object }
+            content: # Map { string : Media Type Object | Reference Object }
+                string:
+                    schema: # Schema Object | Reference Object  # defining the type used for the request body
+                    example: # any 
+                    examples: # Map { string : Example Object | Reference Object}
+                    encoding: # Map { string : Encoding Object }
+                        string:
+                            contentType: # string 
+                            headers: # Map { string : Header Object | Reference Object }
+                            style: # string 
+                            explode: # boolean 
+                            allowReserved: # boolean 
+                            ^x-: # any 
+                    ^x-: # any 
+            links: # Map { string : Link Object | Reference Object }
+            ^x-: # any 
+    parameters: # Map { string : Parameter Object | Reference Object }
+        string:
+            name: # string  REQUIRED
+            in: # string  REQUIRED
+            description: # string 
+            required: # boolean 
+            deprecated: # boolean 
+            allowEmptyValue: # boolean 
+            style: # string 
+            explode: # boolean 
+            allowReserved: # boolean 
+            schema: # Schema Object | Reference Object 
+            example: # any 
+            examples: # Map { string : Example Object | Reference Object }
+            content: # Map { string : Media Type Object }
+            ^x-: # any 
+    examples: # Map { string : Example Object | Reference Object }
+        string:
+            summary: # string 
+            description: # string 
+            value: # any 
+            externalValue: # string 
+            ^x-: # any 
+    requestBodies: # Map { string : Request Body Object | Reference Object }
+        string:
+            description: # string 
+            content: # Map { string : Media Type Object } REQUIRED
+            required: # boolean 
+            ^x-: # any 
+    headers: # Map { string : Header Object | Reference Object } follows parameter with some modifications
+        string:
+            # name: # string  MUST NOT be specified: get it from string
+            # in: # string  is header
             # All traits that are affected by the location MUST be applicable to a location of header (ex. style)
-            description: <string>
-            required: <boolean>
-            deprecated: <boolean>
-            allowEmptyValue: <boolean>
-            style: <string>
-            explode: <boolean>
-            allowReserved: <boolean>
-            schema: <Schema Object | Reference Object>
-            example: <any>
-            examples: <Map[<string>, <Example Object | Reference Object>]>
-            content: <Map[<string>, <Media Type Object>]>
-            ^x-: <any>
-            # check spec. follows parameter object structure
-    securitySchemes: <Map[<string>, <Security Scheme Object | Reference Object>]>
-        <string>:
-            type: <string> REQUIRED
-            description: <string>
-            name: <string> REQUIRED
-            in: <string> REQUIRED
-            scheme: <string> REQUIRED
-            bearerFormat: <string>
-            flows: <OAuth Flows Object> REQUIRED
-                implicit: <OAuth Flow Object>
-                    authorizationUrl: <string> REQUIRED
-                    tokenUrl: <string> REQUIRED
-                    refreshUrl: <string>
-                    scopes: <Map[<string>, <string>]> REQUIRED
-                    ^x-: <any>
-                password: <OAuth Flow Object>
-                clientCredentials: <OAuth Flow Object>
-                authorizationCode: <OAuth Flow Object>
-                ^x-: <any>
-            openIdConnectUrl: <string> REQUIRED
-            ^x-: <any>
-    links: <Map[<string>, <Link Object | Reference Object>]>
-        <string>:
-            operationRef: <string>
-            operationId: <string>
-            parameters: <Map[<string>, <any | {expression}>]>
-            requestBody: <any | {expression}> # expression = https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#runtimeExpression
-            description: <string>
-            server: <Server Object>
-            ^x-: <any>
-    callbacks: <Map[<string>, <Callback Object | Reference Object>]>
-        <string>:
-            {expression}: <Path Item Object>
-            ^x-: <any>
-    ^x-: <any>
-security: [<Security Requirement Object>]
-    {name}: [<string>]
-tags: [<Tag Object>]
-    name: <string> REQUIRED
-    description: <string>
-    externalDocs: <External Documentation Object>
-    ^x-: <any>
-externalDocs: <External Documentation Object>
-    description: <string>
-    url: <string> REQUIRED
-    ^x-: <any>
+            description: # string 
+            required: # boolean 
+            deprecated: # boolean 
+            allowEmptyValue: # boolean 
+            style: # string 
+            explode: # boolean 
+            allowReserved: # boolean 
+            schema: # Schema Object | Reference Object 
+            example: # any 
+            examples: # Map { string : Example Object | Reference Object }
+            content: # Map { string : Media Type Object }
+            ^x-: # any 
+    securitySchemes: # Map { string : Security Scheme Object | Reference Object }
+        string:
+            type: # string  REQUIRED
+            description: # string 
+            name: # string  REQUIRED
+            in: # string  REQUIRED
+            scheme: # string  REQUIRED
+            bearerFormat: # string 
+            flows: # OAuth Flows Object  REQUIRED
+                implicit: # OAuth Flow Object 
+                    authorizationUrl: # string  REQUIRED
+                    tokenUrl: # string  REQUIRED
+                    refreshUrl: # string 
+                    scopes: # Map { string : string } REQUIRED
+                    ^x-: # any 
+                password: # OAuth Flow Object 
+                clientCredentials: # OAuth Flow Object 
+                authorizationCode: # OAuth Flow Object 
+                ^x-: # any 
+            openIdConnectUrl: # string  REQUIRED
+            ^x-: # any 
+    links: # Map { string : Link Object | Reference Object }
+        string:
+            operationRef: # string 
+            operationId: # string 
+            parameters: # Map { string : any | {expression} }
+            requestBody: # any | {expression}  # expression = https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#runtimeExpression
+            description: # string 
+            server: # Server Object 
+            ^x-: # any 
+    callbacks: # Map { string : Callback Object | Reference Object }
+        string:
+            {expression}: # Path Item Object 
+            ^x-: # any 
+    ^x-: # any 
+security:  # [ Security Requirement Object ]
+    {name}:  # [ string ]
+tags:  # [ Tag Object ]
+    name: # string  REQUIRED
+    description: # string 
+    externalDocs: # External Documentation Object 
+    ^x-: # any 
+externalDocs: # External Documentation Object 
+    description: # string 
+    url: # string  REQUIRED
+    ^x-: # any 
