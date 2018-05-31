@@ -11,7 +11,6 @@ import pixis.openapi as oapi
 
 EXT_REGEX = re.compile('x-.*')
 TEMPLATE_CONTEXT = {}
-cfg.Config._checksums = {}
 
 
 def create_template_context():
@@ -110,9 +109,8 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
 
 def generate_file(path, text, checksum):
-    with path.open('w') as outfile:
-        outfile.write(text)
-        cfg.Config._checksums[str(path)] = checksum
+    path.write_text(text)
+    cfg.Config._checksums[str(path)] = checksum
 
 
 def get_base_path():
