@@ -52,7 +52,7 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
-SUPPORTED = {
+_supported = {
     'flask': pixis_flask.Flask,
     'angular2': pixis_angular2.Angular2,
 }
@@ -82,7 +82,7 @@ def set_language():
     Language class is defined within the Implementation class
     """
     if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
+        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION.lower()]
     cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
@@ -113,8 +113,8 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     for attribute in attributes:
         setattr(cfg.Config, attribute[0], attribute[1])
 
-    if cfg.Config.IMPLEMENTATION in SUPPORTED:
-        cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION]
+    if cfg.Config.IMPLEMENTATION in _supported:
+        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION]
     elif not inspect.isclass(cfg.Config.IMPLEMENTATION):
         raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
