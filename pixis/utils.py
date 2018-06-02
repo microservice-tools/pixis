@@ -69,11 +69,11 @@ def set_config(key, value):
 
 
 def set_parent():
-    """Sets Config.PARENT to the parent directory filepath of Config.OUT
+    """Sets Config.PARENT to the parent directory filepath of Config.OUTPUT
 
     Can be used by *emit_template()* to generate files outside of the build directory
     """
-    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
+    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUTPUT).parent))
 
 
 def set_language():
