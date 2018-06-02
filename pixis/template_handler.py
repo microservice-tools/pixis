@@ -1,5 +1,8 @@
 import re
 from pathlib import Path
+import hashlib
+import difflib
+import json
 
 import jinja2
 
@@ -24,7 +27,21 @@ def create_template_context():
     cfg.Config.IMPLEMENTATION.process()
 
 
-def emit_template(template_path, output_dir, output_name):
+def load_checksums():
+    try:
+        cfg.Config._checksums = json.loads(Path('.pixis.json').read_text())
+        print('Found .pixis.json!')
+    except FileNotFoundError:
+        print('No .pixis.json found')
+        return
+
+
+def save_checksums():
+    Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
+    print('Saved hashes for generated files in .pixis.json')
+
+
+def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
     """Creates a file using template defined by @template_path into directory defined by @output_dir with filename defined by @output_name
 
     Args:
@@ -47,10 +64,53 @@ def emit_template(template_path, output_dir, output_name):
             raise ValueError('Template does not exist\n')
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
-    output_file = Path(output_dir) / Path(output_name)
+    file_path = Path(output_dir) / Path(output_name)
+    new_file_text = template.render(TEMPLATE_CONTEXT)
 
-    with output_file.open('w') as outfile:
-        outfile.write(template.render(TEMPLATE_CONTEXT))
+    new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
+    old_file_checksum = cfg.Config._checksums.get(str(file_path))
+    cur_file_checksum = None
+    cur_file_text = None
+
+    try:
+        cur_file_text = file_path.read_text()
+        cur_file_checksum = hashlib.md5(cur_file_text.encode('utf-8')).hexdigest()
+    except FileNotFoundError:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "] because file doesn't exist yet")
+        return
+
+    # TODO: maybe if there is no old_file_checksum, we want to ask the user before overwriting files
+    if old_file_checksum is None:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "] because checksum didn't exist")
+        return
+
+    if new_file_checksum == old_file_checksum:
+        print('Not generating [' + str(file_path) + '] because it will be the same')
+        return
+
+    # old checksum exists, and is different from new checksum
+    # cur file and cur checksum exists
+
+    if cur_file_checksum == old_file_checksum:
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print("Generated [" + str(file_path) + "]. File is unmodified, but something has changed (templates/Pixis/etc)")
+        return
+
+    for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(), fromfile=output_name + '(current)', tofile=output_name + '(new)'):
+        print(line)
+    overwrite = input('Do you want to overwrite your current file [' + str(file_path) + ']? (y/n) ') + ' '
+    if overwrite[0].lower() == 'y':
+        generate_file(file_path, new_file_text, new_file_checksum)
+        print('[' + str(file_path) + '] has been overwritten!')
+    else:
+        print('Current file [' + str(file_path) + '] unmodified')
+
+
+def generate_file(path, text, checksum):
+    path.write_text(text)
+    cfg.Config._checksums[str(path)] = checksum
 
 
 def get_base_path():

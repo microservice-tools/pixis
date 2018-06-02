@@ -3,13 +3,14 @@
 
 ## Build file variables
 
-| VARIABLE       | TYPE            | DESCRIPTION                                           |
-|----------------|-----------------|-------------------------------------------------------|
-| SPEC           | string          | Relative filepath to specification file (json/yaml)   |
-| TEMPLATES      | string          | Relative filepath to local custom templates directory |
-| OUT            | string          | Relative filepath to desired output                   |
-| IMPLEMENTATION | string OR class | One of {'flask', 'angular2} OR a user-defined class   |
-
+| VARIABLE       | TYPE            | DESCRIPTION                                                                                                               | DEFAULT        |
+|----------------|-----------------|---------------------------------------------------------------------------------------------------------------------------|----------------|
+| SPEC           | string          | Relative filepath to specification file (json/yaml)                                                                       | "swagger.yaml" |
+| TEMPLATES      | string          | Relative filepath to local custom templates directory                                                                     | "templates"    |
+| OUTPUT         | string          | Relative filepath to desired output                                                                                       | "build"        |
+| IMPLEMENTATION | string OR class | One of {'flask', 'angular2} OR a user-defined class                                                                       | "flask"        |
+| OVERWRITE      | boolean         | Allows Pixis to overwrite any files during generation                                                                     | False          |
+| PROTECTED      | list[string]    | A list of regular expressions as strings describing files that Pixis should never overwrite (unless OVERWRITE is enabled) | []   
 ---
 
 ## Custom code generation

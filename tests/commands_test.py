@@ -3,8 +3,8 @@
     - pixis
     - pixis -b buildfiles/build1.py
     - pixis --build buildfiles/build1.py
-    - pixis -o OUT
-    - pixis --output OUT
+    - pixis -o OUTPUT
+    - pixis --output OUTPUT
     - pixis -t mytemplates
     - pixis --templates mytemplates
 """

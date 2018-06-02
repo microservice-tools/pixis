@@ -10,7 +10,7 @@ class Config():
         BUILD: Relative path to build file
         SPEC: Relative path to specification file
         TEMPLATES: Relative path to custom templates folder
-        OUT: Relative path to output directory
+        OUTPUT: Relative path to output directory
         PARENT: Relative path to parent of output directory
         FLASK_SERVER_NAME: Default server name for flask server implementation
         VERBOSE: Verbose setting
@@ -23,7 +23,7 @@ class Config():
     BUILD = 'build.py'
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'
-    OUT = 'build'
+    OUTPUT = 'build'
     PARENT = None
 
     FLASK_SERVER_NAME = 'flask_server'
@@ -33,3 +33,4 @@ class Config():
     IMPLEMENTATION = 'flask'
 
     SPEC_DICT = {}
+    _checksums = {}

@@ -40,7 +40,7 @@ def load_spec_file():
         except yaml.YAMLError as yaml_error:
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
-            except ValueError as json_error:
+            except json.JSONDecodeError as json_error:
                 extension = Path(cfg.Config.SPEC).suffix
                 if extension == 'json':
                     print(json_error)
@@ -52,7 +52,7 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
-SUPPORTED = {
+_supported = {
     'flask': pixis_flask.Flask,
     'angular2': pixis_angular2.Angular2,
 }
@@ -69,11 +69,11 @@ def set_config(key, value):
 
 
 def set_parent():
-    """Sets Config.PARENT to the parent directory filepath of Config.OUT
+    """Sets Config.PARENT to the parent directory filepath of Config.OUTPUT
 
     Can be used by *emit_template()* to generate files outside of the build directory
     """
-    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUT).parent))
+    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUTPUT).parent))
 
 
 def set_language():
@@ -82,7 +82,7 @@ def set_language():
     Language class is defined within the Implementation class
     """
     if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
+        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION.lower()]
     cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
@@ -113,8 +113,9 @@ def load_build_file(build_file):  # build_file should be a relative filepath
     for attribute in attributes:
         setattr(cfg.Config, attribute[0], attribute[1])
 
-    impl = getattr(build_script, 'IMPLEMENTATION')
-    if impl not in SUPPORTED and not inspect.isclass(impl):
+    if cfg.Config.IMPLEMENTATION in _supported:
+        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION]
+    elif not inspect.isclass(cfg.Config.IMPLEMENTATION):
         raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
 
@@ -148,7 +149,7 @@ def set_iterators():
     try:
         load_build_file(cfg.Config.BUILD)
     except FileNotFoundError:
-        pass
+        return
 
 
 def once_iterator(once_iterator_functions):
@@ -183,4 +184,3 @@ def tag_iterator(tag_iterator_functions):
         tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
             f()
-    pass

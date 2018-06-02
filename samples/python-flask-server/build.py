@@ -1,4 +1,4 @@
 SPEC = 'swagger.yaml'
 IMPLEMENTATION = 'flask'
-OUT = 'build'
+OUTPUT = 'build'
 FLASK_SERVER_NAME = 'my_flask_server'

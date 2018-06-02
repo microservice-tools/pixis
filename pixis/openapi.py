@@ -4,6 +4,7 @@
 - Language translations and implementation requirements will be handled in their respective modules
 """
 import re
+from collections import OrderedDict
 
 import pixis.config as cfg
 
@@ -421,7 +422,7 @@ class Response(OpenAPI):
     def __init__(self, response_code, dikt):
         response_dict = self.get_reference(dikt)
 
-        self.code = response_code
+        self.code = response_code  # string
         self.formats = self.get_content_formats(response_dict)  # array<string>
         self.types = self.get_content_types(response_dict)  # array<string>
         self.contents = self.get_contents(response_dict)  # array<Content>
@@ -436,10 +437,10 @@ class Parameter(OpenAPI):
     def __init__(self, dikt):
         parameter_dict = self.get_reference(dikt)
 
-        self.name = parameter_dict.get('name')  # REQUIRED
-        self._in = parameter_dict.get('in')  # REQUIRED
-        self.required = self.to_boolean(parameter_dict.get('required'))
-        self.type = self.get_schema_type(parameter_dict)
+        self.name = parameter_dict.get('name')  # REQUIRED string
+        self._in = parameter_dict.get('in')  # REQUIRED string
+        self.required = self.to_boolean(parameter_dict.get('required'))  # boolean
+        self.type = self.get_schema_type(parameter_dict)  # string TODO
 
         # TODO
         self.description = parameter_dict.get('description')
