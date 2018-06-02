@@ -56,7 +56,7 @@ Our system allows for simple and flexible customization. The default [Jinja2](ht
 | -o     | --output    | output_dir    | Set output directory location                          | "build"     |
 | -t     | --templates | templates_dir | Set local template directory                           | "templates" |
 | -w     | --overwrite | N/A           | Enables Pixis to overwrite any files during generation | False       |
-
+| -v     | --verbose   | N/A           | Displays additional information during generation      | False       |
 
 Refer to `BUILD.md` for more information on the build file
 
