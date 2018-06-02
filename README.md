@@ -49,12 +49,13 @@ Our system allows for simple and flexible customization. The default [Jinja2](ht
 
 `$ pixis`: Looks for **build.py** in the current directory.
 
-| COMMAND | LONG        | ARGUMENTS     | DESCRIPTION                                       |
-|---------|-------------|---------------|---------------------------------------------------|
-| -h      | --help      | N/A          | Displays Pixis information and commands           |
-| -b      | --build     | build_file    | Set build file location, default: `build.py`      |
-| -o      | --output    | output_dir    | Set output directory location, default: build/    |
-| -t      | --templates | templates_dir | Set local template directory, default: templates/ |
+| OPTION | LONG        | ARGUMENTS     | DESCRIPTION                                            | DEFAULT     |
+|--------|-------------|---------------|--------------------------------------------------------|-------------|
+| -h     | --help      | N/A           | Displays Pixis information and commands                | N/A         |
+| -b     | --build     | build_file    | Set build file location                                | "build.py"  |
+| -o     | --output    | output_dir    | Set output directory location                          | "build"     |
+| -t     | --templates | templates_dir | Set local template directory                           | "templates" |
+| -w     | --overwrite | N/A           | Enables Pixis to overwrite any files during generation | False       |
 
 
 Refer to `BUILD.md` for more information on the build file
