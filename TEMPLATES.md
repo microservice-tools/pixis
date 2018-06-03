@@ -107,4 +107,16 @@ base_path = "http://localhost"
 
 ---
 
-Users can modify the template context TODO
+Currently, users can modify/update the template context via the implementation class function **process()**. There will also be a function that can be called straight from the build file as the final step in modifying/updating the template context
+
+Example: In a user's custom Flask implementation, they can override **process()** to make desired changes to the template context to make the Python-Flask code work once generated
+```python
+class Flask(Implementation):
+    LANGUAGE = Python
+
+    @staticmethod
+    def process():
+        for tag, paths in TEMPLATE_CONTEXT['paths'].items():
+            for path in paths:
+                path.url = path.url.replace('}', '>').replace('{', '<')
+```
