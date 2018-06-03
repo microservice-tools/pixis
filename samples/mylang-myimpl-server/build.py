@@ -1,4 +1,3 @@
-
 import pixis.utils as utils
 from pixis.config import Config
 from pixis.implementations.implementation import Implementation
