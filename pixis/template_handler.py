@@ -158,7 +158,15 @@ def get_paths_by_tag():
                 parent_dict['method'] = method
                 add_to_paths(paths_by_tag, parent_dict, operation_dict)
 
-    return paths_by_tag
+    paths_by_tag_sorted = {}
+    for tag, paths in paths_by_tag.items():
+        paths_by_tag_sorted[tag] = sorted(paths, key=lambda k: k.url)
+
+    for tag, paths in paths_by_tag_sorted.items():
+        for p in paths:
+            print(p.url)
+
+    return paths_by_tag_sorted
 
 
 def get_schemas_by_name():
