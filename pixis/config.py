@@ -7,16 +7,19 @@ class Config():
     """Provides variables that pixis uses to configure code generation
 
     Attributes:
-        BUILD: Relative path to build file
-        SPEC: Relative path to specification file
-        TEMPLATES: Relative path to custom templates folder
-        OUTPUT: Relative path to output directory
-        PARENT: Relative path to parent of output directory
-        FLASK_SERVER_NAME: Default server name for flask server implementation
-        VERBOSE: Verbose setting
-        LANGUAGE: Language class implementation
-        IMPLEMENTATION: Implementation class implementation OR string of supported implementations ('flask', 'angular2')
+        BUILD: A string that describes relative path to build file
+        SPEC: A string that describes relative path to specification file
+        TEMPLATES: A string that describes relative path to templates directory
+        OUTPUT: A string that describes relative path to output directory
+        PARENT: A string that describes relative path to output directory's parent directory (Determined from OUTPUT)
+        FLASK_SERVER_NAME: A string that describes the directory name for default Flask server implementation
+        VERBOSE: A boolean for Verbose mode (TODO)
+        OVERWRITE: A boolean for Force Overwrite
+        PROTECTED: A list of strings that describe file names or regular expressions for files that Pixis should never overwrite (even if OVERWRITE is True)
+        LANGUAGE: A subclass of Language (Defined from IMPLEMENTATION)
+        IMPLEMENTATION: A string that describes a supported implementation {'flask', 'angular2'} OR a subclass of Implementation
         SPEC_DICT: raw specification dictionary
+        _checksums: Internal Pixis map for current file checksums
     """
     # DEFAULTS
     # These are relative paths
