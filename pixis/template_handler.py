@@ -3,6 +3,7 @@ import pathlib
 import hashlib
 import difflib
 import json
+from collections import OrderedDict
 
 import jinja2
 
@@ -126,7 +127,7 @@ def get_paths_by_tag():
     """Organizes each path by tag
 
     Returns:
-        dictionary with the tag as key and list of pathlib.Path objects
+        dictionary with the tag as key and list of pathlib.Path objects sorted first by url, then by function name
     """
     paths_by_tag = {}
     methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
@@ -162,11 +163,7 @@ def get_paths_by_tag():
     for tag, paths in paths_by_tag.items():
         paths_by_tag_sorted[tag] = sorted(sorted(paths, key=lambda k: k.function_name), key=lambda k: k.url)
 
-    for tag, paths in paths_by_tag_sorted.items():
-        for p in paths:
-            print(p.url)
-
-    return paths_by_tag_sorted
+    return OrderedDict(sorted(paths_by_tag_sorted.items()))
 
 
 def get_schemas_by_name():

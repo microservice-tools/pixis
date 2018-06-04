@@ -60,7 +60,7 @@ class OpenAPI():
             dikt (dict): The dictionary that we want to retrieve Contents for
 
         Returns:
-            A list of Content objects
+            A list of Content objects sorted by format
         """
         content_dict = dikt.get('content')
         if content_dict is None:
@@ -70,7 +70,7 @@ class OpenAPI():
         for _format, info in content_dict.items():
             contents.append(Content(_format, info))
 
-        return contents
+        return sorted(contents, key=lambda k: k.format)
 
     def get_content_formats(self, dikt):
         """Retrieves the formats allowed from @dikt
@@ -79,7 +79,7 @@ class OpenAPI():
             dikt (dict): The dictionary that we want to retrieve content formats for
 
         Returns:
-            A list of strings that describe accepted formats
+            A sorted list of strings that describe accepted formats
         """
         contents = self.get_contents(dikt)
         if contents is None:
@@ -89,7 +89,7 @@ class OpenAPI():
         for content in contents:
             formats.append(content.format)
 
-        return formats
+        return sorted(formats)
 
     def get_content_types(self, dikt):
         """Retrieves the format types from @dikt
@@ -98,7 +98,7 @@ class OpenAPI():
             dikt (dict): The dictionary that we want to retrieve content format types for
 
         Returns:
-            A list of strings that describe accepted format types
+            A sorted list of strings that describe accepted format types
         """
         contents = self.get_contents(dikt)
         if contents is None:
@@ -108,7 +108,7 @@ class OpenAPI():
         for content in contents:
             types.append(content.type)
 
-        return types
+        return sorted(types)
 
     def get_schema_type(self, dikt):
         """Retrieves the formats allowed from @dikt
@@ -158,9 +158,7 @@ class OpenAPI():
         Returns:
             A boolean value. None and non-string values result in False
         """
-        if s is None:
-            return False
-        if type(s) is bool:
+        if isinstance(s, bool):
             return s
         if isinstance(s, str) and s.lower() == 'true':
             return True
@@ -185,12 +183,12 @@ class Path(OpenAPI):
         self.tag = self.get_tag(path_dict)
         self.method = path_dict['method']
         self.function_name = path_dict.get('operationId')
-        self.parameters = self.get_parameters(path_dict)  # array<Parameter>
-        self.parameters_in = self.get_parameters_in()  # set<string>
+        self.parameters = self.get_parameters(path_dict)  # List[Parameter] ; sorted (required params first, then sorted by name)
+        self.parameters_in = self.get_parameters_in()  # List[str] ; sorted and doesn't contain duplicates
         self.request_body = self.get_request_body(path_dict)
-        self.responses = self.get_responses(path_dict)  # REQUIRED {<string>, Response}
-        self.response_formats = self.get_response_formats()  # set<string>
-        self.dependencies = self.get_dependencies(path_dict)  # set<string>
+        self.responses = self.get_responses(path_dict)  # OrderedDict[str, Response] ; sorted by code
+        self.response_formats = self.get_response_formats()  # List[str] ; sorted and doesn't contain duplicates
+        self.dependencies = self.get_dependencies(path_dict)  # List[str] ; sorted and doesn't contain duplicates
 
         # TODO
         self.summary = path_dict.get('summary')
@@ -248,7 +246,7 @@ class Path(OpenAPI):
         if None in dependencies:
             dependencies.remove(None)
 
-        return dependencies
+        return sorted(list(dependencies))
 
     def get_tag(self, path_dict):
         """Retrieves the first tag from @path_dict
@@ -277,7 +275,7 @@ class Path(OpenAPI):
             for _format in response.formats:
                 response_formats.add(_format)
 
-        return response_formats
+        return sorted(list(response_formats))
 
     def get_request_body(self, path_dict):
         """Retrieves the request body from @path_dict
@@ -307,7 +305,7 @@ class Path(OpenAPI):
         for parameter in self.parameters:
             parameters_in.add(parameter._in)
 
-        return parameters_in
+        return sorted(list(parameters_in))
 
     def get_parameters(self, path_dict):
         """Retrieves all parameters for a path
@@ -326,7 +324,7 @@ class Path(OpenAPI):
         for param_dict in params_list:
             parameters.append(Parameter(param_dict))
 
-        return parameters
+        return sorted(sorted(parameters, key=lambda k: k.name), key=lambda k: k.required)
 
     def get_responses(self, path_dict):
         """Retrieves all responses for a path
@@ -343,7 +341,7 @@ class Path(OpenAPI):
         for code, response_dict in resp_dict.items():
             responses[code] = Response(code, response_dict)
 
-        return responses
+        return OrderedDict(sorted(responses.items()))
 
     def merge_dicts(self, fallback_dict, priority_dict):
         """Merges the main parent path dict from the spec into the child path dict
@@ -408,9 +406,9 @@ class RequestBody(OpenAPI):
     def __init__(self, dikt):
         request_body_dict = self.get_reference(dikt)
 
-        self.formats = self.get_content_formats(request_body_dict)  # array<string>
-        self.types = self.get_content_types(request_body_dict)  # array<string>
-        self.contents = self.get_contents(request_body_dict)  # array<Content>
+        self.formats = self.get_content_formats(request_body_dict)  # List[str] ; sorted
+        self.types = self.get_content_types(request_body_dict)  # List[str] ; sorted
+        self.contents = self.get_contents(request_body_dict)  # List[Content] ; sorted by format
 
         # TODO
         self.required = self.to_boolean(request_body_dict.get('required'))
@@ -423,9 +421,9 @@ class Response(OpenAPI):
         response_dict = self.get_reference(dikt)
 
         self.code = response_code  # string
-        self.formats = self.get_content_formats(response_dict)  # array<string>
-        self.types = self.get_content_types(response_dict)  # array<string>
-        self.contents = self.get_contents(response_dict)  # array<Content>
+        self.formats = self.get_content_formats(response_dict)  # List[str] ; sorted
+        self.types = self.get_content_types(response_dict)  # List[str] ; sorted
+        self.contents = self.get_contents(response_dict)  # List[Content] ; sorted by format
 
         # TODO
         self.description = response_dict.get('description')  # REQUIRED
@@ -437,10 +435,10 @@ class Parameter(OpenAPI):
     def __init__(self, dikt):
         parameter_dict = self.get_reference(dikt)
 
-        self.name = parameter_dict.get('name')  # REQUIRED string
-        self._in = parameter_dict.get('in')  # REQUIRED string
-        self.required = self.to_boolean(parameter_dict.get('required'))  # boolean
-        self.type = self.get_schema_type(parameter_dict)  # string TODO
+        self.name = parameter_dict.get('name')  # REQUIRED str
+        self._in = parameter_dict.get('in')  # REQUIRED str
+        self.required = self.to_boolean(parameter_dict.get('required'))  # bool
+        self.type = self.get_schema_type(parameter_dict)  # str TODO
 
         # TODO
         self.description = parameter_dict.get('description')
