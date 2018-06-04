@@ -160,7 +160,7 @@ def get_paths_by_tag():
 
     paths_by_tag_sorted = {}
     for tag, paths in paths_by_tag.items():
-        paths_by_tag_sorted[tag] = sorted(paths, key=lambda k: k.url)
+        paths_by_tag_sorted[tag] = sorted(sorted(paths, key=lambda k: k.function_name), key=lambda k: k.url)
 
     for tag, paths in paths_by_tag_sorted.items():
         for p in paths:
