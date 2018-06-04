@@ -28,6 +28,8 @@ class Config():
 
     FLASK_SERVER_NAME = 'flask_server'
     VERBOSE = False
+    OVERWRITE = False
+    PROTECTED = []
 
     LANGUAGE = None
     IMPLEMENTATION = 'flask'
