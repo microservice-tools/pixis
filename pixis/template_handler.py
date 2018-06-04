@@ -1,5 +1,5 @@
 import re
-from pathlib import Path
+import pathlib
 import hashlib
 import difflib
 import json
@@ -29,7 +29,7 @@ def create_template_context():
 
 def load_checksums():
     try:
-        cfg.Config._checksums = json.loads(Path('.pixis.json').read_text())
+        cfg.Config._checksums = json.loads(pathlib.Path('.pixis.json').read_text())
         print('Found .pixis.json!')
     except FileNotFoundError:
         print('No .pixis.json found')
@@ -37,7 +37,7 @@ def load_checksums():
 
 
 def save_checksums():
-    Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
+    pathlib.Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
     print('Saved hashes for generated files in .pixis.json')
 
 
@@ -50,7 +50,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         output_name (str): name of output file name
     """
     try:  # check for their custom templates
-        template_name = Path(template_path).name
+        template_name = pathlib.Path(template_path).name
         template_loader = jinja2.FileSystemLoader(cfg.Config.TEMPLATES)
         env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
         template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
@@ -63,8 +63,8 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('Template does not exist\n')
 
-    Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
-    file_path = Path(output_dir) / Path(output_name)
+    pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
+    file_path = pathlib.Path(output_dir) / pathlib.Path(output_name)
     new_file_text = template.render(TEMPLATE_CONTEXT)
 
     new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
@@ -126,7 +126,7 @@ def get_paths_by_tag():
     """Organizes each path by tag
 
     Returns:
-        dictionary with the tag as key and list of Path objects
+        dictionary with the tag as key and list of pathlib.Path objects
     """
     paths_by_tag = {}
     methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
