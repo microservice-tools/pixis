@@ -108,12 +108,14 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
 
 def is_protected(file_path):
+    # PosixPath('build/server/hello.py') -> PosixPath('/server/hello.py')
+    p = pathlib.Path(str(pathlib.Path('/')) + str(file_path.relative_to(*file_path.parts[:1])))
     for s in cfg.Config.PROTECTED:
-        if s in str(file_path):
+        if s in str(p):
             return True
         try:
             pattern = re.compile(s)
-            if pattern.match(str(file_path)):
+            if pattern.match(str(p)):
                 return True
         except re.error:
             pass
