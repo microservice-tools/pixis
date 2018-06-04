@@ -30,6 +30,43 @@ schemas = {
 ```
 
 Schema Object Attributes (ex. schema1.name)
+---
+| VARIABLE       | TYPE            | DESCRIPTION                                                                    |
+|---------------------|-------------------|------------------------------------------------------------------------------|
+| name               | string             | name of schema object                                                       |
+| dependencies  | List[str]          | type of property object                         |
+| has_enums      | bool               | True if schema object has at least one enum, False otherwise |
+| title                   | string             | title of schema object                                                         |
+| description       | string             | description of schema object                                              |
+| default              | string            |  default value if one is provided                                           |
+| type                  | string            | type of schema object. Possible values are 'array', 'boolean', 'integer', 'number', 'object', and 'string' |
+| format               | string            |  format of the schema object type. Possible values are: 'int32' and 'int64' if type is 'integer'; 'float' and 'double' if type is 'number'; 'byte', 'binary', 'date', 'date-time' and 'password' if type is 'string';  |
+|additionalProperties| schema_object or ref | This contains an list of schema objects  | 
+|maxProperties| integer | An object instance is valid against "maxProperties" if its number of properties is less than, or equal to, the value of this keyword | 
+|minProperties| integer | An object instance is valid against "minProperties" if its number of properties is greater than, or equal to, the value of this keyword. | 
+|properties| List[Property] | Contains a list of properties that the objects will have. The property is a class that we have created that contains the name, type, whether or not it is required, and enums if it has any. | 
+|ref| string | reference to a schema within the components section | 
+|maxItems| number | Minimum count of items in array | 
+|minItems| number | Minimum count of items in array | 
+|uniqueItems| boolean | Allow only unique items in array |
+|pattern| string | This string SHOULD be a valid regular expression | 
+|maxLength| integer | Maximum string's length | 
+|minLength| integer | Minimum string's length |
+|maximum| number | Maximum value |
+|exclusiveMaximum| boolean | Indicate if the value must value < maximum |
+|minimum| number | Maximum value |
+|exclusiveMinimum| boolean | Indicate if the value must value > minimum |
+|multipleOf| number | The value must be a multiple of multiplOf |
+### **Property**
+A class for a property object defined for the template context. The Attributes follow the OpenAPI v3.0 specification.
+
+| VARIABLE       | TYPE            | DESCRIPTION                                                                    |
+|---------------------|-------------------|------------------------------------------------------------------------------|
+| name               | string             | name of property                                                       |
+| type                 | string             | dependencies required by schema object  (integer, number, boolean, or string)                          |
+| is_required      | bool               | False for not required property of schema object, True for required |
+| enums             | List[str]           | possible enums of property. If no enums it is an empty list.|
+
 
 ---
 
