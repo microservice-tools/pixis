@@ -70,9 +70,9 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
     new_file_text = template.render(TEMPLATE_CONTEXT)
     new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
 
-    # if is_protected(file_path.name):
-    #     print("Did not generate [" + str(file_path) + "] (PROTECTED)")
-    #     return
+    if is_protected(file_path):
+        print("Did not generate [" + str(file_path) + "] (PROTECTED)")
+        return
 
     if cfg.Config.OVERWRITE:
         generate_file(file_path, new_file_text, new_file_checksum)
@@ -105,6 +105,20 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         return
 
     maybe_generate()
+
+
+def is_protected(file_path):
+    for s in cfg.Config.PROTECTED:
+        if s in str(file_path):
+            return True
+        try:
+            pattern = re.compile(s)
+            if pattern.match(str(file_path)):
+                return True
+        except re.error:
+            pass
+
+    return False
 
 
 def maybe_generate(file_path, new_file_text, new_file_checksum):
