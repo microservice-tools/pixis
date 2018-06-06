@@ -393,63 +393,155 @@ class Path(OpenAPI):
 class Content(OpenAPI):
     def __init__(self, _format, content_dict):
         self.format = _format
-        self.type = self.get_schema_type(content_dict)
+        self.type = self._get_schema_type(content_dict)
+        self.extensions = self._get_extensions(content_dict)
 
         # TODO
         self.example = content_dict.get('example')
         self.examples = content_dict.get('examples')
         self.encoding = content_dict.get('encoding')
-        self.extensions = self.get_extensions(content_dict)
 
 
 class RequestBody(OpenAPI):
     def __init__(self, dikt):
-        request_body_dict = self.get_reference(dikt)
+        request_body_dict = self._get_reference(dikt)
 
-        self.formats = self.get_content_formats(request_body_dict)  # List[str] ; sorted
-        self.types = self.get_content_types(request_body_dict)  # List[str] ; sorted
-        self.contents = self.get_contents(request_body_dict)  # List[Content] ; sorted by format
+        self.formats = self._get_content_formats(request_body_dict)  # List[str] ; sorted
+        self.types = self._get_content_types(request_body_dict)  # List[str] ; sorted
+        self.contents = self._get_contents(request_body_dict)  # List[Content] ; sorted by format
+        self.description = request_body_dict.get('description')
+        self.extensions = self._get_extensions(request_body_dict)
 
         # TODO
-        self.required = self.to_boolean(request_body_dict.get('required'))
-        self.description = request_body_dict.get('description')
-        self.extensions = self.get_extensions(request_body_dict)
+        self.required = self._to_boolean(request_body_dict.get('required'))
 
 
 class Response(OpenAPI):
     def __init__(self, response_code, dikt):
-        response_dict = self.get_reference(dikt)
+        response_dict = self._get_reference(dikt)
 
         self.code = response_code  # string
-        self.formats = self.get_content_formats(response_dict)  # List[str] ; sorted
-        self.types = self.get_content_types(response_dict)  # List[str] ; sorted
-        self.contents = self.get_contents(response_dict)  # List[Content] ; sorted by format
+        self.formats = self._get_content_formats(response_dict)  # List[str] ; sorted
+        self.types = self._get_content_types(response_dict)  # List[str] ; sorted
+        self.contents = self._get_contents(response_dict)  # List[Content] ; sorted by format
+        self.description = response_dict.get('description')  # REQUIRED
+        self.extensions = self._get_extensions(response_dict)
 
         # TODO
-        self.description = response_dict.get('description')  # REQUIRED
         self.headers = response_dict.get('headers')
-        self.extensions = self.get_extensions(response_dict)
 
 
 class Parameter(OpenAPI):
     def __init__(self, dikt):
-        parameter_dict = self.get_reference(dikt)
+        parameter_dict = self._get_reference(dikt)
 
         self.name = parameter_dict.get('name')  # REQUIRED str
         self._in = parameter_dict.get('in')  # REQUIRED str
-        self.required = self.to_boolean(parameter_dict.get('required'))  # bool
-        self.type = self.get_schema_type(parameter_dict)  # str TODO
+        self.required = self._to_boolean(parameter_dict.get('required'))  # bool
+        self.type = self._get_schema_type(parameter_dict)  # str TODO
+        self.description = parameter_dict.get('description')
+        self.deprecated = self._to_boolean(parameter_dict.get('deprecated'))
+        self.style = parameter_dict.get('style')
+        self.allowEmptyValue = self._to_boolean(parameter_dict.get('allowEmptyValue'))
+        self.explode = self._to_boolean(parameter_dict.get('explode'))
+        self.allowReserved = self._to_boolean(parameter_dict.get('allowReserved'))
+        self.extensions = self._get_extensions(parameter_dict)
 
         # TODO
-        self.description = parameter_dict.get('description')
-        self.style = parameter_dict.get('style')
         self.example = parameter_dict.get('example')
         self.examples = parameter_dict.get('examples')
-        self.deprecated = self.to_boolean(parameter_dict.get('deprecated'))
-        self.allowEmptyValue = self.to_boolean(parameter_dict.get('allowEmptyValue'))
-        self.explode = self.to_boolean(parameter_dict.get('explode'))
-        self.allowReserved = self.to_boolean(parameter_dict.get('allowReserved'))
-        self.extensions = self.get_extensions(parameter_dict)
+
+
+# class Schema(OpenAPI):
+#     def __init__(self, name, schema_dict):
+
+#         # strict JSON schema properties as defined by https://tools.ietf.org/html/draft-wright-json-schema-validation-00
+#         self.title = schema_dict.get('title')  # str
+#         self.pattern = schema_dict.get('pattern')  # str ; Should be a valid regular expression. A string instance is valid if the regex matches successfully
+#         self.uniqueItems = self._to_boolean(schema_dict.get('uniqueItems'))  # bool ; Defaults to False. If True, instance validates successfully if all elements are unique. If False, instance validates
+#         self.exclusiveMaximum = self._to_boolean(schema_dict.get('exclusiveMaximum'))  # bool ; Represents whether the limit in self.maximum is exclusive or not. Defaults to False
+#         self.exclusiveMinimum = self._to_boolean(schema_dict.get('exclusiveMinimum'))  # bool ; Represents whether the limit in self.minimum is exclusive or not. Defaults to False
+#         self.multipleOf = schema_dict.get('multipleOf')  # number > 0 ; A numeric instance is only valid if division by self.multipleOf results in an integer
+#         if self.multipleOf is not None:
+#             self.multipleOf = float(self.multipleOf)
+#         self.maximum = schema_dict.get('maximum')  # number ; Represents an upper limit for a numberic instance. Validates with self.exclusiveMaximum
+#         if self.maximum is not None:
+#             self.maximum = float(self.maximum)
+#         self.minimum = schema_dict.get('minimum')  # number ; Represents a lower limit for a numberic instance. Validates with self.exclusiveMinimum
+#         if self.minimum is not None:
+#             self.minimum = float(self.minimum)
+#         self.maxLength = schema_dict.get('maxLength')  # int >= 0 ; A string instance is valid if its length is <= self.maxLength
+#         if self.maxLength is not None:
+#             self.maxLength = int(self.maxLength)
+#         self.minLength = schema_dict.get('minLength', 0)  # int <= 0 ; A string instance is valid if its legnth is >= self.minLength
+#         if self.minLength != 0:
+#             self.minLength = int(self.minLength)
+#         self.maxItems = schema_dict.get('maxItems')  # int >= 0 ; An array instance is valid if its size <= self.maxItems
+#         if self.maxItems is not None:
+#             self.maxItems = int(self.maxItems)
+#         self.minItems = schema_dict.get('minitems', 0)  # int <= 0 ; An array instance is valid if its size >= self.minitems
+#         if self.minItems != 0:
+#             self.minItems = int(self.minItems)
+#         self.maxProperties = schema_dict.get('maxProperties')  # int <= 0 ; An array instance is valid if its size >= self.maxProperties
+#         if self.maxProperties is not None:
+#             self.maxProperties = int(self.maxProperties)
+#         self.minProperties = schema_dict.get('minProperties', 0)  # int >= 0 ; An array instance is valid if its size <= self.minProperties
+#         if self.minProperties != 0:
+#             self.minProperties = int(self.minProperties)
+#         # TODO
+#         self.required = schema_dict.get('required')  # List[str] ; Must have at least one element, and elements must be unique. Object instance is valid against this keyword if its property set contains all elements in self.required
+#         self.enum = schema_dict.get('enum')  # List[any] ; Should have at least one element, and elements should be unique. An instance validates successfully against this keyword if its value is equal to an element in self.enum
+
+#         # modified JSON schema properties defined by https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject
+#         self.type = schema_dict.get('type')  # str ; value must be one of the primitive types: string number object array boolean null. An instance matches successfully if its type matches
+#         self.description = schema_dict.get('description')  # str
+#         self.format = schema_dict.get('format')  # str
+#         # TODO
+#         self.allOf = schema_dict.get('allOf')  # List[Schema OR Reference]
+#         self.oneOf = schema_dict.get('oneOf')  # List[Schema OR Reference]
+#         self.anyOf = schema_dict.get('anyOf')  # List[Schema OR Reference]
+#         self.Not = schema_dict.get('not')  # List[Schema OR Reference]
+#         self.items = schema_dict.get('items')  # Schema OR Reference ; must be present if self.type is array
+#         self.properties = schema_dict.get('properties')  # Dict[str, Schema OR Reference] ; key is schema name
+#         self.default = schema_dict.get('default')  # any ; value must conform to self.type
+#         # https://stackoverflow.com/questions/41239913/why-additionalproperties-is-the-way-to-represent-dictionary-map-in-swagger-ope/41240118#41240118
+#         # explanation for self.additionalProperties below
+#         self.additionalProperties  # bool OR Dict[str, Schema OR Reference]
+
+#         # "the following fields MAY be used for further schema documentation"
+#         self.nullable = self._to_boolean(schema_dict.get('nullable'))
+#         self.readOnly = self._to_boolean(schema_dict.get('nullable'))
+#         self.writeOnly = self._to_boolean(schema_dict.get('writeOnly'))
+#         self.deprecated = self._to_boolean(schema_dict.get('deprecated'))
+#         self.extensions = self._get_extensions(schema_dict)
+#         # TODO
+#         self.externalDocs = schema_dict.get('externalDocs')
+#         self.example = schema_dict.get('example')
+#         self.xml = schema_dict.get('xml')
+#         self.discriminator = schema_dict.get('discriminator')
+
+#         """
+#         self.properties defines the known set of properties,
+#         but if we want to have something like a dict/hashmap where
+#         we can't specify how many keys there will be or what they are in advance,
+#         that's when we use self.additionalProperties.
+#         self.additionalProperties will match any property name (which will be the key),
+#         and the $ref/type from self.additionalProperties will be the value.
+#         Unique keys is enforced naturally due to hashmap definition
+
+#         If "additionalProperties" is absent, it may be considered present
+#         with an empty schema as a value.
+
+#         If "additionalProperties" is true, validation always succeeds.
+
+#         If "additionalProperties" is false, validation succeeds only if the
+#         instance is an object and all properties on the instance were covered
+#         by "properties" and/or "patternProperties".
+
+#         If "additionalProperties" is an object, validate the value as a
+#         schema to all of the properties that weren't validated by
+#         "properties" nor "patternProperties".
+#         """
 
 
 class Schema(OpenAPI):
