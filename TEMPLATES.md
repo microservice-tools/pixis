@@ -10,7 +10,7 @@ In order to simplify template creation, Pixis provides the user with a **templat
 These variables can be used by templates:
 
 ---
-
+# WORK IN PROGRESS AS OF 6/5/18
 ### **schemas**
 * Dictionary from string to Schema Object
 * Keys are the names of the schemas

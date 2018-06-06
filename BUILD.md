@@ -36,20 +36,20 @@ At the lowest level, *emit_template()* renders a template and outputs the file. 
 
 To make Pixis not generate your model classes, put this inside your build file
 ```python
-import pixis.utils as utils
+from pixis.config import stage_iterator, schema_iterator
 
-utils.stage_iterator(utils.schema_iterator, [])
+stage_iterator(schema_iterator, [])
 ```
 The empty brackets mean that the schema_iterator should not call any generation functions
 
 To make Pixis instead use generation functions that you define, put this inside your build file
 ```python
-import pixis.utils as utils
+from pixis.config import emit_template, stage_iterator
 
 def my_generation_function():
-    utils.emit_template('my_template', 'path/to/output/dir', 'my_file.ts')
+    emit_template('my_template', 'path/to/output/dir', 'my_file.ts')
 
-utils.stage_iterator(utils.schema_iterator, [my_generation_function])
+stage_iterator(schema_iterator, [my_generation_function])
 ```
 ---
 
@@ -62,11 +62,7 @@ then the user must also define a class that derives from Pixis' base **Language*
 
 To use these base classes and other needed functions in your build file, import from Pixis like this:
 ```python
-import pixis.utils as utils
-from pixis.config import Config
-from pixis.implementations.implementation import Implementation
-from pixis.languages.language import Language
-from pixis.template_handler import TEMPLATE_CONTEXT, emit_template
+from pixis.config import Config, Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator, emit_template, TEMPLATE_CONTEXT
 ```
 
 ---
@@ -172,15 +168,11 @@ Example:
 ### Build file containing a full custom Flask implementation
 
 ```python
-import pixis.utils as utils
-from pixis.config import Config
-from pixis.implementations.implementation import Implementation
-from pixis.languages.language import Language
-from pixis.template_handler import TEMPLATE_CONTEXT, emit_template
+from pixis.config import Config, Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator, emit_template, TEMPLATE_CONTEXT
 
-SPEC = 'swagger.yaml'
-OUTPUT = 'my_server'
-FLASK_SERVER_NAME = 'my_flask_server'
+SPEC = 'test.yaml'
+OUTPUT = 'mybuild'
+FLASK_SERVER_NAME = 'flask_server'
 
 
 class Python(Language):
@@ -248,12 +240,13 @@ class Flask(Implementation):
 
     @staticmethod
     def stage_default_iterators():
-        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
-        utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])
+        stage_iterator(once_iterator, [Flask.generate_once])
+        stage_iterator(tag_iterator, [Flask.generate_per_tag])
+        stage_iterator(schema_iterator, [Flask.generate_per_schema])
 
 
 IMPLEMENTATION = Flask
+
 ```
 
 
