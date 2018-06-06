@@ -1,5 +1,4 @@
 import pixis.config as cfg
-import pixis.template_handler as tmpl
 from pixis.languages.python import Python
 
 
@@ -8,7 +7,7 @@ class Flask(cfg.Implementation):
 
     @staticmethod
     def process():
-        for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
+        for tag, paths in cfg.TEMPLATE_CONTEXT['paths'].items():
             for path in paths:
                 path.url = path.url.replace('}', '>').replace('{', '<')
 
@@ -27,11 +26,11 @@ class Flask(cfg.Implementation):
 
     @staticmethod
     def generate_per_tag():
-        cfg.emit_template('server_flask/controller.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/controllers', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '_controller.py')
+        cfg.emit_template('server_flask/controller.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/controllers', cfg.TEMPLATE_CONTEXT['_current_tag'] + '_controller.py')
 
     @staticmethod
     def generate_per_schema():
-        cfg.emit_template('server_flask/model.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/models', cfg.Implementation.lower_first(tmpl.TEMPLATE_CONTEXT['_current_schema']) + '.py')
+        cfg.emit_template('server_flask/model.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/models', cfg.Implementation.lower_first(cfg.TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
     @staticmethod
     def stage_default_iterators():

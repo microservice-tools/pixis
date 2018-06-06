@@ -1,5 +1,4 @@
 import pixis.config as cfg
-import pixis.template_handler as tmpl
 from pixis.languages.javascript import Javascript
 
 
@@ -20,11 +19,11 @@ class Angular2(cfg.Implementation):
 
     @staticmethod
     def generate_per_tag():
-        cfg.emit_template('client_angular2/service.j2', cfg.Config.OUTPUT + '/api', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
+        cfg.emit_template('client_angular2/service.j2', cfg.Config.OUTPUT + '/api', cfg.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
 
     @staticmethod
     def generate_per_schema():
-        cfg.emit_template('client_angular2/model.j2', cfg.Config.OUTPUT + '/model', tmpl.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
+        cfg.emit_template('client_angular2/model.j2', cfg.Config.OUTPUT + '/model', cfg.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
     @staticmethod
     def stage_default_iterators():

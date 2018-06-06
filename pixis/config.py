@@ -5,6 +5,8 @@ from collections import OrderedDict
 
 import jinja2
 
+TEMPLATE_CONTEXT = {}
+
 
 class Config():
     """Provides variables that pixis uses to configure code generation
@@ -143,8 +145,8 @@ def schema_iterator(schema_iterator_functions):
         schema_iterator_functions (List[function]): functions that this iterator will execute
     """
     import pixis.template_handler as tmpl
-    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
+    for schema_name, schema in TEMPLATE_CONTEXT['schemas'].items():
+        TEMPLATE_CONTEXT['_current_schema'] = schema_name
         for f in schema_iterator_functions:
             f()
 
@@ -156,8 +158,8 @@ def tag_iterator(tag_iterator_functions):
         tag_iterator_functions (List[function]): functions that this iterator will execute
     """
     import pixis.template_handler as tmpl
-    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
+    for tag, paths in TEMPLATE_CONTEXT['paths'].items():
+        TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
             f()
 
@@ -188,7 +190,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
             raise ValueError('Template does not exist\n')
 
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
-    new_file_text = template.render(tmpl.TEMPLATE_CONTEXT)
+    new_file_text = template.render(TEMPLATE_CONTEXT)
     new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
 
     def is_protected(file_path):

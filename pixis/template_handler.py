@@ -5,7 +5,6 @@ import pixis.config as cfg
 import pixis.openapi as oapi
 
 EXT_REGEX = re.compile('x-.*')
-TEMPLATE_CONTEXT = {}
 
 
 def create_template_context():
@@ -15,10 +14,10 @@ def create_template_context():
     Default template context has the variables: 'schemas', 'paths', 'base_path', 'cfg'
     Calls Config.IMPLEMENTATION.process() to allow the user to make final changes
     """
-    TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
-    TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
-    TEMPLATE_CONTEXT['base_path'] = get_base_path()
-    TEMPLATE_CONTEXT['cfg'] = cfg.Config
+    cfg.TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
+    cfg.TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
+    cfg.TEMPLATE_CONTEXT['base_path'] = get_base_path()
+    cfg.TEMPLATE_CONTEXT['cfg'] = cfg.Config
     cfg.Config.IMPLEMENTATION.process()
 
 
