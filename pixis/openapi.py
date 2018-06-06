@@ -29,11 +29,9 @@ class OpenAPI():
         if '$ref' not in dikt:
             return dikt
 
-        ref_string = dikt['$ref']
-        ref_path = ref_string.split('/')
+        ref_path = dikt['ref'].split('/')
 
-        ref = cfg.Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
-        return ref
+        return cfg.Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
 
     def _get_extensions(self, dikt):
         """Retrieves all extensions from @dikt
@@ -176,8 +174,6 @@ class Path(OpenAPI):
     """
 
     def __init__(self, parent_dict, operation_dict):
-        """Inits Path to reflect the spec's info
-        """
         path_dict = self._merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
         self.tag = self._get_tag(path_dict)
