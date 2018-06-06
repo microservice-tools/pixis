@@ -10,7 +10,6 @@ from openapi_spec_validator import openapi_v3_spec_validator
 import pixis.config as cfg
 import pixis.implementations.client_angular2 as pixis_angular2
 import pixis.implementations.server_flask as pixis_flask
-# import pixis.template_handler as tmpl
 
 _supported = {
     'flask': pixis_flask.Flask,
@@ -132,3 +131,17 @@ def run_iterators():
     """
     for iterator_name, iterator in cfg.Config._iterators_mapping.items():
         iterator(cfg.Config._iterator_functions_mapping[iterator_name])
+
+
+def load_checksums():
+    try:
+        cfg.Config._checksums = json.loads(pathlib.Path('.pixis.json').read_text())
+        print('Found .pixis.json!')
+    except FileNotFoundError:
+        print('No .pixis.json found')
+        return
+
+
+def save_checksums():
+    pathlib.Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
+    print('Saved hashes for generated files in .pixis.json')

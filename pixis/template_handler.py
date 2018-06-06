@@ -28,20 +28,6 @@ def create_template_context():
     cfg.Config.IMPLEMENTATION.process()
 
 
-def load_checksums():
-    try:
-        cfg.Config._checksums = json.loads(pathlib.Path('.pixis.json').read_text())
-        print('Found .pixis.json!')
-    except FileNotFoundError:
-        print('No .pixis.json found')
-        return
-
-
-def save_checksums():
-    pathlib.Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
-    print('Saved hashes for generated files in .pixis.json')
-
-
 def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
     """Creates a file using template defined by @template_path into directory defined by @output_dir with filename defined by @output_name
 

@@ -32,11 +32,11 @@ def main():
     utils.set_parent()
     utils.set_language()
     utils.load_spec_file()
-    tmpl.load_checksums()
+    utils.load_checksums()
     utils.set_iterators()
     tmpl.create_template_context()
     utils.run_iterators()
-    tmpl.save_checksums()
+    utils.save_checksums()
 
 
 if __name__ == '__main__':
