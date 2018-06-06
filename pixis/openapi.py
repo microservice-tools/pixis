@@ -448,316 +448,343 @@ class Parameter(OpenAPI):
         self.examples = parameter_dict.get('examples')
 
 
-# class Schema(OpenAPI):
-#     def __init__(self, name, schema_dict):
-
-#         # strict JSON schema properties as defined by https://tools.ietf.org/html/draft-wright-json-schema-validation-00
-#         self.title = schema_dict.get('title')  # str
-#         self.pattern = schema_dict.get('pattern')  # str ; Should be a valid regular expression. A string instance is valid if the regex matches successfully
-#         self.uniqueItems = self._to_boolean(schema_dict.get('uniqueItems'))  # bool ; Defaults to False. If True, instance validates successfully if all elements are unique. If False, instance validates
-#         self.exclusiveMaximum = self._to_boolean(schema_dict.get('exclusiveMaximum'))  # bool ; Represents whether the limit in self.maximum is exclusive or not. Defaults to False
-#         self.exclusiveMinimum = self._to_boolean(schema_dict.get('exclusiveMinimum'))  # bool ; Represents whether the limit in self.minimum is exclusive or not. Defaults to False
-#         self.multipleOf = schema_dict.get('multipleOf')  # number > 0 ; A numeric instance is only valid if division by self.multipleOf results in an integer
-#         if self.multipleOf is not None:
-#             self.multipleOf = float(self.multipleOf)
-#         self.maximum = schema_dict.get('maximum')  # number ; Represents an upper limit for a numberic instance. Validates with self.exclusiveMaximum
-#         if self.maximum is not None:
-#             self.maximum = float(self.maximum)
-#         self.minimum = schema_dict.get('minimum')  # number ; Represents a lower limit for a numberic instance. Validates with self.exclusiveMinimum
-#         if self.minimum is not None:
-#             self.minimum = float(self.minimum)
-#         self.maxLength = schema_dict.get('maxLength')  # int >= 0 ; A string instance is valid if its length is <= self.maxLength
-#         if self.maxLength is not None:
-#             self.maxLength = int(self.maxLength)
-#         self.minLength = schema_dict.get('minLength', 0)  # int <= 0 ; A string instance is valid if its legnth is >= self.minLength
-#         if self.minLength != 0:
-#             self.minLength = int(self.minLength)
-#         self.maxItems = schema_dict.get('maxItems')  # int >= 0 ; An array instance is valid if its size <= self.maxItems
-#         if self.maxItems is not None:
-#             self.maxItems = int(self.maxItems)
-#         self.minItems = schema_dict.get('minitems', 0)  # int <= 0 ; An array instance is valid if its size >= self.minitems
-#         if self.minItems != 0:
-#             self.minItems = int(self.minItems)
-#         self.maxProperties = schema_dict.get('maxProperties')  # int <= 0 ; An array instance is valid if its size >= self.maxProperties
-#         if self.maxProperties is not None:
-#             self.maxProperties = int(self.maxProperties)
-#         self.minProperties = schema_dict.get('minProperties', 0)  # int >= 0 ; An array instance is valid if its size <= self.minProperties
-#         if self.minProperties != 0:
-#             self.minProperties = int(self.minProperties)
-#         # TODO
-#         self.required = schema_dict.get('required')  # List[str] ; Must have at least one element, and elements must be unique. Object instance is valid against this keyword if its property set contains all elements in self.required
-#         self.enum = schema_dict.get('enum')  # List[any] ; Should have at least one element, and elements should be unique. An instance validates successfully against this keyword if its value is equal to an element in self.enum
-
-#         # modified JSON schema properties defined by https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject
-#         self.type = schema_dict.get('type')  # str ; value must be one of the primitive types: string number object array boolean null. An instance matches successfully if its type matches
-#         self.description = schema_dict.get('description')  # str
-#         self.format = schema_dict.get('format')  # str
-#         # TODO
-#         self.allOf = schema_dict.get('allOf')  # List[Schema OR Reference]
-#         self.oneOf = schema_dict.get('oneOf')  # List[Schema OR Reference]
-#         self.anyOf = schema_dict.get('anyOf')  # List[Schema OR Reference]
-#         self.Not = schema_dict.get('not')  # List[Schema OR Reference]
-#         self.items = schema_dict.get('items')  # Schema OR Reference ; must be present if self.type is array
-#         self.properties = schema_dict.get('properties')  # Dict[str, Schema OR Reference] ; key is schema name
-#         self.default = schema_dict.get('default')  # any ; value must conform to self.type
-#         # https://stackoverflow.com/questions/41239913/why-additionalproperties-is-the-way-to-represent-dictionary-map-in-swagger-ope/41240118#41240118
-#         # explanation for self.additionalProperties below
-#         self.additionalProperties  # bool OR Dict[str, Schema OR Reference]
-
-#         # "the following fields MAY be used for further schema documentation"
-#         self.nullable = self._to_boolean(schema_dict.get('nullable'))
-#         self.readOnly = self._to_boolean(schema_dict.get('nullable'))
-#         self.writeOnly = self._to_boolean(schema_dict.get('writeOnly'))
-#         self.deprecated = self._to_boolean(schema_dict.get('deprecated'))
-#         self.extensions = self._get_extensions(schema_dict)
-#         # TODO
-#         self.externalDocs = schema_dict.get('externalDocs')
-#         self.example = schema_dict.get('example')
-#         self.xml = schema_dict.get('xml')
-#         self.discriminator = schema_dict.get('discriminator')
-
-#         """
-#         self.properties defines the known set of properties,
-#         but if we want to have something like a dict/hashmap where
-#         we can't specify how many keys there will be or what they are in advance,
-#         that's when we use self.additionalProperties.
-#         self.additionalProperties will match any property name (which will be the key),
-#         and the $ref/type from self.additionalProperties will be the value.
-#         Unique keys is enforced naturally due to hashmap definition
-
-#         If "additionalProperties" is absent, it may be considered present
-#         with an empty schema as a value.
-
-#         If "additionalProperties" is true, validation always succeeds.
-
-#         If "additionalProperties" is false, validation succeeds only if the
-#         instance is an object and all properties on the instance were covered
-#         by "properties" and/or "patternProperties".
-
-#         If "additionalProperties" is an object, validate the value as a
-#         schema to all of the properties that weren't validated by
-#         "properties" nor "patternProperties".
-#         """
-
-
 class Schema(OpenAPI):
-    """
-    A class for a schema object defined for the template context
-    Attributes follow the OpenAPI v3.0 specification
-    """
+    def __init__(self, dikt):
+        schema_dict = self._get_reference(dikt)
 
-    def __init__(self, name, schema_dict):
+        # strict JSON schema properties as defined by https://tools.ietf.org/html/draft-wright-json-schema-validation-00
+        self.title = schema_dict.get('title')  # str
+        self.pattern = schema_dict.get('pattern')  # str ; Should be a valid regular expression. A string instance is valid if the regex matches successfully
+        self.uniqueItems = self._to_boolean(schema_dict.get('uniqueItems'))  # bool ; Defaults to False. If True, instance validates successfully if all elements are unique. If False, instance validates
+        self.exclusiveMaximum = self._to_boolean(schema_dict.get('exclusiveMaximum'))  # bool ; Represents whether the limit in self.maximum is exclusive or not. Defaults to False
+        self.exclusiveMinimum = self._to_boolean(schema_dict.get('exclusiveMinimum'))  # bool ; Represents whether the limit in self.minimum is exclusive or not. Defaults to False
+        self.multipleOf = schema_dict.get('multipleOf')  # number > 0 ; A numeric instance is only valid if division by self.multipleOf results in an integer
+        if self.multipleOf is not None:
+            self.multipleOf = float(self.multipleOf)
+        self.maximum = schema_dict.get('maximum')  # number ; Represents an upper limit for a numberic instance. Validates with self.exclusiveMaximum
+        if self.maximum is not None:
+            self.maximum = float(self.maximum)
+        self.minimum = schema_dict.get('minimum')  # number ; Represents a lower limit for a numberic instance. Validates with self.exclusiveMinimum
+        if self.minimum is not None:
+            self.minimum = float(self.minimum)
+        self.maxLength = schema_dict.get('maxLength')  # int >= 0 ; A string instance is valid if its length is <= self.maxLength
+        if self.maxLength is not None:
+            self.maxLength = int(self.maxLength)
+        self.minLength = schema_dict.get('minLength', 0)  # int <= 0 ; A string instance is valid if its legnth is >= self.minLength
+        if self.minLength != 0:
+            self.minLength = int(self.minLength)
+        self.maxItems = schema_dict.get('maxItems')  # int >= 0 ; An array instance is valid if its size <= self.maxItems
+        if self.maxItems is not None:
+            self.maxItems = int(self.maxItems)
+        self.minItems = schema_dict.get('minitems', 0)  # int <= 0 ; An array instance is valid if its size >= self.minitems
+        if self.minItems != 0:
+            self.minItems = int(self.minItems)
+        self.maxProperties = schema_dict.get('maxProperties')  # int <= 0 ; An array instance is valid if its size >= self.maxProperties
+        if self.maxProperties is not None:
+            self.maxProperties = int(self.maxProperties)
+        self.minProperties = schema_dict.get('minProperties', 0)  # int >= 0 ; An array instance is valid if its size <= self.minProperties
+        if self.minProperties != 0:
+            self.minProperties = int(self.minProperties)
+
+        self.required = schema_dict.get('required')  # List[str] ; Must have at least one element, and elements must be unique. Object instance is valid against this keyword if its property set contains all elements in self.required
+        self.enum = schema_dict.get('enum')  # TODO List[any] ; Should have at least one element, and elements should be unique. An instance validates successfully against this keyword if its value is equal to an element in self.enum
+
+        # modified JSON schema properties defined by https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#schemaObject
+        self.type = schema_dict.get('type')  # str ; value must be one of the primitive types: string number object array boolean null. An instance matches successfully if its type matches
+        self.description = schema_dict.get('description')  # str
+        self.format = schema_dict.get('format')  # str
+        self.allOf = self._get_schemas_list(schema_dict.get('allOf'))  # List[Schema OR Reference]
+        self.oneOf = self._get_schemas_list(schema_dict.get('oneOf'))  # List[Schema OR Reference]
+        self.anyOf = self._get_schemas_list(schema_dict.get('anyOf'))  # List[Schema OR Reference]
+        self.Not = self._get_schemas_list(schema_dict.get('not'))  # List[Schema OR Reference]
+        self.items = self._get_schema(schema_dict.get('items'))  # Schema OR Reference ; must be present if self.type is array
+        self.properties = self._get_properties(schema_dict)  # TODO Dict[str, Schema OR Reference] ; key is schema name
+
+        self.default = schema_dict.get('default')  # TODO any ; value must conform to self.type
+        # https://stackoverflow.com/questions/41239913/why-additionalproperties-is-the-way-to-represent-dictionary-map-in-swagger-ope/41240118#41240118
+        # explanation for self.additionalProperties below
+        self.additionalProperties  # TODO bool OR Dict[str, Schema OR Reference]
+
+        # "the following fields MAY be used for further schema documentation"
+        self.nullable = self._to_boolean(schema_dict.get('nullable'))
+        self.readOnly = self._to_boolean(schema_dict.get('readOnly'))
+        self.writeOnly = self._to_boolean(schema_dict.get('writeOnly'))
+        self.deprecated = self._to_boolean(schema_dict.get('deprecated'))
+        self.extensions = self._get_extensions(schema_dict)
+        # TODO
+        self.externalDocs = schema_dict.get('externalDocs')
+        self.example = schema_dict.get('example')
+        self.xml = schema_dict.get('xml')
+        self.discriminator = schema_dict.get('discriminator')
+
+        def _get_properties(self, schema_dict):
+            properties_dict = schema_dict.get('properties')
+
+            if properties_dict is None:
+                return None
+
+            properties_dict = {}
+            for key, prop in properties_dict.items():
+                properties_dict[key] = Schema(prop)
+
+            return properties_dict
+
+        def _get_schemas_list(self, dicts):
+            if dicts is None:
+                return None
+
+            schemas = []
+            for d in dicts:
+                schemas.append(Schema, None, d)
+
+        def _get_schema(self, dikt):
+            if dikt is None:
+                return None
+
+            return Schema(dikt)
+
         """
-        Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
+        self.properties defines the known set of properties,
+        but if we want to have something like a dict/hashmap where
+        we can't specify how many keys there will be or what they are in advance,
+        that's when we use self.additionalProperties.
+        self.additionalProperties will match any property name (which will be the key),
+        and the $ref/type from self.additionalProperties will be the value.
+        Unique keys is enforced naturally due to hashmap definition
 
-        Args:
-            name (str): name of schema object
-            schema_dict(Dict): attribute dictionary of schema object
+        If "additionalProperties" is absent, it may be considered present
+        with an empty schema as a value.
 
-        Attributes:
-            name (str): name of schema object
-            dependencies (List[str]): dependencies needed by schema object
-            has_enums (bool): True if schema object has at least one enum, False otherwise
-            title (str): title of schema object
-            description (str): description of schema object
-            default (str): default value if none is provided
-            type (str): type of schema object
-                Possible values are 'array', 'boolean', 'integer', 'number', 'object', and 'string'
-            format (str): format of the schema object type
-                Possible values are: 'int32' and 'int64' if type is 'integer'; 'float' and 'double' if type is 'number'; 'byte', 'binary', 'date', 'date-time' and 'password' if type is 'string';
+        If "additionalProperties" is true, validation always succeeds.
 
+        If "additionalProperties" is false, validation succeeds only if the
+        instance is an object and all properties on the instance were covered
+        by "properties" and/or "patternProperties".
+
+        If "additionalProperties" is an object, validate the value as a
+        schema to all of the properties that weren't validated by
+        "properties" nor "patternProperties".
         """
-        self.name = name
-        self.dependencies = self.get_dependencies(schema_dict)
-        self.has_enums = self.enums_exist(schema_dict)
-        self.title = schema_dict.get('title')
-        self.description = schema_dict.get('description')
-        self.default = schema_dict.get('default')
-        self.type = schema_dict.get('type')
-        self.format = schema_dict.get('format')
-
-        # if type is object
-        # additionalProperties can be schema_object or ref
-        self.additionalProperties = self.get_additional_properties(schema_dict.get('additionalProperties'))
-        self.maxProperties = schema_dict.get('maxProperties')
-        self.minProperties = schema_dict.get('minProperties')
-        self.properties = self.get_properties(schema_dict)
-
-        # if type is not specified because schema object is reference to another object
-        # creates an empty class
-        self.ref = schema_dict.get('$ref')
-
-        # if type is array
-        self.maxItems = schema_dict.get('maxItems')
-        self.minItems = schema_dict.get('minItems')
-        self.uniqueItems = schema_dict.get('uniqueItems')
-        # TODO: this is a schema object but does the user need any information from items?
-        # a class will only be created for array if the outer schema is an array and it will be an
-        # empty class
-        # self.items =
-
-        # if type is string
-        self.pattern = schema_dict.get('pattern')
-        self.maxLength = schema_dict.get('maxLength')
-        self.minLength = schema_dict.get('minLength')
-
-        # if type is integer or number
-        self.maximum = schema_dict.get('maximum')
-        self.exclusiveMaximum = schema_dict.get('exclusiveMaximum')
-        self.minimum = schema_dict.get('minimum')
-        self.exclusiveMinimum = schema_dict.get('exclusiveMinimum')
-        self.multipleOf = schema_dict.get('multipleOf')
-
-    # def snake_to_camel_case(self,name):
-    #     return name.title().replace("_","")
-
-    def enums_exist(self, schema_dict):
-        """
-        Determines if enums exist for schema object
-
-        Args:
-            schema_dict (Dict): attribute dictionary of schema object
-
-        Returns:
-            True if enums exist for schema object, False otherwise; if properties is not defined, return None
-        """
-        if schema_dict.get('properties') is not None:
-            for attribute_name, attribute_dict in schema_dict['properties'].items():
-                if attribute_dict.get('enum') is not None:
-                    return True
-            return False
-        return None  # this can just be False?
-
-    def get_additional_properties(self, schema_dict):
-        """
-        Gets additional properties of schema object
-
-        Args:
-            schema_dict (Dict): 'additionalProperties' attribute dictionary of schema object
-
-        Returns:
-            type of additional object if it exists, None otherwise
-        """
-        if schema_dict is None:
-            return None
-        else:
-            return self._get_type(schema_dict, '')
-
-    def get_dependencies(self, schema_dict):
-        """
-        Gets dependencies based on 'additionalProperties', references, and 'properties' defined for schema object
-
-        Args:
-            schema_dict (Dict): attribute dictionary of schema object
-
-        Returns:
-            list of dependencies of schema object
-        """
-        def get_dep_by_attr(attribute_dict):
-            """
-            Gets dependencies by each property in schema object by looking at all '$ref' values defined recursively
-
-            Args:
-                attribute_dict (Dict): property attributes dictionary
-
-            Returns:
-                list of dependencies for that property
-            """
-            deps_by_attr = []
-
-            ref = attribute_dict.get('$ref')
-            if ref is not None:
-                deps_by_attr.append(ref.split('/')[3])
-
-            elif attribute_dict.get('type') == 'array':
-                deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dict['items'])
-
-            return deps_by_attr
-
-        dependencies = []
-
-        ref = schema_dict.get('$ref')
-        # TODO? flake8 error: assigned to but never used
-        # additionalProperties = schema_dict.get('additionalProperties')
-        properties = schema_dict.get('properties')
-
-        if ref is not None:
-            dependencies.append(ref.split('/')[3])
-            return dependencies
-
-        if properties is not None:
-            for attribute_name, attribute_dict in schema_dict['properties'].items():
-                attr_deps = get_dep_by_attr(attribute_dict)
-                dependencies = dependencies + attr_deps
-
-        # TODO: additionalProperties is a schema_obj
-        # add refs to dependencies
-        # if additionalProperties is not None:
-        #      for type in schema_dict['additionalProperties'].items():
-        #         attr_deps = get_dep_by_attr(attribute_dict)
-        #         dependencies = dependencies + attr_deps
-
-        return dependencies
-
-    def get_properties(self, schema_dict):
-        """
-        Gets the properties of the object and creates a Property object for each property of the schema object
-
-        Args:
-            schema_dict (Dict): properties attributes dictionary of schema object
-
-        Returns:
-            list of Property objects
-        """
-        if schema_dict.get('properties') is None:
-            return []
-
-        properties = []
-        for property_name, property_dict in schema_dict['properties'].items():
-            properties.append(Property(self.name, property_name, property_dict, schema_dict.get('required')))
-
-        return properties
 
 
-class Property(OpenAPI):
-    """
-    A class for a property object defined for the template context
-    Attributes follow the OpenAPI v3.0 specification
-    """
+# class Schema(OpenAPI):
+#     """
+#     A class for a schema object defined for the template context
+#     Attributes follow the OpenAPI v3.0 specification
+#     """
 
-    def __init__(self, schema_name, property_name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
-        """
-        Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
+#     def __init__(self, name, schema_dict):
+#         """
+#         Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
 
-        Args:
-            schema_name (str): name for the defined schema the new property object belongs to
-            property_name (str): name attribute for property object
-            schema_dict (dict): value attributes of property defined from specification file
-            required_list (List[str]): list of all required properties of schema object this property belongs to
+#         Args:
+#             name (str): name of schema object
+#             schema_dict(Dict): attribute dictionary of schema object
 
-        Attributes:
-            name (str): name of property
-            type (str): type of property
-                Can be 'string', 'array', 'integer', or 'object'
-            is_required (bool): False for not required property of schema object, True for required
-            enums (List[str]): possible enums of property
-        """
-        self.name = property_name
-        self.type = self._get_type(schema_dict, schema_name + property_name)
-        self.is_required = self.attr_required(property_name, required_list)
-        self.enums = schema_dict.get('enum')
+#         Attributes:
+#             name (str): name of schema object
+#             dependencies (List[str]): dependencies needed by schema object
+#             has_enums (bool): True if schema object has at least one enum, False otherwise
+#             title (str): title of schema object
+#             description (str): description of schema object
+#             default (str): default value if none is provided
+#             type (str): type of schema object
+#                 Possible values are 'array', 'boolean', 'integer', 'number', 'object', and 'string'
+#             format (str): format of the schema object type
+#                 Possible values are: 'int32' and 'int64' if type is 'integer'; 'float' and 'double' if type is 'number'; 'byte', 'binary', 'date', 'date-time' and 'password' if type is 'string';
 
-    def attr_required(self, attribute_name, required_list):
-        """
-        Determines if the attribute is required in the schema object
+#         """
+#         self.name = name
+#         self.dependencies = self.get_dependencies(schema_dict)
+#         self.has_enums = self.enums_exist(schema_dict)
+#         self.title = schema_dict.get('title')
+#         self.description = schema_dict.get('description')
+#         self.default = schema_dict.get('default')
+#         self.type = schema_dict.get('type')
+#         self.format = schema_dict.get('format')
 
-        Args:
-            attribute_name (str): name of property to search for in 'required_list'
-            required_list (List[str]): list of required names of required properties of schema object
+#         # if type is object
+#         # additionalProperties can be schema_object or ref
+#         self.additionalProperties = self.get_additional_properties(schema_dict.get('additionalProperties'))
+#         self.maxProperties = schema_dict.get('maxProperties')
+#         self.minProperties = schema_dict.get('minProperties')
+#         self.properties = self.get_properties(schema_dict)
 
-        Returns:
-            True if attribute is required in schema object, False otherwise
-        """
-        if required_list is None:
-            return False
-        return attribute_name in required_list
+#         # if type is not specified because schema object is reference to another object
+#         # creates an empty class
+#         self.ref = schema_dict.get('$ref')
+
+#         # if type is array
+#         self.maxItems = schema_dict.get('maxItems')
+#         self.minItems = schema_dict.get('minItems')
+#         self.uniqueItems = schema_dict.get('uniqueItems')
+#         # TODO: this is a schema object but does the user need any information from items?
+#         # a class will only be created for array if the outer schema is an array and it will be an
+#         # empty class
+#         # self.items =
+
+#         # if type is string
+#         self.pattern = schema_dict.get('pattern')
+#         self.maxLength = schema_dict.get('maxLength')
+#         self.minLength = schema_dict.get('minLength')
+
+#         # if type is integer or number
+#         self.maximum = schema_dict.get('maximum')
+#         self.exclusiveMaximum = schema_dict.get('exclusiveMaximum')
+#         self.minimum = schema_dict.get('minimum')
+#         self.exclusiveMinimum = schema_dict.get('exclusiveMinimum')
+#         self.multipleOf = schema_dict.get('multipleOf')
+
+#     # def snake_to_camel_case(self,name):
+#     #     return name.title().replace("_","")
+
+#     def enums_exist(self, schema_dict):
+#         """
+#         Determines if enums exist for schema object
+
+#         Args:
+#             schema_dict (Dict): attribute dictionary of schema object
+
+#         Returns:
+#             True if enums exist for schema object, False otherwise; if properties is not defined, return None
+#         """
+#         if schema_dict.get('properties') is not None:
+#             for attribute_name, attribute_dict in schema_dict['properties'].items():
+#                 if attribute_dict.get('enum') is not None:
+#                     return True
+#             return False
+#         return None  # this can just be False?
+
+#     def get_additional_properties(self, schema_dict):
+#         """
+#         Gets additional properties of schema object
+
+#         Args:
+#             schema_dict (Dict): 'additionalProperties' attribute dictionary of schema object
+
+#         Returns:
+#             type of additional object if it exists, None otherwise
+#         """
+#         if schema_dict is None:
+#             return None
+#         else:
+#             return self._get_type(schema_dict, '')
+
+#     def get_dependencies(self, schema_dict):
+#         """
+#         Gets dependencies based on 'additionalProperties', references, and 'properties' defined for schema object
+
+#         Args:
+#             schema_dict (Dict): attribute dictionary of schema object
+
+#         Returns:
+#             list of dependencies of schema object
+#         """
+#         def get_dep_by_attr(attribute_dict):
+#             """
+#             Gets dependencies by each property in schema object by looking at all '$ref' values defined recursively
+
+#             Args:
+#                 attribute_dict (Dict): property attributes dictionary
+
+#             Returns:
+#                 list of dependencies for that property
+#             """
+#             deps_by_attr = []
+
+#             ref = attribute_dict.get('$ref')
+#             if ref is not None:
+#                 deps_by_attr.append(ref.split('/')[3])
+
+#             elif attribute_dict.get('type') == 'array':
+#                 deps_by_attr = deps_by_attr + get_dep_by_attr(attribute_dict['items'])
+
+#             return deps_by_attr
+
+#         dependencies = []
+
+#         ref = schema_dict.get('$ref')
+#         # TODO? flake8 error: assigned to but never used
+#         # additionalProperties = schema_dict.get('additionalProperties')
+#         properties = schema_dict.get('properties')
+
+#         if ref is not None:
+#             dependencies.append(ref.split('/')[3])
+#             return dependencies
+
+#         if properties is not None:
+#             for attribute_name, attribute_dict in schema_dict['properties'].items():
+#                 attr_deps = get_dep_by_attr(attribute_dict)
+#                 dependencies = dependencies + attr_deps
+
+#         # TODO: additionalProperties is a schema_obj
+#         # add refs to dependencies
+#         # if additionalProperties is not None:
+#         #      for type in schema_dict['additionalProperties'].items():
+#         #         attr_deps = get_dep_by_attr(attribute_dict)
+#         #         dependencies = dependencies + attr_deps
+
+#         return dependencies
+
+#     def get_properties(self, schema_dict):
+#         """
+#         Gets the properties of the object and creates a Property object for each property of the schema object
+
+#         Args:
+#             schema_dict (Dict): properties attributes dictionary of schema object
+
+#         Returns:
+#             list of Property objects
+#         """
+#         if schema_dict.get('properties') is None:
+#             return []
+
+#         properties = []
+#         for property_name, property_dict in schema_dict['properties'].items():
+#             properties.append(Property(self.name, property_name, property_dict, schema_dict.get('required')))
+
+#         return properties
+
+
+# class Property(OpenAPI):
+#     """
+#     A class for a property object defined for the template context
+#     Attributes follow the OpenAPI v3.0 specification
+#     """
+
+#     def __init__(self, schema_name, property_name, schema_dict, required_list):  # DOESN'T TAKE INTO CONSIDERATION REFERENCES
+#         """
+#         Assigns name and type attributes of property, whether property is required by its schema object and list of enums for the property
+
+#         Args:
+#             schema_name (str): name for the defined schema the new property object belongs to
+#             property_name (str): name attribute for property object
+#             schema_dict (dict): value attributes of property defined from specification file
+#             required_list (List[str]): list of all required properties of schema object this property belongs to
+
+#         Attributes:
+#             name (str): name of property
+#             type (str): type of property
+#                 Can be 'string', 'array', 'integer', or 'object'
+#             is_required (bool): False for not required property of schema object, True for required
+#             enums (List[str]): possible enums of property
+#         """
+#         self.name = property_name
+#         self.type = self._get_type(schema_dict, schema_name + property_name)
+#         self.is_required = self.attr_required(property_name, required_list)
+#         self.enums = schema_dict.get('enum')
+
+#     def attr_required(self, attribute_name, required_list):
+#         """
+#         Determines if the attribute is required in the schema object
+
+#         Args:
+#             attribute_name (str): name of property to search for in 'required_list'
+#             required_list (List[str]): list of required names of required properties of schema object
+
+#         Returns:
+#             True if attribute is required in schema object, False otherwise
+#         """
+#         if required_list is None:
+#             return False
+#         return attribute_name in required_list
