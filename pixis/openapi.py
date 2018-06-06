@@ -393,63 +393,63 @@ class Path(OpenAPI):
 class Content(OpenAPI):
     def __init__(self, _format, content_dict):
         self.format = _format
-        self.type = self.get_schema_type(content_dict)
+        self.type = self._get_schema_type(content_dict)
 
         # TODO
         self.example = content_dict.get('example')
         self.examples = content_dict.get('examples')
         self.encoding = content_dict.get('encoding')
-        self.extensions = self.get_extensions(content_dict)
+        self.extensions = self._get_extensions(content_dict)
 
 
 class RequestBody(OpenAPI):
     def __init__(self, dikt):
-        request_body_dict = self.get_reference(dikt)
+        request_body_dict = self._get_reference(dikt)
 
-        self.formats = self.get_content_formats(request_body_dict)  # List[str] ; sorted
-        self.types = self.get_content_types(request_body_dict)  # List[str] ; sorted
-        self.contents = self.get_contents(request_body_dict)  # List[Content] ; sorted by format
+        self.formats = self._get_content_formats(request_body_dict)  # List[str] ; sorted
+        self.types = self._get_content_types(request_body_dict)  # List[str] ; sorted
+        self.contents = self._get_contents(request_body_dict)  # List[Content] ; sorted by format
 
         # TODO
-        self.required = self.to_boolean(request_body_dict.get('required'))
+        self.required = self._to_boolean(request_body_dict.get('required'))
         self.description = request_body_dict.get('description')
-        self.extensions = self.get_extensions(request_body_dict)
+        self.extensions = self._get_extensions(request_body_dict)
 
 
 class Response(OpenAPI):
     def __init__(self, response_code, dikt):
-        response_dict = self.get_reference(dikt)
+        response_dict = self._get_reference(dikt)
 
         self.code = response_code  # string
-        self.formats = self.get_content_formats(response_dict)  # List[str] ; sorted
-        self.types = self.get_content_types(response_dict)  # List[str] ; sorted
-        self.contents = self.get_contents(response_dict)  # List[Content] ; sorted by format
+        self.formats = self._get_content_formats(response_dict)  # List[str] ; sorted
+        self.types = self._get_content_types(response_dict)  # List[str] ; sorted
+        self.contents = self._get_contents(response_dict)  # List[Content] ; sorted by format
 
         # TODO
         self.description = response_dict.get('description')  # REQUIRED
         self.headers = response_dict.get('headers')
-        self.extensions = self.get_extensions(response_dict)
+        self.extensions = self._get_extensions(response_dict)
 
 
 class Parameter(OpenAPI):
     def __init__(self, dikt):
-        parameter_dict = self.get_reference(dikt)
+        parameter_dict = self._get_reference(dikt)
 
         self.name = parameter_dict.get('name')  # REQUIRED str
         self._in = parameter_dict.get('in')  # REQUIRED str
-        self.required = self.to_boolean(parameter_dict.get('required'))  # bool
-        self.type = self.get_schema_type(parameter_dict)  # str TODO
+        self.required = self._to_boolean(parameter_dict.get('required'))  # bool
+        self.type = self._get_schema_type(parameter_dict)  # str TODO
 
         # TODO
         self.description = parameter_dict.get('description')
         self.style = parameter_dict.get('style')
         self.example = parameter_dict.get('example')
         self.examples = parameter_dict.get('examples')
-        self.deprecated = self.to_boolean(parameter_dict.get('deprecated'))
-        self.allowEmptyValue = self.to_boolean(parameter_dict.get('allowEmptyValue'))
-        self.explode = self.to_boolean(parameter_dict.get('explode'))
-        self.allowReserved = self.to_boolean(parameter_dict.get('allowReserved'))
-        self.extensions = self.get_extensions(parameter_dict)
+        self.deprecated = self._to_boolean(parameter_dict.get('deprecated'))
+        self.allowEmptyValue = self._to_boolean(parameter_dict.get('allowEmptyValue'))
+        self.explode = self._to_boolean(parameter_dict.get('explode'))
+        self.allowReserved = self._to_boolean(parameter_dict.get('allowReserved'))
+        self.extensions = self._get_extensions(parameter_dict)
 
 
 class Schema(OpenAPI):
