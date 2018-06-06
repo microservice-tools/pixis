@@ -15,7 +15,7 @@ class OpenAPI():
     """An abstract base class containing common functions for derived classes (such as Path, Response, RequestBody, etc)
     """
 
-    def get_reference(self, dikt):
+    def _get_reference(self, dikt):
         """Resolves the reference, if there was one
 
         Retrieves the reference from the spec, or just returns @dikt
@@ -35,7 +35,7 @@ class OpenAPI():
         ref = cfg.Config.SPEC_DICT[ref_path[1]][ref_path[2]][ref_path[3]]
         return ref
 
-    def get_extensions(self, dikt):
+    def _get_extensions(self, dikt):
         """Retrieves all extensions from @dikt
 
         Args:
@@ -53,7 +53,7 @@ class OpenAPI():
 
         return extensions
 
-    def get_contents(self, dikt):
+    def _get_contents(self, dikt):
         """Retrieves all Content objects (format and type) from @dikt
 
         Args:
@@ -72,7 +72,7 @@ class OpenAPI():
 
         return sorted(contents, key=lambda k: k.format)
 
-    def get_content_formats(self, dikt):
+    def _get_content_formats(self, dikt):
         """Retrieves the formats allowed from @dikt
 
         Args:
@@ -81,7 +81,7 @@ class OpenAPI():
         Returns:
             A sorted list of strings that describe accepted formats
         """
-        contents = self.get_contents(dikt)
+        contents = self._get_contents(dikt)
         if contents is None:
             return []
 
@@ -91,7 +91,7 @@ class OpenAPI():
 
         return sorted(formats)
 
-    def get_content_types(self, dikt):
+    def _get_content_types(self, dikt):
         """Retrieves the format types from @dikt
 
         Args:
@@ -100,7 +100,7 @@ class OpenAPI():
         Returns:
             A sorted list of strings that describe accepted format types
         """
-        contents = self.get_contents(dikt)
+        contents = self._get_contents(dikt)
         if contents is None:
             return []
 
@@ -110,7 +110,7 @@ class OpenAPI():
 
         return sorted(types)
 
-    def get_schema_type(self, dikt):
+    def _get_schema_type(self, dikt):
         """Retrieves the formats allowed from @dikt
 
         Args:
@@ -123,9 +123,9 @@ class OpenAPI():
         if schema_dict is None:
             return None
 
-        return self.get_type(schema_dict, "")
+        return self._get_type(schema_dict, "")
 
-    def get_type(self, schema_dict, model_attr_name, depth=0):
+    def _get_type(self, schema_dict, model_attr_name, depth=0):
         ref = schema_dict.get('$ref')
         if ref is not None:
             s = ref.split('/')[3]
@@ -133,7 +133,7 @@ class OpenAPI():
                 s += cfg.Config.LANGUAGE.to_lang_type('>')
             return s
         if schema_dict.get('type') == 'array':
-            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self.get_type(schema_dict['items'], model_attr_name, depth + 1)
+            return cfg.Config.LANGUAGE.to_lang_type('array') + cfg.Config.LANGUAGE.to_lang_type('<') + self._get_type(schema_dict['items'], model_attr_name, depth + 1)
 
         if schema_dict.get('type') == 'object':
             s = model_attr_name
@@ -149,7 +149,7 @@ class OpenAPI():
 
         return s
 
-    def to_boolean(self, s):
+    def _to_boolean(self, s):
         """Helper function to resolve strings and None to boolean values
 
         Args:
@@ -178,29 +178,29 @@ class Path(OpenAPI):
     def __init__(self, parent_dict, operation_dict):
         """Inits Path to reflect the spec's info
         """
-        path_dict = self.merge_dicts(parent_dict, operation_dict)
+        path_dict = self._merge_dicts(parent_dict, operation_dict)
         self.url = path_dict['url']
-        self.tag = self.get_tag(path_dict)
+        self.tag = self._get_tag(path_dict)
         self.method = path_dict['method']
         self.function_name = path_dict.get('operationId')
-        self.parameters = self.get_parameters(path_dict)  # List[Parameter] ; sorted (required params first, then sorted by name)
-        self.parameters_in = self.get_parameters_in()  # List[str] ; sorted and doesn't contain duplicates
-        self.request_body = self.get_request_body(path_dict)
-        self.responses = self.get_responses(path_dict)  # OrderedDict[str, Response] ; sorted by code
-        self.response_formats = self.get_response_formats()  # List[str] ; sorted and doesn't contain duplicates
-        self.dependencies = self.get_dependencies(path_dict)  # List[str] ; sorted and doesn't contain duplicates
-
-        # TODO
+        self.parameters = self._get_parameters(path_dict)  # List[Parameter] ; sorted (required params first, then sorted by name)
+        self.parameters_in = self._get_parameters_in()  # List[str] ; sorted and doesn't contain duplicates
+        self.request_body = self._get_request_body(path_dict)
+        self.responses = self._get_responses(path_dict)  # OrderedDict[str, Response] ; sorted by code
+        self.response_formats = self._get_response_formats()  # List[str] ; sorted and doesn't contain duplicates
+        self.dependencies = self._get_dependencies(path_dict)  # List[str] ; sorted and doesn't contain duplicates
         self.summary = path_dict.get('summary')
         self.description = path_dict.get('description')
+        self.deprecated = self._to_boolean(path_dict.get('deprecated'))
+        self.extensions = self._get_extensions(path_dict)
+
+        # TODO
         self.externalDocs = path_dict.get('externalDocs')
         self.callbacks = path_dict.get('callbacks')
         self.security = path_dict.get('security')
         self.servers = path_dict.get('servers')
-        self.deprecated = self.to_boolean(path_dict.get('deprecated'))
-        self.extensions = self.get_extensions(path_dict)
 
-    def get_dependencies(self, path_dict):
+    def _get_dependencies(self, path_dict):
         """Retrieves the schema classes that the path depends on
 
         Searches through 'requestBody' and 'responses' inside @path_dict
@@ -232,14 +232,14 @@ class Path(OpenAPI):
         responses_dict = path_dict.get('responses')
         if responses_dict is not None:
             for code, dikt in responses_dict.items():
-                response = self.get_reference(dikt)
+                response = self._get_reference(dikt)
                 if 'content' in response:
                     for _format, content in response['content'].items():
                         dependencies.add(get_dependency(content))
 
         request_body_dict = path_dict.get('requestBody')
         if request_body_dict is not None:
-            request_body = self.get_reference(request_body_dict)
+            request_body = self._get_reference(request_body_dict)
             for _format, content in request_body['content'].items():
                 dependencies.add(get_dependency(content))
 
@@ -248,7 +248,7 @@ class Path(OpenAPI):
 
         return sorted(list(dependencies))
 
-    def get_tag(self, path_dict):
+    def _get_tag(self, path_dict):
         """Retrieves the first tag from @path_dict
 
         Args:
@@ -262,7 +262,7 @@ class Path(OpenAPI):
             return None
         return tags[0]
 
-    def get_response_formats(self):
+    def _get_response_formats(self):
         """Retrieves the response formats from self.responses
 
         Returns:
@@ -277,7 +277,7 @@ class Path(OpenAPI):
 
         return sorted(list(response_formats))
 
-    def get_request_body(self, path_dict):
+    def _get_request_body(self, path_dict):
         """Retrieves the request body from @path_dict
 
         Args:
@@ -292,7 +292,7 @@ class Path(OpenAPI):
 
         return RequestBody(request_body_dict)
 
-    def get_parameters_in(self):
+    def _get_parameters_in(self):
         """Retrieves all possible parameter input locations for a path
 
         Returns:
@@ -307,7 +307,7 @@ class Path(OpenAPI):
 
         return sorted(list(parameters_in))
 
-    def get_parameters(self, path_dict):
+    def _get_parameters(self, path_dict):
         """Retrieves all parameters for a path
 
         Args:
@@ -326,7 +326,7 @@ class Path(OpenAPI):
 
         return sorted(sorted(parameters, key=lambda k: k.name), key=lambda k: k.required)
 
-    def get_responses(self, path_dict):
+    def _get_responses(self, path_dict):
         """Retrieves all responses for a path
 
         Args:
@@ -343,7 +343,7 @@ class Path(OpenAPI):
 
         return OrderedDict(sorted(responses.items()))
 
-    def merge_dicts(self, fallback_dict, priority_dict):
+    def _merge_dicts(self, fallback_dict, priority_dict):
         """Merges the main parent path dict from the spec into the child path dict
 
         Prioritizes values from the child path dict @priority_dict
@@ -378,11 +378,11 @@ class Path(OpenAPI):
         if priority_parameters is not None and fallback_parameters is not None:
             unique_parameters = set()
             for item in priority_parameters:
-                priority_parameter_dict = self.get_reference(item)
+                priority_parameter_dict = self._get_reference(item)
                 unique_parameters.add((priority_parameter_dict['name'], priority_parameter_dict['in']))
 
             for item in fallback_parameters:
-                fallback_parameter_dict = self.get_reference(item)
+                fallback_parameter_dict = self._get_reference(item)
                 key = (fallback_parameter_dict['name'], fallback_parameter_dict['in'])
                 if key not in unique_parameters:
                     dikt['parameters'].append(fallback_parameter_dict)
@@ -553,7 +553,7 @@ class Schema(OpenAPI):
         if schema_dict is None:
             return None
         else:
-            return self.get_type(schema_dict, '')
+            return self._get_type(schema_dict, '')
 
     def get_dependencies(self, schema_dict):
         """
@@ -655,7 +655,7 @@ class Property(OpenAPI):
             enums (List[str]): possible enums of property
         """
         self.name = property_name
-        self.type = self.get_type(schema_dict, schema_name + property_name)
+        self.type = self._get_type(schema_dict, schema_name + property_name)
         self.is_required = self.attr_required(property_name, required_list)
         self.enums = schema_dict.get('enum')
 
