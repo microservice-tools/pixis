@@ -11,7 +11,6 @@ class Flask(cfg.Implementation):
         for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
             for path in paths:
                 path.url = path.url.replace('}', '>').replace('{', '<')
-        pass
 
     @staticmethod
     def generate_once():
