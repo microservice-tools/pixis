@@ -1,7 +1,5 @@
 import pixis.utils as utils
-from pixis.config import Config
-from pixis.implementations.implementation import Implementation
-from pixis.languages.language import Language
+from pixis.config import Config, Implementation, Language
 from pixis.template_handler import TEMPLATE_CONTEXT, emit_template
 
 SPEC = 'swagger.yaml'

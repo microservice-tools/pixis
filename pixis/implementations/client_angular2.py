@@ -1,10 +1,9 @@
 import pixis.config as cfg
 import pixis.template_handler as tmpl
-from pixis.implementations.implementation import Implementation
 from pixis.languages.javascript import Javascript
 
 
-class Angular2(Implementation):
+class Angular2(cfg.Implementation):
     LANGUAGE = Javascript
 
     @staticmethod

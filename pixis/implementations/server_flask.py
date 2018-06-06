@@ -1,10 +1,9 @@
 import pixis.config as cfg
 import pixis.template_handler as tmpl
-from pixis.implementations.implementation import Implementation
 from pixis.languages.python import Python
 
 
-class Flask(Implementation):
+class Flask(cfg.Implementation):
     LANGUAGE = Python
 
     @staticmethod
@@ -33,7 +32,7 @@ class Flask(Implementation):
 
     @staticmethod
     def generate_per_schema():
-        tmpl.emit_template('server_flask/model.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/models', Implementation.lower_first(tmpl.TEMPLATE_CONTEXT['_current_schema']) + '.py')
+        tmpl.emit_template('server_flask/model.j2', cfg.Config.OUTPUT + '/' + cfg.Config.FLASK_SERVER_NAME + '/models', cfg.Implementation.lower_first(tmpl.TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
     @staticmethod
     def stage_default_iterators():
