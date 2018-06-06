@@ -92,7 +92,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         return
 
     if old_file_checksum is None:
-        maybe_generate()
+        maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum)
         return
 
     if new_file_checksum == old_file_checksum:
@@ -104,7 +104,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         print("Generated [" + str(file_path) + "]. File is unmodified, but something has changed (templates/Pixis/etc)")
         return
 
-    maybe_generate()
+    maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum)
 
 
 def is_protected(file_path):
@@ -123,7 +123,7 @@ def is_protected(file_path):
     return False
 
 
-def maybe_generate(file_path, new_file_text, new_file_checksum):
+def maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum):
     for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(), fromfile=file_path.name + '(current)', tofile=file_path.name + '(new)'):
         print(line)
     overwrite = input('Overwrite file [' + str(file_path) + ']? (y/n) ') + ' '
