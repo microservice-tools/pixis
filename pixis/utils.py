@@ -1,9 +1,8 @@
-import collections
 import importlib.util
 import inspect
 import json
+import pathlib
 import sys
-from pathlib import Path
 
 import yaml
 from openapi_spec_validator import openapi_v3_spec_validator
@@ -39,14 +38,14 @@ def load_spec_file():
     Reads in 'yaml' or 'json' file, validates for syntax errors and validates the definition of the specification file.
     """
     print(cfg.Config.SPEC)
-    with Path(cfg.Config.SPEC).open() as f:
+    with pathlib.Path(cfg.Config.SPEC).open() as f:
         try:
             cfg.Config.SPEC_DICT = yaml.safe_load(f)
         except yaml.YAMLError as yaml_error:
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
             except json.JSONDecodeError as json_error:
-                extension = Path(cfg.Config.SPEC).suffix
+                extension = pathlib.Path(cfg.Config.SPEC).suffix
                 if extension == 'json':
                     print(json_error)
                     sys.exit()
@@ -97,7 +96,7 @@ def load_build_file(build_file):  # build_file should be a relative filepath
         TypeError: Occurs if IMPLEMENTATION was an unsupported string, or if Implementation class could not be found
     """
 
-    filepath = Path(build_file)
+    filepath = pathlib.Path(build_file)
     spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
     if not spec:
