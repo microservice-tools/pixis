@@ -1,12 +1,7 @@
-
-import pixis.utils as utils
-from pixis.config import Config
-from pixis.implementations.implementation import Implementation
-from pixis.languages.language import Language
-from pixis.template_handler import TEMPLATE_CONTEXT, emit_template
+from pixis.config import Config, Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator, emit_template, TEMPLATE_CONTEXT
 
 SPEC = 'swagger.yaml'
-OUT = 'my_server'
+OUTPUT = 'my_server'
 FLASK_SERVER_NAME = 'my_flask_server'
 
 
@@ -54,30 +49,30 @@ class Flask(Implementation):
 
     @staticmethod
     def generate_once():
-        emit_template('requirements.j2', Config.OUT, 'requirements.txt')
-        emit_template('Dockerfile.j2', Config.OUT, 'Dockerfile')
-        emit_template('util.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME, 'util.py')
-        emit_template('encoder.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME, 'encoder.py')
-        emit_template('base_model.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME + '/models', 'base_model.py')
-        emit_template('init.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME, '__init__.py')
-        emit_template('init.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME + '/models', '__init__.py')
-        emit_template('init.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME + '/controllers', '__init__.py')
-        emit_template('main.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME, '__main__.py')
-        emit_template('setup.j2', Config.OUT, 'setup.py')
+        emit_template('requirements.j2', Config.OUTPUT, 'requirements.txt')
+        emit_template('Dockerfile.j2', Config.OUTPUT, 'Dockerfile')
+        emit_template('util.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME, 'util.py')
+        emit_template('encoder.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME, 'encoder.py')
+        emit_template('base_model.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME + '/models', 'base_model.py')
+        emit_template('init.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME, '__init__.py')
+        emit_template('init.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME + '/models', '__init__.py')
+        emit_template('init.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME + '/controllers', '__init__.py')
+        emit_template('main.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME, '__main__.py')
+        emit_template('setup.j2', Config.OUTPUT, 'setup.py')
 
     @staticmethod
     def generate_per_tag():
-        emit_template('controller.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME + '/controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller.py')
+        emit_template('controller.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME + '/controllers', TEMPLATE_CONTEXT['_current_tag'] + '_controller.py')
 
     @staticmethod
     def generate_per_schema():
-        emit_template('model.j2', Config.OUT + '/' + Config.FLASK_SERVER_NAME + '/models', Implementation.lower_first(TEMPLATE_CONTEXT['_current_schema']) + '.py')
+        emit_template('model.j2', Config.OUTPUT + '/' + Config.FLASK_SERVER_NAME + '/models', Implementation.lower_first(TEMPLATE_CONTEXT['_current_schema']) + '.py')
 
     @staticmethod
     def stage_default_iterators():
-        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
-        utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])
+        stage_iterator(once_iterator, [Flask.generate_once])
+        stage_iterator(tag_iterator, [Flask.generate_per_tag])
+        stage_iterator(schema_iterator, [Flask.generate_per_schema])
 
 
 IMPLEMENTATION = Flask

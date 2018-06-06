@@ -1,7 +1,7 @@
-from pixis.languages.language import Language
+import pixis.config as cfg
 
 
-class Javascript(Language):
+class Javascript(cfg.Language):
     TYPE_MAP = {
         'integer': 'number',
         'int32': 'number',
@@ -31,4 +31,4 @@ class Javascript(Language):
 
     @staticmethod
     def to_lang_style(string):
-        return Language.to_camel_case(string)
+        return cfg.Language.to_camel_case(string)

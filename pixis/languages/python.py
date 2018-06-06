@@ -1,7 +1,7 @@
-from pixis.languages.language import Language
+import pixis.config as cfg
 
 
-class Python(Language):
+class Python(cfg.Language):
     TYPE_MAP = {
         'integer': 'int',
         'int32': 'int',
@@ -33,4 +33,4 @@ class Python(Language):
 
     @staticmethod
     def to_lang_style(string):
-        return Language.to_snake_case(string)
+        return cfg.Language.to_snake_case(string)

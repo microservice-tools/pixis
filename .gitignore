@@ -13,3 +13,6 @@ services
 .tox
 ChangeLog
 AUTHORS
+.pixis.json
+Dockerfile
+my_server
