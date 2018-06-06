@@ -1,5 +1,4 @@
-import pixis.utils as utils
-from pixis.config import Config, Implementation, Language
+from pixis.config import Config, Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator
 from pixis.template_handler import TEMPLATE_CONTEXT, emit_template
 
 SPEC = 'swagger.yaml'
@@ -72,9 +71,9 @@ class Flask(Implementation):
 
     @staticmethod
     def stage_default_iterators():
-        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
-        utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])
+        stage_iterator(once_iterator, [Flask.generate_once])
+        stage_iterator(tag_iterator, [Flask.generate_per_tag])
+        stage_iterator(schema_iterator, [Flask.generate_per_schema])
 
 
 IMPLEMENTATION = Flask

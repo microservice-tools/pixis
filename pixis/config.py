@@ -1,6 +1,4 @@
-"""
-Contains all of the variables that the user can modify
-"""
+import collections
 
 
 class Config():
@@ -38,6 +36,8 @@ class Config():
     IMPLEMENTATION = 'flask'
 
     SPEC_DICT = {}
+    _iterators_mapping = collections.OrderedDict()
+    _iterator_functions_mapping = collections.OrderedDict()
     _checksums = {}
 
 
@@ -107,3 +107,51 @@ class Implementation():
     @staticmethod
     def lower_first(s):
         return s[:1].lower() + s[1:] if s else ''
+
+
+def stage_iterator(x_iterator, x_iterator_functions):
+    """Stages iterators and their functions to be executed
+
+    Args:
+        x_iterator (function): iterator function to execute. Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
+        x_iterator_functions (List[function]): list of functions to be executed by specified iterator
+    """
+    iterator_name = x_iterator.__name__
+    Config._iterators_mapping[iterator_name] = x_iterator
+    Config._iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
+
+
+def once_iterator(once_iterator_functions):
+    """Executes each function in @once_iterator_functions once
+
+    Args:
+        once_iterator_functions (List[function]): functions that this iterator will execute
+    """
+    for f in once_iterator_functions:
+        f()
+
+
+def schema_iterator(schema_iterator_functions):
+    """Executes each function in @schema_iterator_functions once per schema
+
+    Args:
+        schema_iterator_functions (List[function]): functions that this iterator will execute
+    """
+    import pixis.template_handler as tmpl
+    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
+        for f in schema_iterator_functions:
+            f()
+
+
+def tag_iterator(tag_iterator_functions):
+    """Executes each function in @tag_iterator_functions once per tag
+
+    Args:
+        tag_iterator_functions (List[function]): functions that this iterator will execute
+    """
+    import pixis.template_handler as tmpl
+    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
+        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
+        for f in tag_iterator_functions:
+            f()

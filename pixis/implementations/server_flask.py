@@ -35,7 +35,6 @@ class Flask(cfg.Implementation):
 
     @staticmethod
     def stage_default_iterators():
-        import pixis.utils as utils
-        utils.stage_iterator(utils.once_iterator, [Flask.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Flask.generate_per_tag])
-        utils.stage_iterator(utils.schema_iterator, [Flask.generate_per_schema])
+        cfg.stage_iterator(cfg.once_iterator, [Flask.generate_once])
+        cfg.stage_iterator(cfg.tag_iterator, [Flask.generate_per_tag])
+        cfg.stage_iterator(cfg.schema_iterator, [Flask.generate_per_schema])

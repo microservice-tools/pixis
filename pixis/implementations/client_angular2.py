@@ -28,7 +28,6 @@ class Angular2(cfg.Implementation):
 
     @staticmethod
     def stage_default_iterators():
-        import pixis.utils as utils
-        utils.stage_iterator(utils.once_iterator, [Angular2.generate_once])
-        utils.stage_iterator(utils.tag_iterator, [Angular2.generate_per_tag])
-        utils.stage_iterator(utils.schema_iterator, [Angular2.generate_per_schema])
+        cfg.stage_iterator(cfg.once_iterator, [Angular2.generate_once])
+        cfg.stage_iterator(cfg.tag_iterator, [Angular2.generate_per_tag])
+        cfg.stage_iterator(cfg.schema_iterator, [Angular2.generate_per_schema])

@@ -10,7 +10,7 @@ from openapi_spec_validator import openapi_v3_spec_validator
 import pixis.config as cfg
 import pixis.implementations.client_angular2 as pixis_angular2
 import pixis.implementations.server_flask as pixis_flask
-import pixis.template_handler as tmpl
+# import pixis.template_handler as tmpl
 
 _supported = {
     'flask': pixis_flask.Flask,
@@ -56,34 +56,6 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
-def set_config(key, value):
-    """Sets Config class variable (@key) to @value
-
-    Args:
-        key (str): Config class variable to set
-        value (str): Value to set Config class variable to
-    """
-    setattr(cfg.Config, key.upper(), value)
-
-
-def set_parent():
-    """Sets Config.PARENT to the parent directory filepath of Config.OUTPUT
-
-    Can be used by *emit_template()* to generate files outside of the build directory
-    """
-    setattr(cfg.Config, 'PARENT', str(Path(cfg.Config.OUTPUT).parent))
-
-
-def set_language():
-    """Sets Language class for Pixis to use
-
-    Language class is defined within the Implementation class
-    """
-    if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION.lower()]
-    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
-
-
 def load_build_file(build_file):  # build_file should be a relative filepath
     """Executes and pulls info from the user's build file
 
@@ -117,27 +89,32 @@ def load_build_file(build_file):  # build_file should be a relative filepath
         raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
 
 
-iterators_mapping = collections.OrderedDict()
-iterator_functions_mapping = collections.OrderedDict()
-
-
-def stage_iterator(x_iterator, x_iterator_functions):
-    """Stages iterators and their functions to be executed
+def set_config(key, value):
+    """Sets Config class variable (@key) to @value
 
     Args:
-        x_iterator (function): iterator function to execute. Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
-        x_iterator_functions (List[function]): list of functions to be executed by specified iterator
+        key (str): Config class variable to set
+        value (str): Value to set Config class variable to
     """
-    iterator_name = x_iterator.__name__
-    iterators_mapping[iterator_name] = x_iterator
-    iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
+    setattr(cfg.Config, key.upper(), value)
 
 
-def run_iterators():
-    """Executes each iterator that was staged by *stage_iterator()*
+def set_parent():
+    """Sets Config.PARENT to the parent directory filepath of Config.OUTPUT
+
+    Can be used by *emit_template()* to generate files outside of the build directory
     """
-    for iterator_name, iterator in iterators_mapping.items():
-        iterator(iterator_functions_mapping[iterator_name])
+    setattr(cfg.Config, 'PARENT', str(pathlib.Path(cfg.Config.OUTPUT).parent))
+
+
+def set_language():
+    """Sets Language class for Pixis to use
+
+    Language class is defined within the Implementation class
+    """
+    if type(cfg.Config.IMPLEMENTATION) == str:
+        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION.lower()]
+    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
 
 
 def set_iterators():
@@ -150,35 +127,8 @@ def set_iterators():
         return
 
 
-def once_iterator(once_iterator_functions):
-    """Executes each function in @once_iterator_functions once
-
-    Args:
-        once_iterator_functions (List[function]): functions that this iterator will execute
+def run_iterators():
+    """Executes each iterator that was staged by *stage_iterator()*
     """
-    for f in once_iterator_functions:
-        f()
-
-
-def schema_iterator(schema_iterator_functions):
-    """Executes each function in @schema_iterator_functions once per schema
-
-    Args:
-        schema_iterator_functions (List[function]): functions that this iterator will execute
-    """
-    for schema_name, schema in tmpl.TEMPLATE_CONTEXT['schemas'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_schema'] = schema_name
-        for f in schema_iterator_functions:
-            f()
-
-
-def tag_iterator(tag_iterator_functions):
-    """Executes each function in @tag_iterator_functions once per tag
-
-    Args:
-        tag_iterator_functions (List[function]): functions that this iterator will execute
-    """
-    for tag, paths in tmpl.TEMPLATE_CONTEXT['paths'].items():
-        tmpl.TEMPLATE_CONTEXT['_current_tag'] = tag
-        for f in tag_iterator_functions:
-            f()
+    for iterator_name, iterator in cfg.Config._iterators_mapping.items():
+        iterator(cfg.Config._iterator_functions_mapping[iterator_name])
