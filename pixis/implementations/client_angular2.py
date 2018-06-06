@@ -8,23 +8,23 @@ class Angular2(cfg.Implementation):
 
     @staticmethod
     def generate_once():
-        tmpl.emit_template('client_angular2/index.j2', cfg.Config.OUTPUT, 'index.ts')
-        tmpl.emit_template('client_angular2/variables.j2', cfg.Config.OUTPUT, 'variables.ts')
-        tmpl.emit_template('client_angular2/configuration.j2', cfg.Config.OUTPUT, 'configuration.ts')
-        tmpl.emit_template('client_angular2/api_ts.j2', cfg.Config.OUTPUT + '/api', 'api.ts')
-        tmpl.emit_template('client_angular2/models.j2', cfg.Config.OUTPUT + '/model', 'models.ts')
-        tmpl.emit_template('client_angular2/encoder.j2', cfg.Config.OUTPUT, 'encoder.ts')
-        tmpl.emit_template('client_angular2/api_module.j2', cfg.Config.OUTPUT, 'api.module.ts')
-        tmpl.emit_template('client_angular2/rxjs.j2', cfg.Config.OUTPUT, 'rxjs-operators.ts')
-        tmpl.emit_template('client_angular2/Dockerfile.j2', cfg.Config.PARENT, 'Dockerfile')
+        cfg.emit_template('client_angular2/index.j2', cfg.Config.OUTPUT, 'index.ts')
+        cfg.emit_template('client_angular2/variables.j2', cfg.Config.OUTPUT, 'variables.ts')
+        cfg.emit_template('client_angular2/configuration.j2', cfg.Config.OUTPUT, 'configuration.ts')
+        cfg.emit_template('client_angular2/api_ts.j2', cfg.Config.OUTPUT + '/api', 'api.ts')
+        cfg.emit_template('client_angular2/models.j2', cfg.Config.OUTPUT + '/model', 'models.ts')
+        cfg.emit_template('client_angular2/encoder.j2', cfg.Config.OUTPUT, 'encoder.ts')
+        cfg.emit_template('client_angular2/api_module.j2', cfg.Config.OUTPUT, 'api.module.ts')
+        cfg.emit_template('client_angular2/rxjs.j2', cfg.Config.OUTPUT, 'rxjs-operators.ts')
+        cfg.emit_template('client_angular2/Dockerfile.j2', cfg.Config.PARENT, 'Dockerfile')
 
     @staticmethod
     def generate_per_tag():
-        tmpl.emit_template('client_angular2/service.j2', cfg.Config.OUTPUT + '/api', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
+        cfg.emit_template('client_angular2/service.j2', cfg.Config.OUTPUT + '/api', tmpl.TEMPLATE_CONTEXT['_current_tag'] + '.service.ts')
 
     @staticmethod
     def generate_per_schema():
-        tmpl.emit_template('client_angular2/model.j2', cfg.Config.OUTPUT + '/model', tmpl.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
+        cfg.emit_template('client_angular2/model.j2', cfg.Config.OUTPUT + '/model', tmpl.TEMPLATE_CONTEXT['_current_schema'] + '.ts')
 
     @staticmethod
     def stage_default_iterators():
