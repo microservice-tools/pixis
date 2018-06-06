@@ -13,6 +13,11 @@ import pixis.implementations.client_angular2 as pixis_angular2
 import pixis.implementations.server_flask as pixis_flask
 import pixis.template_handler as tmpl
 
+_supported = {
+    'flask': pixis_flask.Flask,
+    'angular2': pixis_angular2.Angular2,
+}
+
 
 def validate_specification(spec):
     """Validates the specification using **openapi_spec_validator** library
@@ -50,12 +55,6 @@ def load_spec_file():
                     sys.exit()
 
     validate_specification(cfg.Config.SPEC_DICT)
-
-
-_supported = {
-    'flask': pixis_flask.Flask,
-    'angular2': pixis_angular2.Angular2,
-}
 
 
 def set_config(key, value):
