@@ -123,7 +123,7 @@ def set_iterators():
     try:
         load_build_file(cfg.Config.BUILD)
     except FileNotFoundError:
-        return
+        pass
 
 
 def run_iterators():
@@ -139,7 +139,6 @@ def load_checksums():
         print('Found .pixis.json!')
     except FileNotFoundError:
         print('No .pixis.json found')
-        return
 
 
 def save_checksums():
