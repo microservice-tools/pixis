@@ -12,22 +12,21 @@ class Config():
     """Provides variables that pixis uses to configure code generation
 
     Attributes:
-        BUILD: A string that describes relative path to build file
-        SPEC: A string that describes relative path to specification file
-        TEMPLATES: A string that describes relative path to templates directory
-        OUTPUT: A string that describes relative path to output directory
+        BUILD: A string that describes relative path to build file. Default: 'build.py'
+        SPEC: A string that describes relative path to specification file Default: 'swagger.yaml'
+        TEMPLATES: A string that describes relative path to templates directory. Default: 'templates'
+        OUTPUT: A string that describes relative path to output directory. Default: 'build'
         PARENT: A string that describes relative path to output directory's parent directory (Determined from OUTPUT)
-        FLASK_SERVER_NAME: A string that describes the directory name for default Flask server implementation
-        VERBOSE: A boolean for Verbose mode (TODO)
-        OVERWRITE: A boolean for Force Overwrite
-        PROTECTED: A list of strings that describe file names or regular expressions for files that Pixis should never overwrite (even if OVERWRITE is True)
-        LANGUAGE: A subclass of Language (Defined from IMPLEMENTATION)
-        IMPLEMENTATION: A string that describes a supported implementation {'flask', 'angular2'} OR a subclass of Implementation
-        SPEC_DICT: raw specification dictionary
-        _checksums: Internal Pixis map for current file checksums
+        FLASK_SERVER_NAME: A string that describes the directory name for default Flask server implementation. Default: 'flask_server'
+        VERBOSE: A boolean for Verbose mode (TODO). Default: False
+        OVERWRITE: A boolean for force Overwrite. Default: False
+        PROTECTED: A list of strings. File names or regular expressions for files that Pixis should never overwrite (even if OVERWRITE is True)
+        LANGUAGE: A class that inherits Language
+        IMPLEMENTATION: A string that describes a supported implementation {'flask', 'angular2'} OR a class that inherits Implementation
+        SPEC_DICT: A dictionary that holds the unmodified specification
+        _checksums: A dictionary for pixis to store file checksums
     """
-    # DEFAULTS
-    # These are relative paths
+
     BUILD = 'build.py'
     SPEC = 'swagger.yaml'
     TEMPLATES = 'templates'
