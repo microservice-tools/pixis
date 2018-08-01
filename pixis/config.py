@@ -1,6 +1,7 @@
 import difflib
 import hashlib
 import pathlib
+import re
 from collections import OrderedDict
 
 import jinja2
@@ -143,7 +144,6 @@ def schema_iterator(schema_iterator_functions):
     Args:
         schema_iterator_functions (List[function]): functions that this iterator will execute
     """
-    import pixis.template_handler as tmpl
     for schema_name, schema in TEMPLATE_CONTEXT['schemas'].items():
         TEMPLATE_CONTEXT['_current_schema'] = schema_name
         for f in schema_iterator_functions:
@@ -156,7 +156,6 @@ def tag_iterator(tag_iterator_functions):
     Args:
         tag_iterator_functions (List[function]): functions that this iterator will execute
     """
-    import pixis.template_handler as tmpl
     for tag, paths in TEMPLATE_CONTEXT['paths'].items():
         TEMPLATE_CONTEXT['_current_tag'] = tag
         for f in tag_iterator_functions:
@@ -164,7 +163,6 @@ def tag_iterator(tag_iterator_functions):
 
 
 def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
-    import pixis.template_handler as tmpl
     """Creates a file using template defined by @template_path into directory defined by @output_dir with filename defined by @output_name
 
     Args:
