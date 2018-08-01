@@ -1,5 +1,4 @@
-from pixis.config import Config
-from pixis.config import Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator, emit_template, TEMPLATE_CONTEXT
+from pixis.config import Config, Implementation, Language, stage_iterator, once_iterator, tag_iterator, schema_iterator, emit_template, TEMPLATE_CONTEXT
 
 SPEC = 'swagger.yaml'
 OUTPUT = 'my_server'
