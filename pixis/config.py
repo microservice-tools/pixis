@@ -52,6 +52,7 @@ class Language():
     """
     Language - base abstract class; provides default methods for specific language classes to override
     """
+
     @staticmethod
     def to_lang_type(string):
         return string
@@ -175,13 +176,16 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
     try:  # check for their custom templates
         template_name = pathlib.Path(template_path).name
         template_loader = jinja2.FileSystemLoader(Config.TEMPLATES)
-        env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
-        template = env.get_template(template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
+        env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True,
+                                 line_comment_prefix='//*')
+        template = env.get_template(
+            template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
         print("Generated file [" + str(file_path) + "] from user-defined template")
     except jinja2.exceptions.TemplateNotFound:
         try:  # check for template in Pixis
             template_loader = jinja2.PackageLoader('pixis', 'templates')
-            env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True, line_comment_prefix='//*')
+            env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True,
+                                     line_comment_prefix='//*')
             template = env.get_template(template_path)
         except jinja2.exceptions.TemplateNotFound as err:
             raise ValueError('Template does not exist\n')
@@ -206,7 +210,8 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         return False
 
     def maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum):
-        for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(), fromfile=file_path.name + '(current)', tofile=file_path.name + '(new)'):
+        for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(),
+                                         fromfile=file_path.name + '(current)', tofile=file_path.name + '(new)'):
             print(line)
         overwrite = input('Overwrite file [' + str(file_path) + ']? (y/n) ') + ' '
         if overwrite[0].lower() == 'y':
