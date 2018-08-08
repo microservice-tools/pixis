@@ -9,21 +9,30 @@ import jinja2
 TEMPLATE_CONTEXT = {}
 
 
-class Config():
+class Config(object):
     """Provides variables that pixis uses to configure code generation
 
     Attributes:
-        BUILD: A string that describes relative path to build file. Default: 'build.py'
-        SPEC: A string that describes relative path to specification file Default: 'swagger.yaml'
-        TEMPLATES: A string that describes relative path to templates directory. Default: 'templates'
-        OUTPUT: A string that describes relative path to output directory. Default: 'build'
+        BUILD: A string that describes relative path to build file.
+            Default: 'build.py'
+        SPEC: A string that describes relative path to specification file
+            Default: 'swagger.yaml'
+        TEMPLATES: A string that describes relative path to templates directory.
+            Default: 'templates'
+        OUTPUT: A string that describes relative path to output directory.
+            Default: 'build'
         PARENT: A string that describes relative path to output directory's parent directory (Determined from OUTPUT)
-        FLASK_SERVER_NAME: A string that describes the directory name for default Flask server implementation. Default: 'flask_server'
-        VERBOSE: A boolean for Verbose mode (TODO). Default: False
-        OVERWRITE: A boolean for force Overwrite. Default: False
-        PROTECTED: A list of strings. File names or regular expressions for files that Pixis should never overwrite (even if OVERWRITE is True)
+        FLASK_SERVER_NAME: A string that describes the directory name for default Flask server implementation.
+            Default: 'flask_server'
+        VERBOSE: A boolean for Verbose mode TODO
+            Default: False
+        OVERWRITE: A boolean for force Overwrite.
+            Default: False
+        PROTECTED: A list of strings describing file names or regular expressions for
+            files that Pixis should never overwrite (even if OVERWRITE is True)
         LANGUAGE: A class that inherits Language
-        IMPLEMENTATION: A string that describes a supported implementation {'flask', 'angular2'} OR a class that inherits Implementation
+        IMPLEMENTATION: A string that describes a supported implementation {'flask', 'angular2'}
+            OR a subclass of Implementation
         SPEC_DICT: A dictionary that holds the unmodified specification
         _checksums: A dictionary for pixis to store file checksums
     """
@@ -48,7 +57,7 @@ class Config():
     _checksums = {}
 
 
-class Language():
+class Language(object):
     """
     Language - base abstract class; provides default methods for specific language classes to override
     """
@@ -87,7 +96,7 @@ class Language():
         return s + string[-1].lower()
 
 
-class Implementation():
+class Implementation(object):
     @staticmethod
     def process():
         pass
@@ -118,15 +127,15 @@ class Implementation():
 
 
 def stage_iterator(x_iterator, x_iterator_functions):
-    """Stages iterators and their functions to be executed
+    """Updates the iterator dictionary with functions to execute for a specific iterator
 
     Args:
-        x_iterator (function): iterator function to execute. Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
+        x_iterator (function): iterator function to execute.
+            Defaults are: *once_iterator()*, *schema_iterator()*, *tag_iterator()*
         x_iterator_functions (List[function]): list of functions to be executed by specified iterator
     """
-    iterator_name = x_iterator.__name__
-    Config._iterators_mapping[iterator_name] = x_iterator
-    Config._iterator_functions_mapping[iterator_name] = [f for f in x_iterator_functions]
+    Config._iterators_mapping[x_iterator.__name__] = x_iterator
+    Config._iterator_functions_mapping[x_iterator.__name__] = [f for f in x_iterator_functions]
 
 
 def once_iterator(once_iterator_functions):
@@ -164,7 +173,7 @@ def tag_iterator(tag_iterator_functions):
 
 
 def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
-    """Creates a file using template defined by @template_path into directory defined by @output_dir with filename defined by @output_name
+    """Creates a file named @output_name in directory @output_dir using template at @template_path
 
     Args:
         template_path (str): where the template is and what the template file's name is
@@ -173,30 +182,35 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
     """
     file_path = pathlib.Path(output_dir) / pathlib.Path(output_name)
 
-    try:  # check for their custom templates
+    try:  # check for any custom templates
         template_name = pathlib.Path(template_path).name
         template_loader = jinja2.FileSystemLoader(Config.TEMPLATES)
-        env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True,
+        env = jinja2.Environment(loader=template_loader,
+                                 trim_blocks=True,
+                                 lstrip_blocks=True,
                                  line_comment_prefix='//*')
-        template = env.get_template(
-            template_name)  # template_path is something like: server_flask/model.j2, so we have to do a name comparison here
+        # template_path is like: server_flask/model.j2, so we have to do a name comparison here
+        template = env.get_template(template_name)
         print("Generated file [" + str(file_path) + "] from user-defined template")
     except jinja2.exceptions.TemplateNotFound:
         try:  # check for template in Pixis
             template_loader = jinja2.PackageLoader('pixis', 'templates')
-            env = jinja2.Environment(loader=template_loader, trim_blocks=True, lstrip_blocks=True,
+            env = jinja2.Environment(loader=template_loader,
+                                     trim_blocks=True,
+                                     lstrip_blocks=True,
                                      line_comment_prefix='//*')
             template = env.get_template(template_path)
-        except jinja2.exceptions.TemplateNotFound as err:
+        except jinja2.exceptions.TemplateNotFound:
             raise ValueError('Template does not exist\n')
 
-    pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)  # make directories if it does not already exist
+    # This will make directories if they don't already exist
+    pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
     new_file_text = template.render(TEMPLATE_CONTEXT)
     new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
 
-    def is_protected(file_path):
+    def is_protected(filepath):
         # PosixPath('build/server/hello.py') -> PosixPath('/server/hello.py')
-        p = pathlib.Path(str(pathlib.Path('/')) + str(file_path.relative_to(*file_path.parts[:1])))
+        p = pathlib.Path(str(pathlib.Path('/')) + str(filepath.relative_to(*filepath.parts[:1])))
         for s in Config.PROTECTED:
             if s in str(p):
                 return True
@@ -209,16 +223,18 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
 
         return False
 
-    def maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum):
-        for line in difflib.unified_diff(cur_file_text.splitlines(), new_file_text.splitlines(),
-                                         fromfile=file_path.name + '(current)', tofile=file_path.name + '(new)'):
+    def maybe_generate(filepath, cur_file_text, new_file_text, new_file_checksum):
+        for line in difflib.unified_diff(cur_file_text.splitlines(),
+                                         new_file_text.splitlines(),
+                                         fromfile=filepath.name + '(current)',
+                                         tofile=filepath.name + '(new)'):
             print(line)
-        overwrite = input('Overwrite file [' + str(file_path) + ']? (y/n) ') + ' '
+        overwrite = input('Overwrite file [' + str(filepath) + ']? (y/n) ') + ' '
         if overwrite[0].lower() == 'y':
-            generate_file(file_path, new_file_text, new_file_checksum)
-            print('Overwrote file [' + str(file_path) + ']')
+            generate_file(filepath, new_file_text, new_file_checksum)
+            print('Overwrote file [' + str(filepath) + ']')
         else:
-            print('Did not overwrite [' + str(file_path) + ']')
+            print('Did not overwrite [' + str(filepath) + ']')
 
     def generate_file(path, text, checksum):
         path.write_text(text)
@@ -233,10 +249,6 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         print("Generated [" + str(file_path) + "] (OVERWRITE flag set and not PROTECTED)")
         return
 
-    old_file_checksum = Config._checksums.get(str(file_path))
-    cur_file_checksum = None
-    cur_file_text = None
-
     try:
         cur_file_text = file_path.read_text()
         cur_file_checksum = hashlib.md5(cur_file_text.encode('utf-8')).hexdigest()
@@ -245,6 +257,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         print("Generated [" + str(file_path) + "] because file doesn't exist yet")
         return
 
+    old_file_checksum = Config._checksums.get(str(file_path))
     if old_file_checksum is None:
         maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum)
         return
