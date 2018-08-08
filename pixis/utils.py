@@ -5,7 +5,7 @@ import pathlib
 import sys
 
 import yaml
-from openapi_spec_validator import openapi_v3_spec_validator
+import openapi_spec_validator
 
 import pixis.config as cfg
 import pixis.implementations.client_angular2 as pixis_angular2
@@ -17,15 +17,15 @@ _supported = {
 }
 
 
-def validate_specification(spec):
-    """Validates the specification using **openapi_spec_validator** library
+def validate_specification(spec_dict):
+    """Validates the specification using **openapi_spec_validator** library. Execution stops if spec is invalid.
 
     Args:
-        spec (dict): OpenAPI 3.0 specification as a dictionary
+        spec_dict (dict): OpenAPI 3.0 specification as a dictionary
     """
-    errors_iterator = openapi_v3_spec_validator.iter_errors(spec)
+    errors_iterator = openapi_spec_validator.openapi_v3_spec_validator.iter_errors(spec_dict)
     errors = list(errors_iterator)
-    if (len(errors) > 0):
+    if len(errors) > 0:
         print(len(errors), 'errors')
         sys.exit()
 
