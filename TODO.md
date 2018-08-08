@@ -6,17 +6,20 @@
 ### TESTING
 - pytest
 - Command line tests:
-    - pixis
-    - pixis -b buildfiles/build1.py
-    - pixis --build buildfiles/build1.py
-    - pixis -o OUT
-    - pixis --output OUT
-    - pixis -t mytemplates
-    - pixis --templates mytemplates
+    - `pixis`
+        - Expected: generate all python files in build folder, etc
+    - `pixis -b buildfiles/build1.py` and `pixis --build buildfiles/build1.py`
+    - `pixis -b doesntexist.py`
+        - Expected: program exits and says specified build file doesn't exist
+    - `pixis -o out` and `pixis --output out`
+    - `pixis -t mytemplates` and `pixis --templates mytemplates`
+ 
 - Template Context tests
 - openapi.py functions unit test
 - config.py unit test
 - emit_template unit test
+
+
 
 
 ### VERBOSE
