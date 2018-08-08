@@ -39,15 +39,12 @@ def main():
     utils.set_config('VERBOSE', args.verbose)
     utils.set_config('OVERWRITE', args.overwrite)
 
-    try:
-        utils.load_build_file(args.build_file)
-    except FileNotFoundError:
-        print('no build file found: using Pixis defaults')
-
+    utils.load_build_file(args.build_file)
     utils.set_parent()
     utils.set_language()
     utils.load_spec_file()
     utils.load_checksums()
+
     utils.set_iterators()
     tmpl.create_template_context()
     utils.run_iterators()

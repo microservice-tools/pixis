@@ -33,8 +33,7 @@ def validate_specification(spec_dict):
 
 
 def load_spec_file():
-    """
-    Reads in 'yaml' or 'json' file, validates for syntax errors and validates the definition of the specification file.
+    """Saves specification yaml/json as a dict in Config, then validates using *validate_specification()*
     """
     print(cfg.Config.SPEC)
     with pathlib.Path(cfg.Config.SPEC).open() as f:
@@ -55,32 +54,41 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
-def load_build_file(build_file):  # build_file should be a relative filepath
-    """Executes and pulls info from the user's build file
+def load_build_file(build_file):  # build_file should be a relative filepath here
+    """Executes the specified build file, and saves any variables to Config
 
     Any variable X defined by the user's build file will be integrated into Config class (Config.X)
 
     Args:
-        build_file (str): filepath of build file used for generation customization
+        build_file (str): relative path of build file
 
     Raises:
         TypeError: Occurs if IMPLEMENTATION was an unsupported string, or if Implementation class could not be found
     """
 
     filepath = pathlib.Path(build_file)
-    spec = importlib.util.spec_from_file_location(build_file, filepath.name)
+    build_spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
-    if not spec:
-        print("The build file \"" + str(filepath) + "\" was expected to be a python file, ending with a .py extension")
-        sys.exit()
+    try:
+        # AttributeError: build_spec is none if @build_file doesn't end in .py
+        build_module = importlib.util.module_from_spec(build_spec)
 
-    build_script = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(build_script)
+        # FileNotFoundError: specified Python file doesn't exist
+        build_spec.loader.exec_module(build_module)
 
-    members = inspect.getmembers(build_script, lambda a: not(inspect.isroutine(a)))
-    attributes = [attribute for attribute in members if not(attribute[0].startswith('__') and attribute[0].endswith('__'))]
-    for attribute in attributes:
-        setattr(cfg.Config, attribute[0], attribute[1])
+        members = inspect.getmembers(build_module, lambda a: not (inspect.isroutine(a)))
+        attributes = [attr for attr in members if not (attr[0].startswith('__') and attr[0].endswith('__'))]
+        for attr in attributes:
+            setattr(cfg.Config, attr[0], attr[1])
+    except AttributeError as err:
+        err.args += ("CLARIFICATION: build file at '" + build_file + "' is not a Python file",)
+        raise
+    except FileNotFoundError:
+        print("build file at '" + build_file + "' was not found")
+        if build_file == 'build.py':
+            print("Using Pixis default settings")
+        else:
+            raise
 
     if cfg.Config.IMPLEMENTATION in _supported:
         cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION]
