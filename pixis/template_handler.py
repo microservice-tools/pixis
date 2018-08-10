@@ -8,11 +8,11 @@ EXT_REGEX = re.compile('x-.*')
 
 
 def create_template_context():
-    """Creates the template context
+    """Creates the template context dictionary that will be passed into all templates
 
     Delegates other functions to create context for template variables
     Default template context has the variables: 'schemas', 'paths', 'base_path', 'cfg'
-    Calls Config.IMPLEMENTATION.process() to allow the user to make final changes
+    Calls Config.IMPLEMENTATION.process() to allow the user to make any modifications to the final context
     """
     cfg.TEMPLATE_CONTEXT['schemas'] = get_schemas_by_name()
     cfg.TEMPLATE_CONTEXT['paths'] = get_paths_by_tag()
@@ -22,19 +22,20 @@ def create_template_context():
 
 
 def get_base_path():
-    """Gets the base path
+    """Retrieves server base path (First url under 'servers' in specification)
 
     Returns:
-        string of server base path for application
+        string describing server base path
     """
     return cfg.Config.SPEC_DICT['servers'][0]['url']
 
 
 def get_paths_by_tag():
-    """Organizes each path by tag
+    """Pulls all path info from specification and organizes it into a dict such that the keys are the tags, and
+    a value is a list of pixis.openapi.Path objects sorted first by url, then by function name
 
     Returns:
-        dictionary with the tag as key and list of pixis.openapi.Path objects sorted first by url, then by function name
+        dict with the tag as key and list of pixis.openapi.Path objects sorted first by url, then by function name
     """
     paths_by_tag = {}
     methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace']
