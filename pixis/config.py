@@ -37,15 +37,16 @@ class Config(object):
         _checksums: A dictionary for pixis to store file checksums
     """
 
-    BUILD = 'build.py'
-    SPEC = 'swagger.yaml'
-    TEMPLATES = 'templates'
-    OUTPUT = 'build'
-    PARENT = None
+    # Defaults for these command line options are set in main.py
+    BUILD = None
+    TEMPLATES = None
+    OUTPUT = None
+    VERBOSE = None
+    OVERWRITE = None
 
+    PARENT = None
+    SPEC = 'swagger.yaml'
     FLASK_SERVER_NAME = 'flask_server'
-    VERBOSE = False
-    OVERWRITE = False
     PROTECTED = []
 
     LANGUAGE = None
@@ -172,7 +173,7 @@ def tag_iterator(tag_iterator_functions):
             f()
 
 
-def emit_template(template_path: str, output_dir: str, output_name: str) -> None:
+def emit_template(template_path, output_dir, output_name):
     """Creates a file named @output_name in directory @output_dir using template at @template_path
 
     Args:
@@ -209,7 +210,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
     new_file_checksum = hashlib.md5(new_file_text.encode('utf-8')).hexdigest()
 
     def is_protected(filepath):
-        # PosixPath('build/server/hello.py') -> PosixPath('/server/hello.py')
+        # Following line does: PosixPath('build/server/hello.py') -> PosixPath('/server/hello.py')
         p = pathlib.Path(str(pathlib.Path('/')) + str(filepath.relative_to(*filepath.parts[:1])))
         for s in Config.PROTECTED:
             if s in str(p):
@@ -241,12 +242,12 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         Config._checksums[str(path)] = checksum
 
     if is_protected(file_path):
-        print("Did not generate [" + str(file_path) + "] (PROTECTED)")
+        print('Did not generate [' + str(file_path) + '] (PROTECTED)\n')
         return
 
     if Config.OVERWRITE:
         generate_file(file_path, new_file_text, new_file_checksum)
-        print("Generated [" + str(file_path) + "] (OVERWRITE flag set and not PROTECTED)")
+        print('Generated [' + str(file_path) + '] (OVERWRITE flag set and not PROTECTED)\n')
         return
 
     try:
@@ -254,7 +255,7 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         cur_file_checksum = hashlib.md5(cur_file_text.encode('utf-8')).hexdigest()
     except FileNotFoundError:  # Generation is safe, because not overwriting anything
         generate_file(file_path, new_file_text, new_file_checksum)
-        print("Generated [" + str(file_path) + "] because file doesn't exist yet")
+        print("Generated [" + str(file_path) + "] because file doesn't exist yet\n")
         return
 
     old_file_checksum = Config._checksums.get(str(file_path))
@@ -263,12 +264,12 @@ def emit_template(template_path: str, output_dir: str, output_name: str) -> None
         return
 
     if new_file_checksum == old_file_checksum:
-        print('Did not generate [' + str(file_path) + '] (would generate same file as last time)')
+        print('Did not generate [' + str(file_path) + '] (would generate same file as last time)\n')
         return
 
     if cur_file_checksum == old_file_checksum:
         generate_file(file_path, new_file_text, new_file_checksum)
-        print("Generated [" + str(file_path) + "]. File is unmodified, but something has changed (templates/Pixis/etc)")
+        print('Generated [' + str(file_path) + ']. File is unmodified, but something has changed (templates/Pixis/etc)\n')
         return
 
     maybe_generate(file_path, cur_file_text, new_file_text, new_file_checksum)

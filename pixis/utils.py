@@ -8,12 +8,12 @@ import yaml
 import openapi_spec_validator
 
 import pixis.config as cfg
-import pixis.implementations.client_angular2 as pixis_angular2
-import pixis.implementations.server_flask as pixis_flask
+import pixis.implementations.client_angular2 as pixis_client_angular2
+import pixis.implementations.server_flask as pixis_server_flask
 
-_supported = {
-    'flask': pixis_flask.Flask,
-    'angular2': pixis_angular2.Angular2,
+SUPPORTED = {
+    'flask': pixis_server_flask.Flask,
+    'angular2': pixis_client_angular2.Angular2,
 }
 
 
@@ -63,19 +63,16 @@ def load_build_file(build_file):  # build_file should be a relative filepath her
         build_file (str): relative path of build file
 
     Raises:
-        TypeError: Occurs if IMPLEMENTATION was an unsupported string, or if Implementation class could not be found
+        AttributeError: Occurs when build_spec is None due to build_file not ending in '.py'
+        FileNotFoundError: Occurs when specified build file doesn't exist
     """
 
     filepath = pathlib.Path(build_file)
     build_spec = importlib.util.spec_from_file_location(build_file, filepath.name)
 
     try:
-        # AttributeError: build_spec is none if @build_file doesn't end in .py
         build_module = importlib.util.module_from_spec(build_spec)
-
-        # FileNotFoundError: specified Python file doesn't exist
         build_spec.loader.exec_module(build_module)
-
         members = inspect.getmembers(build_module, lambda a: not (inspect.isroutine(a)))
         attributes = [attr for attr in members if not (attr[0].startswith('__') and attr[0].endswith('__'))]
         for attr in attributes:
@@ -142,6 +139,8 @@ def run_iterators():
 
 
 def load_checksums():
+    """If .pixis.json exists and is valid, copies the checksums into cfg.Config._checksums
+    """
     try:
         cfg.Config._checksums = json.loads(pathlib.Path('.pixis.json').read_text())
         print('Found .pixis.json!')
@@ -150,5 +149,7 @@ def load_checksums():
 
 
 def save_checksums():
+    """Saves the newly generated files' checksums into .pixis.json
+    """
     pathlib.Path('.pixis.json').write_text(json.dumps(cfg.Config._checksums, sort_keys=True, indent=4))
     print('Saved hashes for generated files in .pixis.json')
