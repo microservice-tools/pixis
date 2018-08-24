@@ -93,10 +93,7 @@ def load_build_file(build_file):
         else:
             raise
 
-    if cfg.Config.IMPLEMENTATION in _supported:
-        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION]
-    elif not inspect.isclass(cfg.Config.IMPLEMENTATION):
-        raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
+    set_implementation()
 
 
 def set_config(key, value):
@@ -106,32 +103,37 @@ def set_config(key, value):
         key (str): Config class variable to set
         value (str OR None): Value to set Config class variable to
     """
-    setattr(cfg.Config, key.upper(), value)
+    if key == 'PARENT':
+        setattr(cfg.Config, 'PARENT', str(pathlib.Path(cfg.Config.OUTPUT).parent))
+    else:
+        setattr(cfg.Config, key.upper(), value)
 
 
-def set_parent():
-    """Sets Config.PARENT to the parent directory filepath of Config.OUTPUT
+def set_implementation():
+    """Sets cfg.Config.IMPLEMENTATION and cfg.Config.LANGUAGE to be classes
 
-    Can be used by *emit_template()* to generate files outside of the build directory
+    Raises:
+        TypeError: Occurs when cfg.Config.IMPLEMENTATION is not a class or a string in SUPPORTED.
+            Also occurs when cfg.Config.LANGUAGE is not a class
+        AttributeError: Occurs when cfg.Config.IMPLEMENTATION does not contain required attribute LANGUAGE
     """
-    setattr(cfg.Config, 'PARENT', str(pathlib.Path(cfg.Config.OUTPUT).parent))
-
-
-def set_language():
-    """Sets Language class for Pixis to use
-
-    Language class is defined within the Implementation class
-    """
-    if type(cfg.Config.IMPLEMENTATION) == str:
-        cfg.Config.IMPLEMENTATION = _supported[cfg.Config.IMPLEMENTATION.lower()]
-    cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
+    if isinstance(cfg.Config.IMPLEMENTATION, str) and cfg.Config.IMPLEMENTATION.lower() in SUPPORTED:
+        cfg.Config.IMPLEMENTATION = SUPPORTED[cfg.Config.IMPLEMENTATION.lower()]
+    elif not inspect.isclass(cfg.Config.IMPLEMENTATION):
+        raise TypeError('Expected IMPLEMENTATION to be a class or string of supported implementation, such as "flask"')
+    try:
+        cfg.Config.LANGUAGE = cfg.Config.IMPLEMENTATION.LANGUAGE
+        if not inspect.isclass(cfg.Config.LANGUAGE):
+            raise TypeError('Expected IMPLEMENTATION.LANGUAGE to be a class')
+    except AttributeError:
+        raise
 
 
 def set_iterators():
     """Stages implementation default iterators as well as any user-defined iterators
     """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
-        load_build_file(cfg.Config.BUILD)
+    load_build_file(cfg.Config.BUILD)
 
 
 def run_iterators():

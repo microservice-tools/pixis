@@ -39,13 +39,12 @@ def main():
     utils.set_config('VERBOSE', args.verbose)
     utils.set_config('OVERWRITE', args.overwrite)
 
-    utils.load_build_file(args.build_file)
-    utils.set_parent()
-    utils.set_language()
+    utils.load_build_file(args.build_file) # Pull in config options
+    utils.set_config('PARENT', None)
     utils.load_spec_file()
     utils.load_checksums()
 
-    utils.set_iterators()
+    utils.set_iterators() # Before create_template_context() because user's build file can mess up template context
     tmpl.create_template_context()
     utils.run_iterators()
     utils.save_checksums()
