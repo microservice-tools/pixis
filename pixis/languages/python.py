@@ -28,8 +28,8 @@ class Python(cfg.Language):
     def to_lang_type(string):
         try:
             return Python.TYPE_MAP[string]
-        except KeyError as err:
-            raise KeyError(err)
+        except KeyError:
+            raise
 
     @staticmethod
     def to_lang_style(string):
