@@ -190,9 +190,7 @@ def emit_template(template_path, output_dir, output_name):
                                  trim_blocks=True,
                                  lstrip_blocks=True,
                                  line_comment_prefix='//*')
-        # template_path is like: server_flask/model.j2, so we have to do a name comparison here
-        template = env.get_template(template_name)
-        print("Generated file [" + str(file_path) + "] from user-defined template")
+        print('Using user\'s template for [' + str(file_path) + ']')
     except jinja2.exceptions.TemplateNotFound:
         try:  # check for template in Pixis
             template_loader = jinja2.PackageLoader('pixis', 'templates')
@@ -201,6 +199,7 @@ def emit_template(template_path, output_dir, output_name):
                                      lstrip_blocks=True,
                                      line_comment_prefix='//*')
             template = env.get_template(template_path)
+            print('Using Pixis template for [' + str(file_path) + ']')
         except jinja2.exceptions.TemplateNotFound:
             raise ValueError('Template does not exist\n')
 

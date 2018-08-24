@@ -29,7 +29,7 @@ def validate_specification(spec_dict):
         print(len(errors), 'errors')
         sys.exit()
 
-    print('specification is valid')
+    print('specification [', cfg.Config.SPEC, ']is valid')
 
 
 def load_spec_file():
@@ -54,8 +54,17 @@ def load_spec_file():
     validate_specification(cfg.Config.SPEC_DICT)
 
 
-def load_build_file(build_file):  # build_file should be a relative filepath here
-    """Executes the specified build file, and saves any variables to Config
+def load_build_file(build_file):
+    """Executes the specified build file, and saves any variables to Config.
+
+    If user-specified build file cannot be found, FileNotFoundError is raised
+    If user did not specify a build file, Pixis will look for *build.py* in current directory. If no file exists,
+    Pixis will use default settings. (Flask server implementation, output to build/flask_server, look for
+        Default settings:
+            - implementation: Flask server
+            - output: build/flask_server
+            - templates: templates/
+            - spec: swagger.yaml
 
     Any variable X defined by the user's build file will be integrated into Config class (Config.X)
 
@@ -94,11 +103,11 @@ def load_build_file(build_file):  # build_file should be a relative filepath her
 
 
 def set_config(key, value):
-    """Sets Config class variable (@key) to @value
+    """Sets Config class variable @key to @value
 
     Args:
         key (str): Config class variable to set
-        value (str): Value to set Config class variable to
+        value (str OR None): Value to set Config class variable to
     """
     setattr(cfg.Config, key.upper(), value)
 
