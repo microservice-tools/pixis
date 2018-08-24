@@ -184,24 +184,23 @@ def emit_template(template_path, output_dir, output_name):
     file_path = pathlib.Path(output_dir) / pathlib.Path(output_name)
 
     try:  # check for any custom templates
-        template_name = pathlib.Path(template_path).name
-        template_loader = jinja2.FileSystemLoader(Config.TEMPLATES)
-        env = jinja2.Environment(loader=template_loader,
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader(Config.TEMPLATES),
                                  trim_blocks=True,
                                  lstrip_blocks=True,
                                  line_comment_prefix='//*')
+        # template_path is like: templates/model.j2, but templates directory is already loaded into jinja2 env
+        template = env.get_template(pathlib.Path(template_path).name)
         print('Using user\'s template for [' + str(file_path) + ']')
     except jinja2.exceptions.TemplateNotFound:
         try:  # check for template in Pixis
-            template_loader = jinja2.PackageLoader('pixis', 'templates')
-            env = jinja2.Environment(loader=template_loader,
+            env = jinja2.Environment(loader=jinja2.PackageLoader('pixis', 'templates'),
                                      trim_blocks=True,
                                      lstrip_blocks=True,
                                      line_comment_prefix='//*')
             template = env.get_template(template_path)
             print('Using Pixis template for [' + str(file_path) + ']')
         except jinja2.exceptions.TemplateNotFound:
-            raise ValueError('Template does not exist\n')
+            raise
 
     # This will make directories if they don't already exist
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)

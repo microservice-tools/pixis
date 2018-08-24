@@ -35,21 +35,18 @@ def validate_specification(spec_dict):
 def load_spec_file():
     """Saves specification yaml/json as a dict in Config, then validates using *validate_specification()*
     """
-    print(cfg.Config.SPEC)
     with pathlib.Path(cfg.Config.SPEC).open() as f:
         try:
             cfg.Config.SPEC_DICT = yaml.safe_load(f)
         except yaml.YAMLError as yaml_error:
             try:
                 cfg.Config.SPEC_DICT = json.load(f)
-            except json.JSONDecodeError as json_error:
+            except json.JSONDecodeError:
                 extension = pathlib.Path(cfg.Config.SPEC).suffix
-                if extension == 'json':
-                    print(json_error)
-                    sys.exit()
+                if extension.lower() == 'json':
+                    raise
                 else:
-                    print(yaml_error)
-                    sys.exit()
+                    raise yaml_error
 
     validate_specification(cfg.Config.SPEC_DICT)
 
@@ -134,10 +131,7 @@ def set_iterators():
     """Stages implementation default iterators as well as any user-defined iterators
     """
     cfg.Config.IMPLEMENTATION.stage_default_iterators()
-    try:
         load_build_file(cfg.Config.BUILD)
-    except FileNotFoundError:
-        pass
 
 
 def run_iterators():
